@@ -1,5 +1,9 @@
 <div>
   <div class="viewportElement" #viewport>
     <canvas class="cornerstone-canvas"></canvas>
+    <div class="controlButtons">
+      <button (click)="handleChangeImage(false)">Previous</button>
+      <button (click)="handleChangeImage(true)">Next</button>
+    </div>
   </div>
 </div>

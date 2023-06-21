@@ -12,3 +12,16 @@
   height: 100%;
   border: 5px solid blue;
 }
+
+.controlButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+
+  button {
+    padding: 0.5rem 1rem;
+    border-radius: 3px;
+  }
+}
+
+
