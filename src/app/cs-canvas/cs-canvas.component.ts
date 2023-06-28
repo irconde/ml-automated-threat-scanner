@@ -1,10 +1,12 @@
 import {
   AfterViewInit,
   Component,
-  ElementRef,
+  ElementRef, OnInit,
   ViewChild
 } from '@angular/core';
 import {cornerstone, cornerstoneTools} from '../csSetup'
+import {CornerstoneDirective} from "../directives/cornerstone.directive";
+import {CornerstoneService} from "../services/cornerstone.service";
 
 const IMAGE_IDS = [
   "https://rawgit.com/cornerstonejs/cornerstoneWebImageLoader/master/examples/Renal_Cell_Carcinoma.jpg",
@@ -16,9 +18,13 @@ const IMAGE_IDS = [
   selector: 'app-cs-canvas',
   templateUrl: './cs-canvas.component.html',
   styleUrls: ['./cs-canvas.component.scss'],
-  standalone: true
+  standalone: true,
+  imports: [
+    CornerstoneDirective
+  ],
+  hostDirectives: [CornerstoneDirective]
 })
-export class CsCanvasComponent implements AfterViewInit {
+export class CsCanvasComponent implements AfterViewInit , OnInit {
 
   // @ts-ignore
   @ViewChild('viewport') viewport: ElementRef;
@@ -28,10 +34,21 @@ export class CsCanvasComponent implements AfterViewInit {
     currentImageIdIndex: 0,
   };
 
-  constructor() {}
+  imageData : cornerstone.Image | null = null;
+
+  constructor(private csService: CornerstoneService) {}
+
+  ngOnInit() {
+    const imageObs = this.csService.fetchImage(IMAGE_IDS[0])
+    console.log(imageObs.subscribe((image : cornerstone.Image) =>{
+      console.log(image)
+      this.imageData = image;
+    }))
+  }
 
   ngAfterViewInit() {
-    setTimeout(() => this.setUpCornerstone(), 0)
+    // setTimeout(() => this.setUpCornerstone(), 0)
+    // this.setUpCornerstone()
   }
 
   handleChangeImage(next = true) {
