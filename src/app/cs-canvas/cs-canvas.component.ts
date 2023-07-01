@@ -1,8 +1,6 @@
 import {
-  AfterViewInit,
   Component,
-  ElementRef, OnInit,
-  ViewChild
+  OnInit,
 } from '@angular/core';
 import {cornerstone, cornerstoneTools} from '../csSetup'
 import {CornerstoneDirective} from "../directives/cornerstone.directive";
@@ -22,12 +20,8 @@ const IMAGE_IDS = [
   imports: [
     CornerstoneDirective
   ],
-  hostDirectives: [CornerstoneDirective]
 })
-export class CsCanvasComponent implements AfterViewInit , OnInit {
-
-  // @ts-ignore
-  @ViewChild('viewport') viewport: ElementRef;
+export class CsCanvasComponent implements OnInit {
 
   stack = {
     imageIds: IMAGE_IDS,
@@ -39,79 +33,25 @@ export class CsCanvasComponent implements AfterViewInit , OnInit {
   constructor(private csService: CornerstoneService) {}
 
   ngOnInit() {
-    const imageObs = this.csService.fetchImage(IMAGE_IDS[0])
-    console.log(imageObs.subscribe((image : cornerstone.Image) =>{
-      console.log(image)
-      this.imageData = image;
-    }))
+    this.updateImage()
   }
 
-  ngAfterViewInit() {
-    // setTimeout(() => this.setUpCornerstone(), 0)
-    // this.setUpCornerstone()
+  updateImage(){
+    const currentImageId = this.stack.imageIds[this.stack.currentImageIdIndex]
+    const imageObs = this.csService.fetchImage(currentImageId)
+    imageObs.subscribe((image : cornerstone.Image) => {
+      this.imageData = image;
+    })
   }
 
   handleChangeImage(next = true) {
     if(next && this.stack.currentImageIdIndex + 1 < this.stack.imageIds.length) {
       this.stack.currentImageIdIndex++;
-      this.setUpCornerstone()
+      this.updateImage()
     } else if(!next && this.stack.currentImageIdIndex > 0) {
       this.stack.currentImageIdIndex--;
-      this.setUpCornerstone()
+      this.updateImage()
     }
-  }
-
-  renderCurrentImage() {
-    // Load the first image in the stack
-    cornerstone.loadImage(this.stack.imageIds[this.stack.currentImageIdIndex])
-      .then(image => {
-      // Display the first image
-      cornerstone.displayImage(this.viewport.nativeElement, image);
-    })
-      .catch((e)=>{
-      console.log(e)
-    })
-  }
-
-  setUpCornerstone() {
-    const element : HTMLElement = this.viewport.nativeElement;
-    // Enable the DOM Element for use with Cornerstone
-    cornerstone.enable(element);
-    // Add the stack tool state to the enabled element
-    cornerstoneTools.addStackStateManager(element, ["stack"]);
-    cornerstoneTools.addToolState(element, "stack", this.stack);
-
-    cornerstoneTools.mouseInput.enable(element);
-    cornerstoneTools.mouseWheelInput.enable(element);
-    cornerstoneTools.wwwc.activate(element, 1); // ww/wc is the default tool for left mouse button
-    cornerstoneTools.pan.activate(element, 2); // pan is the default tool for middle mouse button
-    cornerstoneTools.zoom.activate(element, 4); // zoom is the default tool for right mouse button
-    cornerstoneTools.zoomWheel.activate(element); // zoom is the default tool for middle mouse wheel
-
-    cornerstoneTools.touchInput.enable(element);
-    cornerstoneTools.panTouchDrag.activate(element);
-    cornerstoneTools.zoomTouchPinch.activate(element);
-
-    element.addEventListener(
-      "cornerstoneimagerendered",
-      this.onImageRendered
-    );
-    element.addEventListener("cornerstonenewimage", this.onNewImage);
-    window.addEventListener("resize", this.onWindowResize);
-    this.renderCurrentImage()
-
-  }
-
-  onWindowResize() {
-    console.log("onWindowResize");
-  }
-
-  onImageRendered() {
-    console.log("onImageRendered")
-  }
-
-  onNewImage() {
-    console.log("onNewImage")
   }
 
 }
