@@ -1,5 +1,5 @@
 import {AfterViewInit, Directive, ElementRef, HostListener, Input, OnInit} from '@angular/core';
-import {cornerstone} from "../csSetup";
+import {cornerstone, cornerstoneTools} from "../csSetup";
 
 @Directive({
   selector: '.viewportElement',
@@ -27,35 +27,14 @@ export class CornerstoneDirective  implements OnInit, AfterViewInit {
     this.element = elementRef.nativeElement;
   }
 
-  // @HostListener('window:resize', ['$event'])
-  // onResize(event: Event) {
-  //   cornerstone.resize(this.element, true);
-  // }
-  //
-  // @HostListener('mousewheel', ['$event'])
-  // onMouseWheel(event : {wheelDelta: number, detail: string, preventDefault: Function}) {
-  //
-  //   event.preventDefault();
-  //
-  //   const delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
-  //
-  //   if(delta > 0){
-  //     this.currentIndex ++;
-  //     if( this.currentIndex > this.imageList.length) {
-  //       this.currentIndex = this.imageList.length-1;
-  //     }
-  //   } else {
-  //     this.currentIndex --;
-  //     if(this.currentIndex < 0){
-  //       this.currentIndex = 0;
-  //     }
-  //   }
-  //
-  //   this.image = this.imageList
-  //     .filter( img => img.imageId === `wadouri:http://localhost:4200/assets/dicom/im${this.currentIndex}`)[0];
-  //
-  //
-  // }
+
+  @HostListener('mousewheel', ['$event'])
+  onMouseWheel(event : {wheelDelta: number, detail: string, preventDefault: Function}) {
+    console.log("mouseWheel")
+
+
+
+  }
 
   ngOnInit() {
 
@@ -64,6 +43,26 @@ export class CornerstoneDirective  implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     // Enable the element with Cornerstone
     cornerstone.enable(this.element);
+
+    // // following code won't work on mobile. It's causing the buttons to stop working
+
+    // cornerstoneTools.mouseInput.enable(this.element);
+    // cornerstoneTools.mouseWheelInput.enable(this.element);
+    // cornerstoneTools.wwwc.activate(this.element, 1); // ww/wc is the default tool for left mouse button
+    // cornerstoneTools.pan.activate(this.element, 2); // pan is the default tool for middle mouse button
+    // cornerstoneTools.zoom.activate(this.element, 4); // zoom is the default tool for right mouse button
+    // cornerstoneTools.zoomWheel.activate(this.element); // zoom is the default tool for middle mouse wheel
+    //
+    // cornerstoneTools.touchInput.enable(this.element);
+    // cornerstoneTools.panTouchDrag.activate(this.element);
+    // cornerstoneTools.zoomTouchPinch.activate(this.element);
+
+    // element.addEventListener(
+    //   "cornerstoneimagerendered",
+    //   this.onImageRendered
+    // );
+    // element.addEventListener("cornerstonenewimage", this.onNewImage);
+    // window.addEventListener("resize", this.onWindowResize);
   }
 
 
