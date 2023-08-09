@@ -9,7 +9,7 @@ const createWindow = () => {
   })
 
   const htmlPath = isDev ?
-        "http://localhost:8100" :
+        "http://localhost:4200" :
         `file://${path.join(__dirname, "..", "www", "index.html")}`;
 
   win.loadURL(htmlPath).then(() => console.log("Loaded file successfully"))

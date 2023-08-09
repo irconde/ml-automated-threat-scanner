@@ -7,6 +7,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "start-electron": "concurrently \"npm run start\" \"wait-on http://localhost:4200 && cd electron && npm run start\"",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint"
@@ -76,7 +77,9 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.0.0",
     "ts-node": "^8.3.0",
-    "typescript": "~5.0.2"
+    "typescript": "~5.0.2",
+    "concurrently": "^8.2.0",
+    "wait-on": "^7.0.1"
   },
   "description": "An Ionic project"
 }
