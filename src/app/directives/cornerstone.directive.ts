@@ -8,19 +8,15 @@ import {cornerstone, cornerstoneTools} from "../csSetup";
 export class CornerstoneDirective  implements OnInit, AfterViewInit {
 
   element: HTMLElement;
-  imageList: cornerstone.Image[] = [];
   currentIndex = 0;
 
   @Input('image')
   set image(imageData: cornerstone.Image | null) {
-    if (!imageData) return;
+    if (!imageData?.imageId) return;
 
-    // const previouslyAdded = this.imageList.some(img=> img.imageId === imageData.imageId)
-    if (imageData.imageId) {
-      cornerstone.enable(this.element);
-      // this.imageList.push(imageData);
-      this.displayImage(imageData);
-    }
+    cornerstone.enable(this.element);
+    this.displayImage(imageData);
+
   }
 
   constructor(public elementRef: ElementRef) {
