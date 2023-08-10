@@ -1,8 +1,9 @@
 {
-  "name": "photo-gallery",
-  "version": "0.0.1",
-  "author": "Ionic Framework",
-  "homepage": "https://ionicframework.com/",
+  "name": "dna-client-ui",
+  "productName": "Pilot GUI",
+  "version": "1.1.0",
+  "author": "Emerging Analytics Center",
+  "homepage": "https://eac-ualr.org/",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -78,5 +79,5 @@
     "concurrently": "^8.2.0",
     "wait-on": "^7.0.1"
   },
-  "description": "An Ionic project"
+  "description": "An Image Annotation Tool"
 }
