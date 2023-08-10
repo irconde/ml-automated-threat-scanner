@@ -1,6 +1,9 @@
 export interface Settings {
-  selectedImagesDirPath: string;
-  selectedAnnotationFile: string;
+  selectedImagesDirPath?: string;
+  selectedAnnotationFile?: string;
 }
 
-export type CachedSettings = Settings | null;
+export interface CachedSettings extends Settings {
+  update: (settings: Settings) => void;
+}
+

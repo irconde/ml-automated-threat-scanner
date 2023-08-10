@@ -1,4 +1,4 @@
-import {getSettings} from "./settingsFileUtils";
+import {getSettings, updateSettings} from "./settingsFileUtils";
 const { app, BrowserWindow } = require('electron');
 
 const path = require("path");
@@ -19,8 +19,12 @@ const createWindow = () => {
 }
 
 app.whenReady().then(async () => {
+
   const settings = await getSettings();
-  console.log("SETTINGS",settings)
+  console.log("SETTINGS", settings)
+  await updateSettings({selectedAnnotationFile: "hello", selectedImagesDirPath: "world"})
+  console.log(settings)
+
   createWindow()
 
   app.on('activate', () => {
