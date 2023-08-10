@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import {CachedSettings, Settings} from "./models/settings";
+import {CachedSettings, Settings} from "../models/settings";
 const {app} = require('electron')
 const isDev = require('electron-is-dev');
 
