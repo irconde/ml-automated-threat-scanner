@@ -1,6 +1,9 @@
+import {getSettings} from "./settingsFileUtils";
 const { app, BrowserWindow } = require('electron');
+
 const path = require("path");
-const isDev = true;
+const isDev = require('electron-is-dev');
+
 
 const createWindow = () => {
   const win = new BrowserWindow({
@@ -15,7 +18,9 @@ const createWindow = () => {
   win.loadURL(htmlPath).then(() => console.log("Loaded file successfully"))
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  const settings = await getSettings();
+  console.log("SETTINGS",settings)
   createWindow()
 
   app.on('activate', () => {
