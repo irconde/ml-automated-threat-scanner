@@ -18,13 +18,13 @@ export const getSettings = async () : Promise<CachedSettings> => {
       return JSON.parse(data) as Settings;
     }
   } catch (e) {
-    throw e;
+    return null;
   }
 }
 
 export const updateSettings = async (updatedSettings: Settings) : Promise<void> => {
   try {
-    await fs.promises.writeFile(SETTINGS_FILE_PATH, updatedSettings);
+    await fs.promises.writeFile(SETTINGS_FILE_PATH, JSON.stringify(updatedSettings));
     cachedSettings = updatedSettings;
   } catch (e) {
     throw e;
