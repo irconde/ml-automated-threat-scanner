@@ -1,5 +1,5 @@
 {
-  "name": "Pilot GUI",
+  "name": "photo-gallery",
   "integrations": {
     "capacitor": {}
   },

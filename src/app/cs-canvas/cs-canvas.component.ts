@@ -1,5 +1,8 @@
-import {Component, OnInit,} from '@angular/core';
-import {cornerstone} from '../csSetup'
+import {
+  Component,
+  OnInit,
+} from '@angular/core';
+import {cornerstone, cornerstoneTools} from '../csSetup'
 import {CornerstoneDirective} from "../directives/cornerstone.directive";
 import {CornerstoneService} from "../services/cornerstone.service";
 
