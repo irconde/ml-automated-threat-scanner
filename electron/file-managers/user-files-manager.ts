@@ -23,7 +23,7 @@ class UserFilesManager {
   async #init() {
     const anyFiles = await this.#updateFileNames();
     this.#wireAngularChannels();
-    if(anyFiles) this.#sendCurrentFileUpdate()
+    if(anyFiles) this.#sendCurrentFileUpdate().then()
     console.log(this.fileNames)
   }
 
@@ -31,10 +31,10 @@ class UserFilesManager {
     ipcMain.on(Channels.NewFileUpdate, (e, isNext)=> {
       if(isNext && this.currentFileIndex + 1 < this.fileNames.length) {
         this.currentFileIndex++;
-        this.#sendCurrentFileUpdate()
+        this.#sendCurrentFileUpdate().then()
       } else if(!isNext && this.currentFileIndex > 0) {
         this.currentFileIndex--;
-        this.#sendCurrentFileUpdate()
+        this.#sendCurrentFileUpdate().then()
       }
     })
   }
@@ -43,10 +43,20 @@ class UserFilesManager {
     this.#browserWindow.webContents.send(channel, payload)
   }
 
-  #sendCurrentFileUpdate() {
-    this.#sendAngularUpdate(
-      Channels.CurrentFileUpdate,
-      {fileName: this.fileNames[this.currentFileIndex]} as CurrentFileUpdatePayload)
+  async #sendCurrentFileUpdate() {
+    const { selectedImagesDirPath} = await this.#settings.get();
+    const pixelData = await fs.promises.readFile(
+      path.join(
+        selectedImagesDirPath!,
+        this.fileNames[this.currentFileIndex]
+      )
+    )
+    const payload: CurrentFileUpdatePayload = {
+      fileName: this.fileNames[this.currentFileIndex],
+      filesCount: this.fileNames.length,
+      pixelData,
+    }
+    this.#sendAngularUpdate(Channels.CurrentFileUpdate, payload);
   }
 
   static #isFileTypeAllowed(fileName: string) : boolean {

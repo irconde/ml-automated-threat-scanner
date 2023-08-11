@@ -3,6 +3,7 @@ import { IonicModule } from '@ionic/angular';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
 import {CsCanvasComponent} from "../cs-canvas/cs-canvas.component";
 import {CurrentFileService} from "../services/current-file/current-file.service";
+import {CurrentFileUpdatePayload} from "../../../shared/modals/channels-payloads";
 
 @Component({
   selector: 'app-tab1',
@@ -12,11 +13,14 @@ import {CurrentFileService} from "../services/current-file/current-file.service"
   imports: [IonicModule, ExploreContainerComponent, CsCanvasComponent],
 })
 export class Tab1Page {
-  fileName: string = "";
+  currentFile: CurrentFileUpdatePayload = {
+    fileName : "",
+    filesCount: 0,
+    pixelData: undefined,
+  };
   constructor(private currentFileService: CurrentFileService) {
     currentFileService.getCurrentFile().subscribe((currentFile)=> {
-      console.log(currentFile)
-      this.fileName = currentFile.fileName;
+      this.currentFile = currentFile;
     })
   }
 }

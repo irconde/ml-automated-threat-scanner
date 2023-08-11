@@ -1,5 +1,7 @@
 export interface CurrentFileUpdatePayload {
   fileName: string;
+  filesCount: number;
+  pixelData?: ArrayBuffer;
 }
 
 
