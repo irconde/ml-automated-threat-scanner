@@ -44,7 +44,7 @@ class UserFilesManager {
   }
 
   async #sendCurrentFileUpdate() {
-    const { selectedImagesDirPath} = await this.#settings.get();
+    const { selectedImagesDirPath} = this.#settings.get();
     const pixelData = await fs.promises.readFile(
       path.join(
         selectedImagesDirPath!,
@@ -67,7 +67,7 @@ class UserFilesManager {
 
   // updates the list of file names
   async #updateFileNames() : Promise<boolean> {
-    const { selectedImagesDirPath} = await this.#settings.get();
+    const { selectedImagesDirPath} = this.#settings.get();
     if(!selectedImagesDirPath) return false;
     const foundFiles: string[] = await fs.promises.readdir(selectedImagesDirPath);
     this.fileNames = foundFiles.filter(UserFilesManager.#isFileTypeAllowed);

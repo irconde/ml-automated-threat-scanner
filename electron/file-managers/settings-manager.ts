@@ -9,8 +9,14 @@ export class CachedSettings {
   readonly #settingsFilePath : string;
   #selectedImagesDirPath: string | undefined;
   #selectedAnnotationFile: string | undefined;
-  constructor() {
+  private constructor() {
     this.#settingsFilePath = CachedSettings.getUserDataPath("_settings.json")
+  }
+
+  static async create() : Promise<CachedSettings> {
+    const settings: CachedSettings = new CachedSettings()
+    await settings.#initFromFile();
+    return settings;
   }
 
   #setPaths(settings: Settings) {
@@ -31,18 +37,17 @@ export class CachedSettings {
     }
   }
 
-  async get() : Promise<Settings> {
-    // if settings haven't been loaded from file
-    if(!this.#selectedImagesDirPath) {
-      try {
-        const data = await fs.promises.readFile(this.#settingsFilePath, { encoding: "utf-8" });
-        const storedSettings = JSON.parse(data) as Settings
-        this.#setPaths(storedSettings)
-      } catch (e) {
-        this.#setPaths(CachedSettings.DefaultSettings)
-      }
+  async #initFromFile() : Promise<void> {
+    try {
+      const data = await fs.promises.readFile(this.#settingsFilePath, { encoding: "utf-8" });
+      const storedSettings = JSON.parse(data) as Settings
+      this.#setPaths(storedSettings)
+    } catch (e) {
+      this.#setPaths(CachedSettings.DefaultSettings)
     }
+  }
 
+  get() : Settings {
     return {selectedImagesDirPath: this.#selectedImagesDirPath, selectedAnnotationFile: this.#selectedAnnotationFile};
   }
 }

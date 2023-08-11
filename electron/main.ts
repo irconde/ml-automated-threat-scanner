@@ -31,10 +31,10 @@ const createWindow = async () : Promise<BrowserWindow> => {
 app.whenReady().then(async () => {
 
   const mainWindow = await createWindow()
-  const settings = new CachedSettings();
-  console.log("SETTINGS", await settings.get())
+  const settings = await CachedSettings.create();
+  console.log("SETTINGS", settings.get())
   await settings.update({selectedAnnotationFile: "", selectedImagesDirPath: "C:\\Users\\dako_\\Downloads\\testPictures"})
-  console.log(await settings.get())
+  console.log(settings.get())
   userFilesManager = new UserFilesManager(settings, mainWindow)
 
   app.on('activate', () => {
