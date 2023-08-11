@@ -8,6 +8,7 @@ import {CornerstoneService} from "../services/cornerstone.service";
 import {getElectronAPI} from "../get-electron-api";
 import {ElectronAPI} from "../../../shared/modals/channels-payloads";
 import {CurrentFileService} from "../services/current-file/current-file.service";
+import {Channels} from "../../../shared/constants/channels";
 
 
 @Component({
@@ -40,7 +41,7 @@ export class CsCanvasComponent implements OnInit {
 
 
   handleChangeImage(next = true) {
-    getElectronAPI().invokeNewFileUpdate(next)
+    getElectronAPI().send(Channels.NewFileUpdate, next)
   }
 
 }

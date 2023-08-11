@@ -1,4 +1,3 @@
-import {Settings} from "../models/settings";
 import * as fs from "fs";
 import * as path from "path";
 import {BrowserWindow, ipcMain} from "electron";
@@ -24,7 +23,6 @@ class UserFilesManager {
     const anyFiles = await this.#updateFileNames();
     this.#wireAngularChannels();
     if(anyFiles) this.#sendCurrentFileUpdate().then()
-    console.log(this.fileNames)
   }
 
   #wireAngularChannels() {
