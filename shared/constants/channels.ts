@@ -1,3 +1,3 @@
 export enum Channels {
-  FilesUpdate = "FilesUpdate"
+  CurrentFileUpdate = "CurrentFileUpdate"
 }

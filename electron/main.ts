@@ -1,7 +1,6 @@
-import {getSettings, updateSettings} from "./file-managers/settings-manager";
+import {CachedSettings} from "./file-managers/settings-manager";
 import UserFilesManager from "./file-managers/user-files-manager";
-// const { app, BrowserWindow } = require('electron');
-import {app, BrowserWindow } from 'electron'
+import { app, BrowserWindow } from 'electron'
 
 const path = require("path");
 const isDev = require('electron-is-dev');
@@ -11,7 +10,10 @@ let userFilesManager : null | UserFilesManager = null;
 const createWindow = async () : Promise<BrowserWindow> => {
   const mainWindow = new BrowserWindow({
     width: 800,
-    height: 600
+    height: 600,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js')
+    }
   })
 
   const htmlPath = isDev ?
@@ -29,10 +31,10 @@ const createWindow = async () : Promise<BrowserWindow> => {
 app.whenReady().then(async () => {
 
   const mainWindow = await createWindow()
-  const settings = await getSettings();
-  console.log("SETTINGS", settings)
-  await updateSettings({selectedAnnotationFile: "", selectedImagesDirPath: "C:\\Users\\dako_\\Downloads\\testPictures"})
-  console.log(settings)
+  const settings = new CachedSettings();
+  console.log("SETTINGS", await settings.get())
+  await settings.update({selectedAnnotationFile: "", selectedImagesDirPath: "C:\\Users\\dako_\\Downloads\\testPictures"})
+  console.log(await settings.get())
   userFilesManager = new UserFilesManager(settings, mainWindow)
 
   app.on('activate', () => {

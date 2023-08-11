@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
 import {CsCanvasComponent} from "../cs-canvas/cs-canvas.component";
+import {CurrentFileService} from "../services/current-file/current-file.service";
 
 @Component({
   selector: 'app-tab1',
@@ -11,6 +12,11 @@ import {CsCanvasComponent} from "../cs-canvas/cs-canvas.component";
   imports: [IonicModule, ExploreContainerComponent, CsCanvasComponent],
 })
 export class Tab1Page {
-  constructor() {
+  fileName: string = "";
+  constructor(private currentFileService: CurrentFileService) {
+    currentFileService.getCurrentFile().subscribe((currentFile)=> {
+      console.log(currentFile)
+      this.fileName = currentFile.fileName;
+    })
   }
 }

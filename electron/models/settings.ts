@@ -3,7 +3,3 @@ export interface Settings {
   selectedAnnotationFile?: string;
 }
 
-export interface CachedSettings extends Settings {
-  update: (settings: Settings) => void;
-}
-

@@ -1,40 +1,48 @@
 import * as fs from "fs";
 import * as path from "path";
-import {CachedSettings, Settings} from "../models/settings";
+import {Settings} from "../models/settings";
 const {app} = require('electron')
 const isDev = require('electron-is-dev');
 
-const DEFAULT_SETTINGS : Settings = {selectedImagesDirPath: undefined, selectedAnnotationFile: undefined}
-const cachedSettings : CachedSettings = {
-  ...DEFAULT_SETTINGS,
-  update: function (updatedSettings) {
-    this.selectedImagesDirPath = updatedSettings.selectedImagesDirPath;
-    this.selectedAnnotationFile = updatedSettings.selectedAnnotationFile;
+export class CachedSettings {
+  static DefaultSettings : Settings = {selectedImagesDirPath: undefined, selectedAnnotationFile: undefined}
+  readonly #settingsFilePath : string;
+  #selectedImagesDirPath: string | undefined;
+  #selectedAnnotationFile: string | undefined;
+  constructor() {
+    this.#settingsFilePath = CachedSettings.getUserDataPath("_settings.json")
   }
-};
-export const getUserDataPath = (fileName: string) : string => isDev ? fileName : path.join(app.getPath('userData'), fileName)
-const SETTINGS_FILE_PATH = getUserDataPath('_settings.json');
 
-export const getSettings = async () : Promise<Settings> => {
-  // if settings haven't been loaded from file
-  if(!cachedSettings.selectedImagesDirPath) {
+  #setPaths(settings: Settings) {
+    this.#selectedImagesDirPath = settings.selectedImagesDirPath;
+    this.#selectedAnnotationFile = settings.selectedAnnotationFile;
+  }
+
+  static getUserDataPath(fileName: string) : string {
+    return isDev ? fileName : path.join(app.getPath('userData'), fileName)
+  }
+
+  async update(updatedSettings: Settings) : Promise<void> {
     try {
-      const data = await fs.promises.readFile(SETTINGS_FILE_PATH, { encoding: "utf-8" });
-      const storedSettings = JSON.parse(data) as Settings
-      cachedSettings.update(storedSettings)
+      await fs.promises.writeFile(this.#settingsFilePath, JSON.stringify(updatedSettings));
+      this.#setPaths(updatedSettings);
     } catch (e) {
-      cachedSettings.update(DEFAULT_SETTINGS)
+      throw e;
     }
   }
 
-  return cachedSettings;
-}
+  async get() : Promise<Settings> {
+    // if settings haven't been loaded from file
+    if(!this.#selectedImagesDirPath) {
+      try {
+        const data = await fs.promises.readFile(this.#settingsFilePath, { encoding: "utf-8" });
+        const storedSettings = JSON.parse(data) as Settings
+        this.#setPaths(storedSettings)
+      } catch (e) {
+        this.#setPaths(CachedSettings.DefaultSettings)
+      }
+    }
 
-export const updateSettings = async (updatedSettings: Settings) : Promise<void> => {
-  try {
-    await fs.promises.writeFile(SETTINGS_FILE_PATH, JSON.stringify(updatedSettings));
-    cachedSettings.update(updatedSettings)
-  } catch (e) {
-    throw e;
+    return {selectedImagesDirPath: this.#selectedImagesDirPath, selectedAnnotationFile: this.#selectedAnnotationFile};
   }
 }

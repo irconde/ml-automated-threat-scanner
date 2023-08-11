@@ -3,18 +3,19 @@ import * as fs from "fs";
 import * as path from "path";
 import {BrowserWindow} from "electron";
 import {Channels} from "../../shared/constants/channels";
-import {FilesUpdatePayload} from "../../shared/modals/channels-payloads";
+import {ChannelPayload, CurrentFileUpdatePayload} from "../../shared/modals/channels-payloads";
+import {CachedSettings} from "./settings-manager";
 
 class UserFilesManager {
   static STORAGE_FILE_NAME = 'thumbnails.json';
   static IMAGE_FILE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.dcm'];
   fileNames: string[] = [];
-  currentFileIndex = -1;
-  #settings: Settings;
+  currentFileIndex = 0;
+  #settings: CachedSettings;
   #browserWindow: BrowserWindow;
 
-  constructor(settings: Settings, browserWindow: BrowserWindow) {
-    this.#settings = settings;
+  constructor(cachedSettings: CachedSettings, browserWindow: BrowserWindow) {
+    this.#settings = cachedSettings;
     this.#browserWindow = browserWindow;
     this.#init().then();
   }
@@ -22,11 +23,15 @@ class UserFilesManager {
   async #init() {
     const anyFiles = await this.#updateFileNames();
     if(anyFiles) {
-      this.#browserWindow.webContents.send(
-        Channels.FilesUpdate,
-        {fileName: this.fileNames[this.currentFileIndex]} as FilesUpdatePayload)
+      this.#sendAngularUpdate(
+        Channels.CurrentFileUpdate,
+        {fileName: this.fileNames[this.currentFileIndex]} as CurrentFileUpdatePayload)
     }
     console.log(this.fileNames)
+  }
+
+  #sendAngularUpdate(channel: Channels,payload: ChannelPayload) {
+    this.#browserWindow.webContents.send(channel, payload)
   }
 
   static #isFileTypeAllowed(fileName: string) : boolean {
@@ -37,8 +42,9 @@ class UserFilesManager {
 
   // updates the list of file names
   async #updateFileNames() : Promise<boolean> {
-    if(!this.#settings.selectedImagesDirPath) return false;
-    const foundFiles: string[] = await fs.promises.readdir(this.#settings.selectedImagesDirPath);
+    const { selectedImagesDirPath} = await this.#settings.get();
+    if(!selectedImagesDirPath) return false;
+    const foundFiles: string[] = await fs.promises.readdir(selectedImagesDirPath);
     this.fileNames = foundFiles.filter(UserFilesManager.#isFileTypeAllowed);
     return !!this.fileNames.length;
   }
