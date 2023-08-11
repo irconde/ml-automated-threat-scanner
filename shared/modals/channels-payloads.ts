@@ -6,5 +6,6 @@ export interface CurrentFileUpdatePayload {
 export type ChannelPayload = CurrentFileUpdatePayload;
 
 export interface ElectronAPI {
-  listenToCurrentFileUpdate: (callback: (payload: CurrentFileUpdatePayload) => void) => void
+  listenToCurrentFileUpdate: (callback: (payload: CurrentFileUpdatePayload) => void) => void,
+  invokeNewFileUpdate: (isNext: boolean) => void,
 }

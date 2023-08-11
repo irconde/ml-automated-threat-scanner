@@ -1,7 +1,7 @@
 import {Settings} from "../models/settings";
 import * as fs from "fs";
 import * as path from "path";
-import {BrowserWindow} from "electron";
+import {BrowserWindow, ipcMain} from "electron";
 import {Channels} from "../../shared/constants/channels";
 import {ChannelPayload, CurrentFileUpdatePayload} from "../../shared/modals/channels-payloads";
 import {CachedSettings} from "./settings-manager";
@@ -22,16 +22,31 @@ class UserFilesManager {
 
   async #init() {
     const anyFiles = await this.#updateFileNames();
-    if(anyFiles) {
-      this.#sendAngularUpdate(
-        Channels.CurrentFileUpdate,
-        {fileName: this.fileNames[this.currentFileIndex]} as CurrentFileUpdatePayload)
-    }
+    this.#wireAngularChannels();
+    if(anyFiles) this.#sendCurrentFileUpdate()
     console.log(this.fileNames)
   }
 
-  #sendAngularUpdate(channel: Channels,payload: ChannelPayload) {
+  #wireAngularChannels() {
+    ipcMain.on(Channels.NewFileUpdate, (e, isNext)=> {
+      if(isNext && this.currentFileIndex + 1 < this.fileNames.length) {
+        this.currentFileIndex++;
+        this.#sendCurrentFileUpdate()
+      } else if(!isNext && this.currentFileIndex > 0) {
+        this.currentFileIndex--;
+        this.#sendCurrentFileUpdate()
+      }
+    })
+  }
+
+  #sendAngularUpdate(channel: Channels, payload: ChannelPayload) {
     this.#browserWindow.webContents.send(channel, payload)
+  }
+
+  #sendCurrentFileUpdate() {
+    this.#sendAngularUpdate(
+      Channels.CurrentFileUpdate,
+      {fileName: this.fileNames[this.currentFileIndex]} as CurrentFileUpdatePayload)
   }
 
   static #isFileTypeAllowed(fileName: string) : boolean {

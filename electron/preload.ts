@@ -10,6 +10,9 @@ const API  = {
   listenToCurrentFileUpdate: (callback: (payload : any) => void) => {
     ipcRenderer.on("CurrentFileUpdate",
       (e: Electron.IpcRendererEvent, data : any) => callback(data))
+  },
+  invokeNewFileUpdate: (isNext: boolean) => {
+    ipcRenderer.send("NewFileUpdate", isNext)
   }
 }
 

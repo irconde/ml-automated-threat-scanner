@@ -5,6 +5,8 @@ import {
 import {cornerstone, cornerstoneTools} from '../csSetup'
 import {CornerstoneDirective} from "../directives/cornerstone.directive";
 import {CornerstoneService} from "../services/cornerstone.service";
+import {getElectronAPI} from "../get-electron-api";
+import {ElectronAPI} from "../../../shared/modals/channels-payloads";
 
 const IMAGE_IDS = [
   "https://rawgit.com/cornerstonejs/cornerstoneWebImageLoader/master/examples/Renal_Cell_Carcinoma.jpg",
@@ -30,6 +32,7 @@ export class CsCanvasComponent implements OnInit {
 
   imageData : cornerstone.Image | null = null;
 
+
   constructor(private csService: CornerstoneService) {}
 
   ngOnInit() {
@@ -46,9 +49,11 @@ export class CsCanvasComponent implements OnInit {
 
   handleChangeImage(next = true) {
     if(next && this.stack.currentImageIdIndex + 1 < this.stack.imageIds.length) {
+      getElectronAPI().invokeNewFileUpdate(next)
       this.stack.currentImageIdIndex++;
       this.updateImage()
     } else if(!next && this.stack.currentImageIdIndex > 0) {
+      getElectronAPI().invokeNewFileUpdate(next)
       this.stack.currentImageIdIndex--;
       this.updateImage()
     }
