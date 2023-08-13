@@ -17,8 +17,8 @@ export class SocketService {
 
   status : Subject<SocketStatus> = new Subject<SocketStatus>();
   private static readonly SOCKET_URL = 'http://localhost:4001';
-
-
+  private static readonly CONNECTION_DURATION = 750;
+  private static readonly RESET_DELAY = 1750;
 
   constructor() {
     this.status.next(SocketStatus.IDLE);
@@ -32,10 +32,9 @@ export class SocketService {
           this.status.next(SocketStatus.CONNECTED)
           setTimeout(() => {
               this.status.next(SocketStatus.IDLE)
-          }, 1750);
-      }, 750);
+          }, SocketService.RESET_DELAY);
+      }, SocketService.CONNECTION_DURATION);
      })
-
 
     socket.on('connect_error', (err) => {
         this.status.next(SocketStatus.CONNECTING);
@@ -49,8 +48,8 @@ export class SocketService {
                 this.status.next(SocketStatus.DISCONNECTED)
                 setTimeout(() => {
                   this.status.next(SocketStatus.IDLE);
-                }, 1750);
-            }, 750);
+                }, SocketService.RESET_DELAY);
+            }, SocketService.CONNECTION_DURATION);
         }
     });
 
