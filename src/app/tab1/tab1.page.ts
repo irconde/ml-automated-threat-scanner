@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
 import {CsCanvasComponent} from "../cs-canvas/cs-canvas.component";
+import {SocketService} from "../services/socket/socket.service";
 
 @Component({
   selector: 'app-tab1',
@@ -11,6 +12,13 @@ import {CsCanvasComponent} from "../cs-canvas/cs-canvas.component";
   imports: [IonicModule, ExploreContainerComponent, CsCanvasComponent],
 })
 export class Tab1Page {
-  constructor() {
+  status: string = "IDLE"
+
+  constructor(private socketService: SocketService) {
+    this.socketService.testConnection().subscribe((status) => {
+      console.log("status: " + status)
+        this.status = status;
+    })
   }
+
 }
