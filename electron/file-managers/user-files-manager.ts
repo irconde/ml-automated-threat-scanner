@@ -1,8 +1,8 @@
 import * as fs from "fs";
 import * as path from "path";
-import {BrowserWindow, ipcMain} from "electron";
+import {BrowserWindow} from "electron";
 import {Channels} from "../../shared/constants/channels";
-import {CurrentFileUpdatePayload, ElectronAPI, ElectronSendFunc} from "../../shared/models/channels-payloads";
+import {CurrentFileUpdatePayload} from "../../shared/models/channels-payloads";
 import {CachedSettings} from "./cached-settings";
 import {ChannelsManager} from "./channels-manager";
 
@@ -26,7 +26,7 @@ class UserFilesManager extends ChannelsManager {
   }
 
   #wireAngularChannels() {
-    ipcMain.on(Channels.NewFileRequest, (e, isNext)=> {
+    this.onAngularRequest(Channels.NewFileRequest, (e, isNext)=> {
       if(isNext && this.currentFileIndex + 1 < this.fileNames.length) {
         this.currentFileIndex++;
         this.#sendCurrentFileUpdate().then()

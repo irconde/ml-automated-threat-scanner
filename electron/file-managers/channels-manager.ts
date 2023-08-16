@@ -1,5 +1,5 @@
-import {BrowserWindow} from "electron";
-import {ElectronSendFunc} from "../../shared/models/channels-payloads";
+import {BrowserWindow, ipcMain} from "electron";
+import {ChannelPayloadMapper, ElectronSendFunc} from "../../shared/models/channels-payloads";
 
 export class ChannelsManager {
   private browserWindow: BrowserWindow;
@@ -9,6 +9,10 @@ export class ChannelsManager {
 
   protected sendAngularUpdate: ElectronSendFunc = (channel, payload) => {
     this.browserWindow.webContents.send(channel, payload);
+  }
+
+  protected onAngularRequest<Channel extends keyof ChannelPayloadMapper>(channel: Channel, listener: (e: Electron.IpcMainEvent, payload: ChannelPayloadMapper[Channel]) => void)  {
+    ipcMain.on(channel, listener)
   }
 
 }
