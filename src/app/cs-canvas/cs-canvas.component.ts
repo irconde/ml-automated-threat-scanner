@@ -9,6 +9,7 @@ import {getElectronAPI} from "../get-electron-api";
 import {Channels} from "../../../shared/constants/channels";
 import {FileService} from "../services/file/file.service";
 import {SettingsService} from "../services/settings/settings.service";
+import {ElectronService} from "../services/electron/electron.service";
 
 
 @Component({
@@ -42,7 +43,7 @@ export class CsCanvasComponent implements OnInit {
 
 
   handleChangeImage(next = true) {
-    getElectronAPI().send(Channels.NewFileUpdate, next)
+    this.fileService.requestNextFile(next);
   }
 
 }

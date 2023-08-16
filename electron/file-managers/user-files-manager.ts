@@ -26,7 +26,7 @@ class UserFilesManager {
   }
 
   #wireAngularChannels() {
-    ipcMain.on(Channels.NewFileUpdate, (e, isNext)=> {
+    ipcMain.on(Channels.RequestNewFile, (e, isNext)=> {
       if(isNext && this.currentFileIndex + 1 < this.fileNames.length) {
         this.currentFileIndex++;
         this.#sendCurrentFileUpdate().then()
