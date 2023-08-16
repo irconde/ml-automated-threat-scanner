@@ -1,4 +1,4 @@
-import {CachedSettings} from "./file-managers/settings-manager";
+import {CachedSettings} from "./file-managers/cached-settings";
 import UserFilesManager from "./file-managers/user-files-manager";
 import { app, BrowserWindow } from 'electron'
 

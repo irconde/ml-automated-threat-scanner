@@ -3,19 +3,19 @@ import * as path from "path";
 import {BrowserWindow, ipcMain} from "electron";
 import {Channels} from "../../shared/constants/channels";
 import {CurrentFileUpdatePayload, ElectronAPI, ElectronSendFunc} from "../../shared/models/channels-payloads";
-import {CachedSettings} from "./settings-manager";
+import {CachedSettings} from "./cached-settings";
+import {ChannelsManager} from "./channels-manager";
 
-class UserFilesManager {
+class UserFilesManager extends ChannelsManager {
   static STORAGE_FILE_NAME = 'thumbnails.json';
   static IMAGE_FILE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.dcm'];
   fileNames: string[] = [];
   currentFileIndex = 0;
   #settings: CachedSettings;
-  #browserWindow: BrowserWindow;
 
   constructor(cachedSettings: CachedSettings, browserWindow: BrowserWindow) {
+    super(browserWindow);
     this.#settings = cachedSettings;
-    this.#browserWindow = browserWindow;
     this.#init().then();
   }
 
@@ -37,10 +37,6 @@ class UserFilesManager {
     })
   }
 
-  #sendAngularUpdate: ElectronSendFunc = (channel, payload) =>  {
-    this.#browserWindow.webContents.send(channel, payload)
-  }
-
   async #sendCurrentFileUpdate() {
     const { selectedImagesDirPath} = this.#settings.get();
     const pixelData = await fs.promises.readFile(
@@ -54,7 +50,7 @@ class UserFilesManager {
       filesCount: this.fileNames.length,
       pixelData,
     }
-    this.#sendAngularUpdate(Channels.CurrentFileUpdate, payload);
+    this.sendAngularUpdate(Channels.CurrentFileUpdate, payload);
   }
 
   static #isFileTypeAllowed(fileName: string) : boolean {
