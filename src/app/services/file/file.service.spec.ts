@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { CurrentFileService } from './current-file.service';
+import { FileService } from './file.service';
 
 describe('CurrentFileService', () => {
-  let service: CurrentFileService;
+  let service: FileService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(CurrentFileService);
+    service = TestBed.inject(FileService);
   });
 
   it('should be created', () => {

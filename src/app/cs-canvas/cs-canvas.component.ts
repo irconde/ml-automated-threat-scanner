@@ -6,9 +6,8 @@ import {cornerstone, cornerstoneTools} from '../csSetup'
 import {CornerstoneDirective} from "../directives/cornerstone.directive";
 import {CornerstoneService} from "../services/cornerstone.service";
 import {getElectronAPI} from "../get-electron-api";
-import {ElectronAPI} from "../../../shared/modals/channels-payloads";
-import {CurrentFileService} from "../services/current-file/current-file.service";
 import {Channels} from "../../../shared/constants/channels";
+import {FileService} from "../services/file/file.service";
 
 
 @Component({
@@ -25,10 +24,10 @@ export class CsCanvasComponent implements OnInit {
   imageData : cornerstone.Image | null = null;
   constructor(
     private csService: CornerstoneService,
-    private currentFileService: CurrentFileService) {}
+    private fileService: FileService) {}
 
   ngOnInit() {
-    this.currentFileService.getCurrentFile().subscribe((currentFile)=> {
+    this.fileService.getCurrentFile().subscribe((currentFile)=> {
       if(!currentFile.pixelData) return;
       this.csService
         .getImageData(currentFile.fileName, currentFile.pixelData)

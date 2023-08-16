@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
 import {CsCanvasComponent} from "../cs-canvas/cs-canvas.component";
-import {CurrentFileService} from "../services/current-file/current-file.service";
 import {CurrentFileUpdatePayload} from "../../../shared/modals/channels-payloads";
+import {FileService} from "../services/file/file.service";
 
 @Component({
   selector: 'app-tab1',
@@ -18,8 +18,8 @@ export class Tab1Page {
     filesCount: 0,
     pixelData: undefined,
   };
-  constructor(private currentFileService: CurrentFileService) {
-    currentFileService.getCurrentFile().subscribe((currentFile)=> {
+  constructor(private fileService: FileService) {
+    fileService.getCurrentFile().subscribe((currentFile)=> {
       this.currentFile = currentFile;
     })
   }

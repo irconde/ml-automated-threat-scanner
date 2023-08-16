@@ -8,7 +8,7 @@ import {Channels} from "../../../../shared/constants/channels";
 @Injectable({
   providedIn: 'root'
 })
-export class CurrentFileService {
+export class FileService {
   private configUpdatedSubject: Subject<CurrentFileUpdatePayload> = new Subject<CurrentFileUpdatePayload>();
 
   constructor() {
