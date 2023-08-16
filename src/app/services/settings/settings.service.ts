@@ -8,11 +8,16 @@ import {Platforms} from "../../../models/platforms";
 })
 export class SettingsService {
 
+  private readonly _platform: Platforms;
   constructor(private platformService: Platform) {
-
+    this._platform = this.getIonicPlatform();
   }
 
-  getPlatform() : Platforms {
+  public get platform(): Platforms {
+    return this._platform;
+  }
+
+  private getIonicPlatform() : Platforms {
     if(this.platformService.is('electron')) {
       return Platforms.Electron;
     } else if (this.platformService.is('ios')) {

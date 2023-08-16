@@ -13,7 +13,7 @@ export class FileService {
   private configUpdatedSubject: Subject<CurrentFileUpdatePayload> = new Subject<CurrentFileUpdatePayload>();
 
   constructor(private settingsService: SettingsService, private electronService: ElectronService) {
-    switch (this.settingsService.getPlatform()) {
+    switch (this.settingsService.platform) {
       case Platforms.Electron:
         this.electronService.listenToFileUpdate((payload : CurrentFileUpdatePayload)=> {
           this.configUpdatedSubject.next(payload);
@@ -30,7 +30,7 @@ export class FileService {
   }
 
   requestNextFile(next: boolean) {
-    switch (this.settingsService.getPlatform()) {
+    switch (this.settingsService.platform) {
       case Platforms.Electron:
         this.electronService.requestNewFile(next)
         break;
