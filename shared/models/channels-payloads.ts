@@ -1,13 +1,23 @@
+import {Channels} from "../constants/channels";
+import {Settings} from "../../electron/models/settings";
+
+
 export interface CurrentFileUpdatePayload {
   fileName: string;
   filesCount: number;
   pixelData?: ArrayBuffer;
 }
 
+export type ChannelPayloadMapper = {
+  [Channels.NewFileRequest]: boolean,
+  [Channels.SettingsUpdate]: Settings,
+  [Channels.CurrentFileUpdate]: CurrentFileUpdatePayload,
+}
 
-export type ChannelPayload = CurrentFileUpdatePayload;
+export type ElectronSendFunc = <Channel extends keyof ChannelPayloadMapper>(channel: Channel, payload: ChannelPayloadMapper[Channel]) => void;
+export type ElectronOnFunc = <Channel extends keyof ChannelPayloadMapper>(channel: Channel, listener: (payload: ChannelPayloadMapper[Channel]) => void) => void;
 
 export interface ElectronAPI {
- send: (channel: string, ...args: any[]) => void;
- on: (channel: string, listener: (payload: ChannelPayload) => void) => void
+ send: ElectronSendFunc;
+ on: ElectronOnFunc;
 }

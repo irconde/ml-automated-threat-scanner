@@ -4,6 +4,8 @@ import { ExploreContainerComponent } from '../explore-container/explore-containe
 import {CsCanvasComponent} from "../cs-canvas/cs-canvas.component";
 import {CurrentFileUpdatePayload} from "../../../shared/models/channels-payloads";
 import {FileService} from "../services/file/file.service";
+import {SettingsService} from "../services/settings/settings.service";
+import {Settings} from "../../../electron/models/settings";
 
 @Component({
   selector: 'app-tab1',
@@ -18,9 +20,14 @@ export class Tab1Page {
     filesCount: 0,
     pixelData: undefined,
   };
-  constructor(private fileService: FileService) {
+
+  settings: Settings | null = null;
+  constructor(private fileService: FileService, private settingsService: SettingsService) {
     fileService.getCurrentFile().subscribe((currentFile)=> {
       this.currentFile = currentFile;
+    })
+    settingsService.getSettings().subscribe((settings: Settings) => {
+      this.settings = settings;
     })
   }
 }

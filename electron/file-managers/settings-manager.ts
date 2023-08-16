@@ -1,6 +1,8 @@
 import * as fs from "fs";
 import * as path from "path";
 import {Settings} from "../models/settings";
+import {BrowserWindow} from "electron";
+import {Channels} from "../../shared/constants/channels";
 const {app} = require('electron')
 const isDev = require('electron-is-dev');
 
@@ -9,12 +11,14 @@ export class CachedSettings {
   readonly #settingsFilePath : string;
   #selectedImagesDirPath: string | undefined;
   #selectedAnnotationFile: string | undefined;
-  private constructor() {
+  #browserWindow: BrowserWindow;
+  private constructor(browserWindow: BrowserWindow) {
+    this.#browserWindow = browserWindow;
     this.#settingsFilePath = CachedSettings.getUserDataPath("_settings.json")
   }
 
-  static async create() : Promise<CachedSettings> {
-    const settings: CachedSettings = new CachedSettings()
+  static async create(browserWindow: BrowserWindow) : Promise<CachedSettings> {
+    const settings: CachedSettings = new CachedSettings(browserWindow);
     await settings.#initFromFile();
     return settings;
   }
@@ -32,6 +36,7 @@ export class CachedSettings {
     try {
       await fs.promises.writeFile(this.#settingsFilePath, JSON.stringify(updatedSettings));
       this.#setPaths(updatedSettings);
+      this.#browserWindow.webContents.send(Channels.SettingsUpdate, this.get());
     } catch (e) {
       throw e;
     }

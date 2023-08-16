@@ -2,19 +2,26 @@ import { Injectable } from '@angular/core';
 import {CurrentFileUpdatePayload} from "../../../../shared/models/channels-payloads";
 import {getElectronAPI} from "../../get-electron-api";
 import {Channels} from "../../../../shared/constants/channels";
+import {Settings} from "../../../../electron/models/settings";
 
 @Injectable({
   providedIn: 'root'
 })
 export class ElectronService {
+  private electronAPI = getElectronAPI();
+  constructor() {
 
-  constructor() { }
+  }
 
   listenToFileUpdate(listener: (payload : CurrentFileUpdatePayload) => void) {
-    getElectronAPI().on(Channels.CurrentFileUpdate, listener);
+    this.electronAPI.on(Channels.CurrentFileUpdate, listener);
+  }
+
+  listenToSettingsUpdate(listener: (payload: Settings) => void)  {
+    this.electronAPI.on(Channels.SettingsUpdate, listener);
   }
 
   requestNewFile(next: boolean) {
-    getElectronAPI().send(Channels.RequestNewFile, next)
+    this.electronAPI.send(Channels.NewFileRequest, next)
   }
 }

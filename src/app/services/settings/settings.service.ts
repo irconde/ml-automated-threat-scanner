@@ -1,6 +1,9 @@
-import {Injectable} from '@angular/core';
+import {Injectable, OnInit} from '@angular/core';
 import {Platform} from "@ionic/angular";
 import {Platforms} from "../../../models/platforms";
+import {ElectronService} from "../electron/electron.service";
+import {Settings} from "../../../../electron/models/settings";
+import {Observable, Subject} from "rxjs";
 
 
 @Injectable({
@@ -9,8 +12,26 @@ import {Platforms} from "../../../models/platforms";
 export class SettingsService {
 
   private readonly _platform: Platforms;
-  constructor(private platformService: Platform) {
+  private settings: Subject<Settings> = new Subject<Settings>()
+  constructor(private platformService: Platform, private electronService: ElectronService) {
     this._platform = this.getIonicPlatform();
+    this.init();
+  }
+
+  private init() {
+    switch (this.platform) {
+      case Platforms.Electron:
+        this.electronService.listenToSettingsUpdate((settings: Settings)=> {
+          this.settings.next(settings);
+        })
+        break
+      default:
+        console.log("Settings service initialization failed! Platform not supported!")
+    }
+  }
+
+  public getSettings(): Observable<Settings> {
+    return this.settings.asObservable();
   }
 
   public get platform(): Platforms {

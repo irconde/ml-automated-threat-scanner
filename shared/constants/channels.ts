@@ -1,4 +1,8 @@
 export enum Channels {
+  // ends with 'update' when it's a message from electron to angular
   CurrentFileUpdate = "CurrentFileUpdate",
-  RequestNewFile = "RequestNewFile",
+  SettingsUpdate = "SettingsUpdate",
+  // end with 'request' when it's a message from angular to electron
+  NewFileRequest = "NewFileRequest",
+
 }

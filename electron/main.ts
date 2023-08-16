@@ -9,8 +9,8 @@ let userFilesManager : null | UserFilesManager = null;
 
 const createWindow = async () : Promise<BrowserWindow> => {
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1600,
+    height: 1200,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
     }
@@ -31,7 +31,7 @@ const createWindow = async () : Promise<BrowserWindow> => {
 app.whenReady().then(async () => {
 
   const mainWindow = await createWindow()
-  const settings = await CachedSettings.create();
+  const settings = await CachedSettings.create(mainWindow);
   console.log("SETTINGS", settings.get())
   await settings.update({selectedAnnotationFile: "", selectedImagesDirPath: "C:\\Users\\dako_\\Downloads\\testPictures"})
   console.log(settings.get())

@@ -13,6 +13,10 @@ export class FileService {
   private configUpdatedSubject: Subject<CurrentFileUpdatePayload> = new Subject<CurrentFileUpdatePayload>();
 
   constructor(private settingsService: SettingsService, private electronService: ElectronService) {
+    this.init()
+  }
+
+  private init() {
     switch (this.settingsService.platform) {
       case Platforms.Electron:
         this.electronService.listenToFileUpdate((payload : CurrentFileUpdatePayload)=> {
@@ -22,7 +26,6 @@ export class FileService {
       default:
         console.log("File service not implemented on current platform!");
     }
-
   }
 
   getCurrentFile(): Observable<CurrentFileUpdatePayload> {
