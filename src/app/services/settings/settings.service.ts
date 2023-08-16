@@ -1,4 +1,6 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
+import {Platform} from "@ionic/angular";
+import {Platforms} from "../../../models/platforms";
 
 
 @Injectable({
@@ -6,7 +8,19 @@ import { Injectable } from '@angular/core';
 })
 export class SettingsService {
 
-  constructor() {
+  constructor(private platformService: Platform) {
 
+  }
+
+  getPlatform() : Platforms {
+    if(this.platformService.is('electron')) {
+      return Platforms.Electron;
+    } else if (this.platformService.is('ios')) {
+      return Platforms.iOS;
+    } else if(this.platformService.is('android')) {
+      return Platforms.Android;
+    } else {
+      return Platforms.Web;
+    }
   }
 }

@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import {BrowserWindow, ipcMain} from "electron";
 import {Channels} from "../../shared/constants/channels";
-import {ChannelPayload, CurrentFileUpdatePayload} from "../../shared/modals/channels-payloads";
+import {ChannelPayload, CurrentFileUpdatePayload} from "../../shared/models/channels-payloads";
 import {CachedSettings} from "./settings-manager";
 
 class UserFilesManager {

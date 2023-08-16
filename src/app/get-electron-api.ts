@@ -1,4 +1,4 @@
-import {ElectronAPI} from "../../shared/modals/channels-payloads";
+import {ElectronAPI} from "../../shared/models/channels-payloads";
 
 // @ts-ignore
 export const getElectronAPI = () : ElectronAPI  => window.electronAPI;

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
 import {CsCanvasComponent} from "../cs-canvas/cs-canvas.component";
-import {CurrentFileUpdatePayload} from "../../../shared/modals/channels-payloads";
+import {CurrentFileUpdatePayload} from "../../../shared/models/channels-payloads";
 import {FileService} from "../services/file/file.service";
 
 @Component({

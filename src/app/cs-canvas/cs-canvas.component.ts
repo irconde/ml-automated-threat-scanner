@@ -8,6 +8,7 @@ import {CornerstoneService} from "../services/cornerstone.service";
 import {getElectronAPI} from "../get-electron-api";
 import {Channels} from "../../../shared/constants/channels";
 import {FileService} from "../services/file/file.service";
+import {SettingsService} from "../services/settings/settings.service";
 
 
 @Component({
@@ -24,7 +25,8 @@ export class CsCanvasComponent implements OnInit {
   imageData : cornerstone.Image | null = null;
   constructor(
     private csService: CornerstoneService,
-    private fileService: FileService) {}
+    private fileService: FileService,
+    private settingsService: SettingsService) {}
 
   ngOnInit() {
     this.fileService.getCurrentFile().subscribe((currentFile)=> {
