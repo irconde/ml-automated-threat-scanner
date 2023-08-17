@@ -7,7 +7,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "start-electron": "concurrently \"npm run start\" \"wait-on http://localhost:4200 && cd electron && npm run start\"",
+    "start-electron": "concurrently \"npm run start\" \"wait-on http://localhost:4200 && cd electron && npm run start\" -k",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint"
