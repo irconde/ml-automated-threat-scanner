@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import JSZip from 'jszip';
-import {AnnotationType, ParsedORA} from "../../models/file-parser";
+import {AnnotationType, ParsedORA, PixelData} from "../../models/file-parser";
+import {v4 as guid} from 'uuid'
 
 @Injectable({
   providedIn: 'root'
@@ -13,12 +14,16 @@ export class FileParserService {
     this.domParser = new DOMParser();
   }
 
-  async loadData(fileData: string) {
-    const doc = await this.toXmlDoc(fileData);
-    const parsedOra = await this.parseXmlDoc(doc);
-
-
-
+  public async loadData(fileData: string) {
+    try {
+      const doc = await this.toXmlDoc(fileData);
+      const parsedOra = await this.parseXmlDoc(doc);
+      const finalData = await this.loadFilesData(parsedOra)
+      console.log(finalData);
+    } catch (e) {
+      console.log(e);
+      throw Error("Failed to load data")
+    }
   }
 
   private async toXmlDoc(fileData: string) : Promise<Document> {
@@ -34,7 +39,7 @@ export class FileParserService {
     if(!xmlImages[0]) throw Error("Failed to find image element")
     const currentFileFormat = xmlImages[0].getAttribute('format');
     const parsedORA : ParsedORA = {
-      format: currentFileFormat || "",
+      format: currentFileFormat as AnnotationType || AnnotationType.UNKNOWN,
       viewpoints: [],
     };
     const stacks = Array.from(xmlImages[0].children)
@@ -47,7 +52,7 @@ export class FileParserService {
       const pixelData = firstLayer.getAttribute('src');
       if(!pixelData) throw Error("Missing src attribute on first layer")
 
-      if (parsedORA.format === "") {
+      if (parsedORA.format === AnnotationType.UNKNOWN) {
         parsedORA.format = this.getAnnotationType(pixelData);
       }
 
@@ -83,26 +88,52 @@ export class FileParserService {
     }
   }
 
-  // async loadData() {
-  //   return new Promise((resolve, reject) => {
-  //     const zipUtil = new JSZip();
-  //     zipUtil
-  //       .loadAsync(this.#fileData, { base64: true })
-  //       .then(() => {
-  //         zipUtil
-  //           .file('stack.xml')
-  //           .async('string')
-  //           .then((stackFile) => {
-  //             this.#xmlParser = new XmlParserUtil(stackFile);
-  //             const parsedData =
-  //               this.#xmlParser.getParsedXmlData();
-  //             this.#loadFilesData(parsedData, zipUtil)
-  //               .then((filesData) => resolve(filesData))
-  //               .catch((error) => reject(error));
-  //           })
-  //           .catch((error) => reject(error));
-  //       })
-  //       .catch((error) => reject(error));
-  //   });
-  // }
+  private async loadFilesData(parsedOR: ParsedORA): Promise<{detectionData: any[], imageData: PixelData[]}> {
+    const { format } = parsedOR
+    const detectionData: any[] = [];
+    const allPromises: Promise<string | Uint8Array | Blob | ArrayBuffer>[] = [];
+    const imageData : PixelData[] = [];
+    parsedOR.viewpoints.forEach((canvasViewpoint) => {
+      // load detection data
+      canvasViewpoint.detectionData.forEach((detectionPath) => {
+        const detectionFile = this.zipUtil.file(detectionPath);
+        if(!detectionFile) throw Error("Failed to load detection data")
+
+        const fileType = format === AnnotationType.COCO ? 'string' : 'uint8array';
+        const promise = detectionFile.async(fileType);
+        allPromises.push(promise);
+
+        promise.then((data) => {
+           switch (format) {
+             // TODO: read detection data here and push onto detection array
+             case AnnotationType.COCO:
+               break;
+             case AnnotationType.TDR:
+               break;
+             default:
+               throw Error("Annotation type not supported")
+           }
+        });
+      });
+      // load pixel data
+      const pixelFile = this.zipUtil.file(canvasViewpoint.pixelData);
+      if(!pixelFile) throw Error("Failed to load pixel data")
+      const fileType = format === AnnotationType.COCO ? 'arraybuffer' : 'blob';
+      const promise = pixelFile.async(fileType);
+      allPromises.push(promise);
+
+      promise.then((data) => {
+        imageData.push({
+          viewpoint: canvasViewpoint.viewpoint,
+          pixelData: data,
+          imageId: format === AnnotationType.COCO ? canvasViewpoint.imageId : guid(),
+          type: format,
+        });
+      });
+    });
+
+    await Promise.all(allPromises);
+    return { detectionData, imageData };
+  }
+
 }
