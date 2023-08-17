@@ -4,6 +4,7 @@ import {Observable, Subject} from "rxjs";
 import {SettingsService} from "../settings/settings.service";
 import {Platforms} from "../../../models/platforms";
 import {ElectronService} from "../electron/electron.service";
+import {FileParserService} from "../../file-parser/file-parser.service";
 
 
 @Injectable({
@@ -12,7 +13,11 @@ import {ElectronService} from "../electron/electron.service";
 export class FileService {
   private configUpdatedSubject: Subject<CurrentFileUpdatePayload> = new Subject<CurrentFileUpdatePayload>();
 
-  constructor(private settingsService: SettingsService, private electronService: ElectronService) {
+  constructor(
+    private settingsService: SettingsService,
+    private electronService: ElectronService,
+    private fileParserService: FileParserService
+  ) {
     this.init()
   }
 
