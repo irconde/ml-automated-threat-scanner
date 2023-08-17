@@ -5,7 +5,7 @@ import {CsCanvasComponent} from "../cs-canvas/cs-canvas.component";
 import {CurrentFileUpdatePayload} from "../../../shared/models/channels-payloads";
 import {FileService} from "../services/file/file.service";
 import {SettingsService} from "../services/settings/settings.service";
-import {Settings} from "../../../electron/models/settings";
+import {FileAndAnnotationSettings} from "../../../electron/models/Settings";
 
 @Component({
   selector: 'app-tab1',
@@ -21,12 +21,12 @@ export class Tab1Page {
     pixelData: undefined,
   };
 
-  settings: Settings | null = null;
+  settings: FileAndAnnotationSettings | null = null;
   constructor(private fileService: FileService, private settingsService: SettingsService) {
     fileService.getCurrentFile().subscribe((currentFile)=> {
       this.currentFile = currentFile;
     })
-    settingsService.getSettings().subscribe((settings: Settings) => {
+    settingsService.getSettings().subscribe((settings: FileAndAnnotationSettings) => {
       this.settings = settings;
     })
   }

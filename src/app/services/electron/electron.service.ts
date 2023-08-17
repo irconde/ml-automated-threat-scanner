@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {CurrentFileUpdatePayload} from "../../../../shared/models/channels-payloads";
 import {getElectronAPI} from "../../get-electron-api";
 import {Channels} from "../../../../shared/constants/channels";
-import {Settings} from "../../../../electron/models/settings";
+import {FileAndAnnotationSettings} from "../../../../electron/models/Settings";
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +17,7 @@ export class ElectronService {
     this.electronAPI.on(Channels.CurrentFileUpdate, listener);
   }
 
-  listenToSettingsUpdate(listener: (payload: Settings) => void)  {
+  listenToSettingsUpdate(listener: (payload: FileAndAnnotationSettings) => void)  {
     this.electronAPI.on(Channels.SettingsUpdate, listener);
   }
 

@@ -1,4 +1,4 @@
-export interface Settings {
+export interface FileAndAnnotationSettings {
   selectedImagesDirPath?: string;
   selectedAnnotationFile?: string;
 }

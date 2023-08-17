@@ -33,7 +33,7 @@ app.whenReady().then(async () => {
   const mainWindow = await createWindow()
   const settings = await CachedSettings.create(mainWindow);
   console.log("SETTINGS", settings.get())
-  await settings.update({selectedAnnotationFile: "", selectedImagesDirPath: "C:\\Users\\dako_\\Downloads\\testPictures"})
+  await settings.update({selectedAnnotationFile: "", selectedImagesDirPath: "G:\\EAC\\images\\coco\\val2017-small-test"})
   console.log(settings.get())
   userFilesManager = new UserFilesManager(settings, mainWindow)
 

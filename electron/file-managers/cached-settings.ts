@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import {Settings} from "../models/settings";
+import {FileAndAnnotationSettings} from "../models/Settings";
 import {BrowserWindow} from "electron";
 import {Channels} from "../../shared/constants/channels";
 import {ChannelsManager} from "./channels-manager";
@@ -9,7 +9,7 @@ const {app} = require('electron')
 const isDev = require('electron-is-dev');
 
 export class CachedSettings extends ChannelsManager {
-  static DefaultSettings : Settings = {selectedImagesDirPath: undefined, selectedAnnotationFile: undefined}
+  static DefaultSettings : FileAndAnnotationSettings = {selectedImagesDirPath: undefined, selectedAnnotationFile: undefined}
   readonly #settingsFilePath : string;
   #selectedImagesDirPath: string | undefined;
   #selectedAnnotationFile: string | undefined;
@@ -24,7 +24,7 @@ export class CachedSettings extends ChannelsManager {
     return settings;
   }
 
-  #setPaths(settings: Settings) {
+  #setPaths(settings: FileAndAnnotationSettings) {
     this.#selectedImagesDirPath = settings.selectedImagesDirPath;
     this.#selectedAnnotationFile = settings.selectedAnnotationFile;
   }
@@ -33,7 +33,7 @@ export class CachedSettings extends ChannelsManager {
     return isDev ? fileName : path.join(app.getPath('userData'), fileName)
   }
 
-  async update(updatedSettings: Settings) : Promise<void> {
+  async update(updatedSettings: FileAndAnnotationSettings) : Promise<void> {
     try {
       await fs.promises.writeFile(this.#settingsFilePath, JSON.stringify(updatedSettings));
       this.#setPaths(updatedSettings);
@@ -46,14 +46,14 @@ export class CachedSettings extends ChannelsManager {
   async #initFromFile() : Promise<void> {
     try {
       const data = await fs.promises.readFile(this.#settingsFilePath, { encoding: "utf-8" });
-      const storedSettings = JSON.parse(data) as Settings
+      const storedSettings = JSON.parse(data) as FileAndAnnotationSettings
       this.#setPaths(storedSettings)
     } catch (e) {
       this.#setPaths(CachedSettings.DefaultSettings)
     }
   }
 
-  get() : Settings {
+  get() : FileAndAnnotationSettings {
     return {selectedImagesDirPath: this.#selectedImagesDirPath, selectedAnnotationFile: this.#selectedAnnotationFile};
   }
 }

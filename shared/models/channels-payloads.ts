@@ -1,5 +1,5 @@
 import {Channels} from "../constants/channels";
-import {Settings} from "../../electron/models/settings";
+import {FileAndAnnotationSettings} from "../../electron/models/Settings";
 
 
 export interface CurrentFileUpdatePayload {
@@ -10,7 +10,7 @@ export interface CurrentFileUpdatePayload {
 
 export type ChannelPayloadMapper = {
   [Channels.NewFileRequest]: boolean,
-  [Channels.SettingsUpdate]: Settings,
+  [Channels.SettingsUpdate]: FileAndAnnotationSettings,
   [Channels.CurrentFileUpdate]: CurrentFileUpdatePayload,
 }
 

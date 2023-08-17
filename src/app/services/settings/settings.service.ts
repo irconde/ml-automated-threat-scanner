@@ -2,7 +2,7 @@ import {Injectable, OnInit} from '@angular/core';
 import {Platform} from "@ionic/angular";
 import {Platforms} from "../../../models/platforms";
 import {ElectronService} from "../electron/electron.service";
-import {Settings} from "../../../../electron/models/settings";
+import {FileAndAnnotationSettings} from "../../../../electron/models/Settings";
 import {Observable, Subject} from "rxjs";
 
 
@@ -12,16 +12,16 @@ import {Observable, Subject} from "rxjs";
 export class SettingsService {
 
   private readonly _platform: Platforms;
-  private settings: Subject<Settings> = new Subject<Settings>()
+  private settings: Subject<FileAndAnnotationSettings> = new Subject<FileAndAnnotationSettings>()
   constructor(private platformService: Platform, private electronService: ElectronService) {
-    this._platform = this.getIonicPlatform();
+    this._platform = this.getSystemPlatform();
     this.init();
   }
 
   private init() {
     switch (this.platform) {
       case Platforms.Electron:
-        this.electronService.listenToSettingsUpdate((settings: Settings)=> {
+        this.electronService.listenToSettingsUpdate((settings: FileAndAnnotationSettings)=> {
           this.settings.next(settings);
         })
         break
@@ -30,7 +30,7 @@ export class SettingsService {
     }
   }
 
-  public getSettings(): Observable<Settings> {
+  public getSettings(): Observable<FileAndAnnotationSettings> {
     return this.settings.asObservable();
   }
 
@@ -38,7 +38,7 @@ export class SettingsService {
     return this._platform;
   }
 
-  private getIonicPlatform() : Platforms {
+  private getSystemPlatform() : Platforms {
     if(this.platformService.is('electron')) {
       return Platforms.Electron;
     } else if (this.platformService.is('ios')) {
