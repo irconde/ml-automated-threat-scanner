@@ -18,8 +18,7 @@ export class FileParserService {
     try {
       const doc = await this.toXmlDoc(fileData);
       const parsedOra = await this.parseXmlDoc(doc);
-      const finalData = await this.loadFilesData(parsedOra)
-      console.log(finalData);
+      return await this.loadFilesData(parsedOra);
     } catch (e) {
       console.log(e);
       throw Error("Failed to load data")
@@ -27,8 +26,8 @@ export class FileParserService {
   }
 
   private async toXmlDoc(fileData: string) : Promise<Document> {
-    await this.zipUtil.loadAsync(fileData, {base64: true})
-    const stackFile = await this.zipUtil.file('stack.xml');
+    await this.zipUtil.loadAsync(fileData, {base64: false})
+    const stackFile = this.zipUtil.file('stack.xml');
     if(!stackFile) throw Error("Failed to find stack.xml");
     const stackString = await stackFile.async('string');
     return this.domParser.parseFromString(stackString, "text/xml");
