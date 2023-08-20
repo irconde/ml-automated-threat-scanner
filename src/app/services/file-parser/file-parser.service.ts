@@ -6,6 +6,10 @@ import {
   PixelData,
 } from '../../../models/file-parser';
 import { v4 as guid } from 'uuid';
+import {
+  cocoBoxToBoundingBox,
+  getMasks,
+} from '../../utilities/detection.utilities';
 
 @Injectable({
   providedIn: 'root',
@@ -109,17 +113,17 @@ export class FileParserService {
         const detectionPromise = this.readDetectionData(detectionPath, format);
         allPromises.push(detectionPromise);
 
-        detectionPromise.then((data) => {
-          switch (format) {
-            // TODO: read detection data here and push onto detection array
-            case AnnotationType.COCO:
-              break;
-            case AnnotationType.TDR:
-              break;
-            default:
-              throw Error('Annotation type not supported');
-          }
-        });
+        // detectionPromise.then((data) => {
+        //   switch (format) {
+        //     // TODO: read detection data here and push onto detection array
+        //     case AnnotationType.COCO:
+        //       break;
+        //     case AnnotationType.TDR:
+        //       break;
+        //     default:
+        //       throw Error('Annotation type not supported');
+        //   }
+        // });
       });
       // load pixel data
       const pixelDataPromise = this.readPixelData(
@@ -156,10 +160,45 @@ export class FileParserService {
   private async readDetectionData(
     detectionDataSrc: string,
     format: AnnotationType
-  ): Promise<string | Uint8Array> {
+  ): Promise<void> {
     const detectionFile = this.zipUtil.file(detectionDataSrc);
     if (!detectionFile) throw Error('Failed to load detection data');
     const fileType = format === AnnotationType.COCO ? 'string' : 'uint8array';
-    return detectionFile.async(fileType);
+
+    const data: string | Uint8Array = await detectionFile.async(fileType);
+
+    console.log(data);
+    switch (format) {
+      // TODO: read detection data here and push onto detection array
+      case AnnotationType.COCO:
+        console.log('COCO');
+        break;
+      case AnnotationType.TDR:
+        console.log('TDR');
+        break;
+      default:
+        throw Error('Annotation type not supported');
+    }
+  }
+
+  private loadCocoDetections(cocoData: string, viewpoint: string) {
+    const detection = JSON.parse(cocoData);
+    const { annotations, info } = detection;
+    const { className, confidence, bbox, image_id, segmentation } =
+      annotations[0];
+    const boundingBox = cocoBoxToBoundingBox(bbox);
+    const { binaryMask, polygonMask } = getMasks(boundingBox, segmentation);
+    return {
+      algorithm: info.algorithm,
+      className,
+      confidence,
+      viewpoint,
+      boundingBox,
+      binaryMask,
+      polygonMask,
+      uuid: guid(),
+      detectionFromFile: true,
+      imageId: image_id,
+    };
   }
 }
