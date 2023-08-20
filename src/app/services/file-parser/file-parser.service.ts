@@ -106,15 +106,10 @@ export class FileParserService {
     parsedOR.viewpoints.forEach((canvasViewpoint) => {
       // load detection data
       canvasViewpoint.detectionData.forEach((detectionPath) => {
-        const detectionFile = this.zipUtil.file(detectionPath);
-        if (!detectionFile) throw Error('Failed to load detection data');
+        const detectionPromise = this.readDetectionData(detectionPath, format);
+        allPromises.push(detectionPromise);
 
-        const fileType =
-          format === AnnotationType.COCO ? 'string' : 'uint8array';
-        const promise = detectionFile.async(fileType);
-        allPromises.push(promise);
-
-        promise.then((data) => {
+        detectionPromise.then((data) => {
           switch (format) {
             // TODO: read detection data here and push onto detection array
             case AnnotationType.COCO:
@@ -127,13 +122,13 @@ export class FileParserService {
         });
       });
       // load pixel data
-      const pixelFile = this.zipUtil.file(canvasViewpoint.pixelData);
-      if (!pixelFile) throw Error('Failed to load pixel data');
-      const fileType = format === AnnotationType.COCO ? 'arraybuffer' : 'blob';
-      const promise = pixelFile.async(fileType);
-      allPromises.push(promise);
+      const pixelDataPromise = this.readPixelData(
+        canvasViewpoint.pixelData,
+        format
+      );
+      allPromises.push(pixelDataPromise);
 
-      promise.then((data) => {
+      pixelDataPromise.then((data) => {
         imageData.push({
           viewpoint: canvasViewpoint.viewpoint,
           pixelData: data,
@@ -146,5 +141,25 @@ export class FileParserService {
 
     await Promise.all(allPromises);
     return { detectionData, imageData };
+  }
+
+  private async readPixelData(
+    pixelDataPath: string,
+    format: AnnotationType
+  ): Promise<ArrayBuffer | Blob> {
+    const pixelFile = this.zipUtil.file(pixelDataPath);
+    if (!pixelFile) throw Error('Failed to load pixel data');
+    const fileType = format === AnnotationType.COCO ? 'arraybuffer' : 'blob';
+    return pixelFile.async(fileType);
+  }
+
+  private async readDetectionData(
+    detectionDataSrc: string,
+    format: AnnotationType
+  ): Promise<string | Uint8Array> {
+    const detectionFile = this.zipUtil.file(detectionDataSrc);
+    if (!detectionFile) throw Error('Failed to load detection data');
+    const fileType = format === AnnotationType.COCO ? 'string' : 'uint8array';
+    return detectionFile.async(fileType);
   }
 }
