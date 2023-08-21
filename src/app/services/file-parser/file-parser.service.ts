@@ -30,6 +30,13 @@ export class FileParserService {
     this.domParser = new DOMParser();
   }
 
+  /**
+   * Loads data from a provided ArrayBuffer containing XML data.
+   *
+   * @param fileData - The ArrayBuffer containing XML data to be loaded.
+   * @returns A Promise that resolves to the loaded data.
+   * @throws {Error} If loading data fails for any reason.
+   */
   public async loadData(fileData: ArrayBuffer) {
     try {
       const doc = await this.toXmlDoc(fileData);
@@ -41,6 +48,13 @@ export class FileParserService {
     }
   }
 
+  /**
+   * Converts ArrayBuffer containing XML data into an XML Document.
+   *
+   * @param fileData - The ArrayBuffer containing XML data to be converted.
+   * @throws {Error} If there's an issue finding or parsing the 'stack.xml' file.
+   * @returns A Promise that resolves to an XML Document representing the parsed XML data.
+   */
   private async toXmlDoc(fileData: ArrayBuffer): Promise<Document> {
     await this.zipUtil.loadAsync(fileData, { base64: false });
     const stackFile = this.zipUtil.file('stack.xml');
@@ -49,6 +63,13 @@ export class FileParserService {
     return this.domParser.parseFromString(stackString, 'text/xml');
   }
 
+  /**
+   * Parses an XML Document and extracts relevant information into a ParsedORA object.
+   *
+   * @param xmlDoc - The XML Document to be parsed.
+   * @throws {Error} If there are issues finding required elements or attributes in the XML Document.
+   * @returns A Promise that resolves to a ParsedORA object containing extracted information.
+   */
   private async parseXmlDoc(xmlDoc: Document): Promise<ParsedORA> {
     const xmlImages = xmlDoc.getElementsByTagName('image');
     if (!xmlImages[0]) throw Error('Failed to find image element');
@@ -93,6 +114,13 @@ export class FileParserService {
     return parsedORA;
   }
 
+  /**
+   * Determines the annotation type based on the file extension of an image source.
+   *
+   * @param imageSrc - The source of the image file.
+   * @throws {Error} If the file type cannot be handled.
+   * @returns The determined annotation type.
+   */
   private getAnnotationType(imageSrc: string): AnnotationType {
     const fileExtension = imageSrc.split('.').pop();
     switch (fileExtension) {
@@ -107,6 +135,13 @@ export class FileParserService {
     }
   }
 
+  /**
+   * Loads detection and image pixel data from parsedORA object.
+   *
+   * @param parsedOR - The parsedORA object containing information about detection and pixel data.
+   * @throws {Error} If there are issues loading detection or pixel data.
+   * @returns A Promise that resolves to an object containing loaded detection data and image pixel data.
+   */
   private async loadFilesData(
     parsedOR: ParsedORA
   ): Promise<{ detectionData: Detection[]; imageData: PixelData[] }> {
@@ -149,6 +184,14 @@ export class FileParserService {
     return { detectionData, imageData };
   }
 
+  /**
+   * Reads pixel data from a specified path in the ZIP archive.
+   *
+   * @param {string} pixelDataPath - The path to the pixel data in the ZIP archive.
+   * @param {AnnotationType} format - The annotation type format.
+   * @throws {Error} If there's an issue loading the pixel data.
+   * @returns {Promise<ArrayBuffer | Blob>} A Promise that resolves to the loaded pixel data as an ArrayBuffer or Blob.
+   */
   private async readPixelData(
     pixelDataPath: string,
     format: AnnotationType
@@ -159,6 +202,15 @@ export class FileParserService {
     return pixelFile.async(fileType);
   }
 
+  /**
+   * Reads and loads detection data from a specified source based on the annotation type.
+   *
+   * @param {string} detectionDataSrc - The source of the detection data.
+   * @param {AnnotationType} format - The annotation type format.
+   * @param {string} viewpoint - The viewpoint associated with the detection data.
+   * @throws {Error} If there's an issue loading or parsing the detection data or if the annotation type is not supported.
+   * @returns {Promise<Detection>} A Promise that resolves to the loaded detection data.
+   */
   private async readDetectionData(
     detectionDataSrc: string,
     format: AnnotationType,
@@ -177,6 +229,14 @@ export class FileParserService {
     }
   }
 
+  /**
+   * Loads COCO format detection data from a given file.
+   *
+   * @param {JSZip.JSZipObject} detectionFile - The COCO format detection data file.
+   * @param {string} viewpoint - The viewpoint associated with the detection data.
+   * @throws {Error} If there's an issue loading or parsing the COCO format detection data.
+   * @returns {Promise<CocoDetection>} A Promise that resolves to the loaded COCO format detection data.
+   */
   private async loadCocoDetections(
     detectionFile: JSZip.JSZipObject,
     viewpoint: string
@@ -203,10 +263,12 @@ export class FileParserService {
   }
 
   /**
-   * Parses an Uint8Array and pushes a detection object onto the passed in detection data array
+   * Loads DICOS format detection data from a given file.
    *
-   * @param detectionFile
-   * @param viewpoint - top or side view
+   * @param {JSZip.JSZipObject} detectionFile - The DICOS format detection data file.
+   * @param {string} viewpoint - The viewpoint associated with the detection data.
+   * @throws {Error} If there's an issue loading or parsing the DICOS format detection data.
+   * @returns {Promise<DicosDetection>} A Promise that resolves to the loaded DICOS format detection data.
    */
   private async loadDicosDetections(
     detectionFile: JSZip.JSZipObject,
