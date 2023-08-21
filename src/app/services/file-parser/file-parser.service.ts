@@ -10,6 +10,20 @@ import {
   cocoBoxToBoundingBox,
   getMasks,
 } from '../../utilities/detection.utilities';
+import {
+  CocoDetection,
+  Detection,
+  DicosDetection,
+} from '../../../models/detection';
+import dicomParser from 'dicom-parser';
+import {
+  decimalToPercentage,
+  dictionary,
+  retrieveBoundingBoxData,
+  retrieveConfidenceLevel,
+  retrieveMaskData,
+  retrieveObjectClass,
+} from '../../utilities/dicos.utilities';
 
 @Injectable({
   providedIn: 'root',
@@ -102,28 +116,23 @@ export class FileParserService {
 
   private async loadFilesData(
     parsedOR: ParsedORA
-  ): Promise<{ detectionData: any[]; imageData: PixelData[] }> {
+  ): Promise<{ detectionData: Detection[]; imageData: PixelData[] }> {
     const { format } = parsedOR;
-    const detectionData: any[] = [];
-    const allPromises: Promise<string | Uint8Array | Blob | ArrayBuffer>[] = [];
+    const detectionData: Detection[] = [];
+    const allPromises: Promise<Detection | Blob | ArrayBuffer>[] = [];
     const imageData: PixelData[] = [];
     parsedOR.viewpoints.forEach((canvasViewpoint) => {
       // load detection data
       canvasViewpoint.detectionData.forEach((detectionPath) => {
-        const detectionPromise = this.readDetectionData(detectionPath, format);
+        const detectionPromise = this.readDetectionData(
+          detectionPath,
+          format,
+          canvasViewpoint.viewpoint
+        );
         allPromises.push(detectionPromise);
-
-        // detectionPromise.then((data) => {
-        //   switch (format) {
-        //     // TODO: read detection data here and push onto detection array
-        //     case AnnotationType.COCO:
-        //       break;
-        //     case AnnotationType.TDR:
-        //       break;
-        //     default:
-        //       throw Error('Annotation type not supported');
-        //   }
-        // });
+        detectionPromise.then((detection) => {
+          detectionData.push(detection);
+        });
       });
       // load pixel data
       const pixelDataPromise = this.readPixelData(
@@ -159,29 +168,27 @@ export class FileParserService {
 
   private async readDetectionData(
     detectionDataSrc: string,
-    format: AnnotationType
-  ): Promise<void> {
+    format: AnnotationType,
+    viewpoint: string
+  ): Promise<Detection> {
     const detectionFile = this.zipUtil.file(detectionDataSrc);
     if (!detectionFile) throw Error('Failed to load detection data');
-    const fileType = format === AnnotationType.COCO ? 'string' : 'uint8array';
 
-    const data: string | Uint8Array = await detectionFile.async(fileType);
-
-    console.log(data);
     switch (format) {
-      // TODO: read detection data here and push onto detection array
       case AnnotationType.COCO:
-        console.log('COCO');
-        break;
+        return this.loadCocoDetections(detectionFile, viewpoint);
       case AnnotationType.TDR:
-        console.log('TDR');
-        break;
+        return this.loadDicosDetections(detectionFile, viewpoint);
       default:
         throw Error('Annotation type not supported');
     }
   }
 
-  private loadCocoDetections(cocoData: string, viewpoint: string) {
+  private async loadCocoDetections(
+    detectionFile: JSZip.JSZipObject,
+    viewpoint: string
+  ): Promise<CocoDetection> {
+    const cocoData = await detectionFile.async('string');
     const detection = JSON.parse(cocoData);
     const { annotations, info } = detection;
     const { className, confidence, bbox, image_id, segmentation } =
@@ -200,5 +207,53 @@ export class FileParserService {
       detectionFromFile: true,
       imageId: image_id,
     };
+  }
+
+  /**
+   * Parses an Uint8Array and pushes a detection object onto the passed in detection data array
+   *
+   * @param detectionFile
+   * @param viewpoint - top or side view
+   */
+  private async loadDicosDetections(
+    detectionFile: JSZip.JSZipObject,
+    viewpoint: string
+  ): Promise<DicosDetection> {
+    const dicosData = await detectionFile.async('uint8array');
+    const dataSet: dicomParser.DataSet = dicomParser.parseDicom(dicosData);
+
+    const _dictionary = dictionary();
+    const algorithm = dataSet.string(
+      _dictionary.ThreatDetectionAlgorithmandVersion.tag
+    );
+    const threatSequence = dataSet.elements['x40101011'];
+    if (
+      threatSequence == null ||
+      dataSet.uint16(_dictionary['NumberOfAlarmObjects'].tag) === 0 ||
+      dataSet.uint16(_dictionary['NumberOfAlarmObjects'].tag) === undefined
+    ) {
+      throw Error('Missing tag on Number of Alarm Objects');
+    } else if (!threatSequence.items) {
+      throw Error('No items found in Dicom sequence');
+    } else {
+      const dicomElement: dicomParser.Element = threatSequence.items[0];
+      const boundingBox = retrieveBoundingBoxData(dicomElement);
+      const className = retrieveObjectClass(dicomElement);
+      const confidence = decimalToPercentage(
+        retrieveConfidenceLevel(dicomElement)
+      );
+      const binaryMask = retrieveMaskData(dicomElement, dataSet);
+      return {
+        algorithm: algorithm || '',
+        className: className || '',
+        confidence,
+        viewpoint,
+        boundingBox,
+        binaryMask,
+        polygonMask: [],
+        detectionFromFile: true,
+        uuid: guid(),
+      };
+    }
   }
 }

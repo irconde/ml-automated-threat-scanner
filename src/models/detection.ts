@@ -7,3 +7,25 @@ export interface Point {
   y: number;
   anchor: { top: number; bottom: number; left: number; right: number };
 }
+
+interface GeneralDetection {
+  algorithm: string;
+  className: string;
+  confidence: number;
+  viewpoint: string;
+  binaryMask?: number[][];
+  polygonMask: Point[];
+  uuid: string;
+  detectionFromFile: boolean;
+}
+
+export interface DicosDetection extends GeneralDetection {
+  boundingBox: number[];
+}
+
+export interface CocoDetection extends GeneralDetection {
+  boundingBox: BoundingBox;
+  imageId: string;
+}
+
+export type Detection = CocoDetection | DicosDetection;
