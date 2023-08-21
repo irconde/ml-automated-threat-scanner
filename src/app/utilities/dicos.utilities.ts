@@ -68,7 +68,11 @@ export const retrieveBoundingBoxData = (
   const BYTES_PER_FLOAT = 4;
   const B_BOX_POINT_COUNT = 2;
 
-  const bBoxDataSet = image.dataSet?.elements['x40101037'].items[0].dataSet;
+  const bBoxDataSet =
+    image.dataSet?.elements['x40101037']?.items?.at(0)?.dataSet;
+
+  if (bBoxDataSet?.elements === undefined)
+    throw Error('Missing bounding box for detection');
 
   const bBoxByteArraySize =
     bBoxDataSet.elements[DICOS_DICTIONARY['BoundingPolygon'].tag].length;
@@ -96,13 +100,16 @@ export const retrieveBoundingBoxData = (
 /**
  * Parses a DICOS+TDR file to retrieve the class of the potential threat object
  *
- * @param {Blob} image - Blob data
- * @returns {string} - Description of the potential threat object
+ * @param image - Dicom element
+ * @returns Description of the potential threat object
  */
-export const retrieveObjectClass = (image: dicomParser.Element) => {
-  return image.dataSet.elements.x40101038.items[0].dataSet.string(
+export const retrieveObjectClass = (image: dicomParser.Element): string => {
+  const firstItem = image.dataSet?.elements['x40101038']?.items?.at(0);
+  const className = firstItem?.dataSet?.string(
     DICOS_DICTIONARY['ThreatCategoryDescription'].tag
   );
+  if (className) return className;
+  else throw Error("Missing required field 'className'");
 };
 
 /**
@@ -118,13 +125,15 @@ export const decimalToPercentage = (num: number): number => {
 /**
  * Parses a DICOS+TDR file to retrieve the confidence level of the detection algorithm used
  *
- * @param image - Blob data
+ * @param image - Dicom element
  * @returns {number} - Confidence level
  */
-export const retrieveConfidenceLevel = (image: dicomParser.Element): number | undefined => {
-  return image.dataSet?.elements['x40101038'].items?[0].dataSet.float(
-    DICOS_DICTIONARY['ATDAssessmentProbability'].tag
-  );
+export const retrieveConfidenceLevel = (image: dicomParser.Element): number => {
+  const items = image.dataSet?.elements['x40101038']?.items;
+  const confidenceTag = DICOS_DICTIONARY.ATDAssessmentProbability.tag;
+  const confidence = items?.at(0)?.dataSet?.float(confidenceTag);
+  if (confidence) return confidence;
+  else throw Error('Missing required confidence parameter');
 };
 
 /**
@@ -138,22 +147,19 @@ export const retrieveConfidenceLevel = (image: dicomParser.Element): number | un
 export const retrieveMaskData = (
   image: dicomParser.Element,
   data: dicomParser.DataSet
-) => {
-  const BYTES_PER_FLOAT = 4;
-  const B_BOX_POINT_COUNT = 2;
-
+): undefined | [number[], number[], number[]] => {
   const dataSet = image.dataSet;
   if (dataSet === undefined) return;
-  if (
-    dataSet.elements.x40101037.items[0].dataSet.elements.x40101001 === undefined
-  )
-    return;
-  const baseDataSet =
-    dataSet.elements.x40101037.items[0].dataSet.elements.x40101001.items[0]
-      .dataSet;
+  const dicomElem =
+    dataSet.elements['x40101037'].items?.at(0)?.dataSet?.elements['x40101001'];
+  if (dicomElem === undefined) return;
+  const baseDataSet = dicomElem.items?.at(0)?.dataSet;
+  if (baseDataSet?.elements === undefined) return;
 
   const baseByteArraySize =
-    baseDataSet.elements[DICOS_DICTIONARY['ThreatROIBase'].tag].length;
+    baseDataSet.elements[DICOS_DICTIONARY.ThreatROIBase.tag].length;
+  const BYTES_PER_FLOAT = 4;
+  const B_BOX_POINT_COUNT = 2;
   const bBoxBytesCount = baseByteArraySize / BYTES_PER_FLOAT;
   // NOTE: The z component is not necessary, so we get rid of the third component in every trio of values
   const bBoxComponentsCount = (B_BOX_POINT_COUNT * bBoxBytesCount) / 3;
@@ -167,14 +173,14 @@ export const retrieveMaskData = (
       continue;
     }
     baseCoords[bBoxIndex] = baseDataSet.float(
-      DICOS_DICTIONARY['ThreatROIBase'].tag,
+      DICOS_DICTIONARY.ThreatROIBase.tag,
       i
     );
     bBoxIndex++;
   }
 
   const extentsByteArraySize =
-    baseDataSet.elements[DICOS_DICTIONARY['ThreatROIExtents'].tag].length;
+    baseDataSet.elements[DICOS_DICTIONARY.ThreatROIExtents.tag].length;
   const extentsBytesCount = extentsByteArraySize / BYTES_PER_FLOAT;
   // NOTE: The z component is not necessary, so we get rid of the third component in every trio of values
   const extentsComponentsCount = (B_BOX_POINT_COUNT * extentsBytesCount) / 3;
@@ -188,19 +194,15 @@ export const retrieveMaskData = (
       continue;
     }
     extentsCoords[bBoxIndex] = baseDataSet.float(
-      DICOS_DICTIONARY['ThreatROIExtents'].tag,
+      DICOS_DICTIONARY.ThreatROIExtents.tag,
       j
     );
     bBoxIndex++;
   }
-  let arrayPixelData = [];
-  if (
-    image.dataSet.elements.x40101037.items[0].dataSet.elements.x40101001
-      .items[0].dataSet.elements.x40101006 !== undefined
-  ) {
-    const pixelDataElement =
-      image.dataSet.elements.x40101037.items[0].dataSet.elements.x40101001
-        .items[0].dataSet.elements.x40101006;
+  let arrayPixelData: any[] = [];
+
+  const pixelDataElement = baseDataSet.elements['x40101006'];
+  if (pixelDataElement !== undefined) {
     const pixelData = new Uint8Array(
       data.byteArray.buffer,
       pixelDataElement.dataOffset,

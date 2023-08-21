@@ -16,14 +16,7 @@ import {
   DicosDetection,
 } from '../../../models/detection';
 import dicomParser from 'dicom-parser';
-import {
-  decimalToPercentage,
-  dictionary,
-  retrieveBoundingBoxData,
-  retrieveConfidenceLevel,
-  retrieveMaskData,
-  retrieveObjectClass,
-} from '../../utilities/dicos.utilities';
+import * as DICOS from '../../utilities/dicos.utilities';
 
 @Injectable({
   providedIn: 'root',
@@ -37,7 +30,7 @@ export class FileParserService {
     this.domParser = new DOMParser();
   }
 
-  public async loadData(fileData: string) {
+  public async loadData(fileData: ArrayBuffer) {
     try {
       const doc = await this.toXmlDoc(fileData);
       const parsedOra = await this.parseXmlDoc(doc);
@@ -48,7 +41,7 @@ export class FileParserService {
     }
   }
 
-  private async toXmlDoc(fileData: string): Promise<Document> {
+  private async toXmlDoc(fileData: ArrayBuffer): Promise<Document> {
     await this.zipUtil.loadAsync(fileData, { base64: false });
     const stackFile = this.zipUtil.file('stack.xml');
     if (!stackFile) throw Error('Failed to find stack.xml');
@@ -219,30 +212,32 @@ export class FileParserService {
     detectionFile: JSZip.JSZipObject,
     viewpoint: string
   ): Promise<DicosDetection> {
-    const dicosData = await detectionFile.async('uint8array');
+    const dicosData: Uint8Array = await detectionFile.async('uint8array');
     const dataSet: dicomParser.DataSet = dicomParser.parseDicom(dicosData);
 
-    const _dictionary = dictionary();
     const algorithm = dataSet.string(
-      _dictionary.ThreatDetectionAlgorithmandVersion.tag
+      DICOS.DICOS_DICTIONARY.ThreatDetectionAlgorithmandVersion.tag
     );
     const threatSequence = dataSet.elements['x40101011'];
+    const alarmObjectNumTag =
+      DICOS.DICOS_DICTIONARY['NumberOfAlarmObjects'].tag;
+    const alarmObjectNum = dataSet.uint16(alarmObjectNumTag);
     if (
       threatSequence == null ||
-      dataSet.uint16(_dictionary['NumberOfAlarmObjects'].tag) === 0 ||
-      dataSet.uint16(_dictionary['NumberOfAlarmObjects'].tag) === undefined
+      alarmObjectNum === 0 ||
+      alarmObjectNum === undefined
     ) {
       throw Error('Missing tag on Number of Alarm Objects');
     } else if (!threatSequence.items) {
       throw Error('No items found in Dicom sequence');
     } else {
       const dicomElement: dicomParser.Element = threatSequence.items[0];
-      const boundingBox = retrieveBoundingBoxData(dicomElement);
-      const className = retrieveObjectClass(dicomElement);
-      const confidence = decimalToPercentage(
-        retrieveConfidenceLevel(dicomElement)
+      const boundingBox = DICOS.retrieveBoundingBoxData(dicomElement);
+      const className = DICOS.retrieveObjectClass(dicomElement);
+      const confidence = DICOS.decimalToPercentage(
+        DICOS.retrieveConfidenceLevel(dicomElement)
       );
-      const binaryMask = retrieveMaskData(dicomElement, dataSet);
+      const binaryMask = DICOS.retrieveMaskData(dicomElement, dataSet);
       return {
         algorithm: algorithm || '',
         className: className || '',
@@ -250,7 +245,6 @@ export class FileParserService {
         viewpoint,
         boundingBox,
         binaryMask,
-        polygonMask: [],
         detectionFromFile: true,
         uuid: guid(),
       };

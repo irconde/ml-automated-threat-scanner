@@ -14,7 +14,6 @@ interface GeneralDetection {
   confidence: number;
   viewpoint: string;
   binaryMask?: number[][];
-  polygonMask: Point[];
   uuid: string;
   detectionFromFile: boolean;
 }
@@ -24,6 +23,7 @@ export interface DicosDetection extends GeneralDetection {
 }
 
 export interface CocoDetection extends GeneralDetection {
+  polygonMask: Point[];
   boundingBox: BoundingBox;
   imageId: string;
 }
