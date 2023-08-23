@@ -10,3 +10,8 @@ export enum WorkingMode {
   LocalDirectory,
   IndividualFile,
 }
+
+export enum FileFormat {
+  OpenRaster = 'ora',
+  ZipArchive = 'zip',
+}

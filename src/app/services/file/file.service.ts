@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { CurrentFileUpdatePayload } from '../../../../shared/models/channels-payloads';
 import { Observable, Subject } from 'rxjs';
 import { SettingsService } from '../settings/settings.service';
-import { WorkingMode } from '../../../models/platforms';
+import { Platforms, WorkingMode } from '../../../models/platforms';
 import { ElectronService } from '../electron/electron.service';
 import { FileParserService } from '../file-parser/file-parser.service';
 
@@ -35,7 +35,18 @@ export class FileService {
         this.electronService.requestNewFile(next);
         break;
       case WorkingMode.RemoteServer:
-        // TODO: Get the next file from the server
+        switch (this.settingsService.platform) {
+          case Platforms.Android:
+          case Platforms.iOS:
+            // TODO: Http Phonegap plugin
+            break;
+          case Platforms.Electron:
+          case Platforms.Web:
+            // TODO: Normal HTTP request
+            break;
+          default:
+          //
+        }
         break;
       default:
         console.log(
@@ -54,7 +65,18 @@ export class FileService {
         );
         break;
       case WorkingMode.RemoteServer:
-        // TODO: Get current file from server
+        switch (this.settingsService.platform) {
+          case Platforms.Android:
+          case Platforms.iOS:
+            // TODO: Http Phonegap plugin
+            break;
+          case Platforms.Electron:
+          case Platforms.Web:
+            // TODO: Normal HTTP request
+            break;
+          default:
+          //
+        }
         break;
       default:
         console.log(
