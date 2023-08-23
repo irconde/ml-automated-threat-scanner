@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { Platforms, WorkingMode } from '../../../models/platforms';
 import { ElectronService } from '../electron/electron.service';
-import { FileAndAnnotationSettings } from '../../../../electron/models/Settings';
+import { FileAndDetectionSettings } from '../../../../electron/models/Settings';
 import { Observable, Subject } from 'rxjs';
 
 @Injectable({
@@ -11,8 +11,8 @@ import { Observable, Subject } from 'rxjs';
 export class SettingsService {
   private readonly _platform: Platforms;
   private _workingMode: WorkingMode = WorkingMode.RemoteServer;
-  private settings: Subject<FileAndAnnotationSettings> =
-    new Subject<FileAndAnnotationSettings>();
+  private settings: Subject<FileAndDetectionSettings> =
+    new Subject<FileAndDetectionSettings>();
 
   constructor(
     private platformService: Platform,
@@ -26,7 +26,7 @@ export class SettingsService {
     switch (this.platform) {
       case Platforms.Electron:
         this.electronService.listenToSettingsUpdate(
-          (settings: FileAndAnnotationSettings) => {
+          (settings: FileAndDetectionSettings) => {
             this.settings.next(settings);
           }
         );
@@ -38,7 +38,7 @@ export class SettingsService {
     }
   }
 
-  public getSettings(): Observable<FileAndAnnotationSettings> {
+  public getSettings(): Observable<FileAndDetectionSettings> {
     return this.settings.asObservable();
   }
 

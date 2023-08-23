@@ -5,7 +5,7 @@ import { CsCanvasComponent } from '../cs-canvas/cs-canvas.component';
 import { CurrentFileUpdatePayload } from '../../../shared/models/channels-payloads';
 import { FileService } from '../services/file/file.service';
 import { SettingsService } from '../services/settings/settings.service';
-import { FileAndAnnotationSettings } from '../../../electron/models/Settings';
+import { FileAndDetectionSettings } from '../../../electron/models/Settings';
 import { FileParserService } from '../services/file-parser/file-parser.service';
 
 @Component({
@@ -22,7 +22,7 @@ export class AppMain {
     pixelData: undefined,
   };
 
-  settings: FileAndAnnotationSettings | null = null;
+  settings: FileAndDetectionSettings | null = null;
 
   constructor(
     private fileService: FileService,
@@ -34,7 +34,7 @@ export class AppMain {
     });
     settingsService
       .getSettings()
-      .subscribe((settings: FileAndAnnotationSettings) => {
+      .subscribe((settings: FileAndDetectionSettings) => {
         this.settings = settings;
       });
   }
