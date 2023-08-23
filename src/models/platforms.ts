@@ -4,3 +4,9 @@ export enum Platforms {
   iOS,
   Android,
 }
+
+export enum WorkingMode {
+  RemoteServer,
+  LocalDirectory,
+  IndividualFile,
+}

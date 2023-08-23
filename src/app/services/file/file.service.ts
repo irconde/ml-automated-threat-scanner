@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { CurrentFileUpdatePayload } from '../../../../shared/models/channels-payloads';
 import { Observable, Subject } from 'rxjs';
 import { SettingsService } from '../settings/settings.service';
-import { Platforms } from '../../../models/platforms';
+import { WorkingMode } from '../../../models/platforms';
 import { ElectronService } from '../electron/electron.service';
 import { FileParserService } from '../file-parser/file-parser.service';
 
@@ -10,7 +10,7 @@ import { FileParserService } from '../file-parser/file-parser.service';
   providedIn: 'root',
 })
 export class FileService {
-  private configUpdatedSubject: Subject<CurrentFileUpdatePayload> =
+  private currentFileObservable: Subject<CurrentFileUpdatePayload> =
     new Subject<CurrentFileUpdatePayload>();
 
   constructor(
@@ -22,31 +22,43 @@ export class FileService {
   }
 
   private init() {
-    switch (this.settingsService.platform) {
-      case Platforms.Electron:
-        this.electronService.listenToFileUpdate(
-          (payload: CurrentFileUpdatePayload) => {
-            this.configUpdatedSubject.next(payload);
-          }
-        );
-        break;
-      default:
-        console.log('File service not implemented on current platform!');
-    }
+    this.requestCurrentFile();
   }
 
   getCurrentFile(): Observable<CurrentFileUpdatePayload> {
-    return this.configUpdatedSubject.asObservable();
+    return this.currentFileObservable.asObservable();
   }
 
   requestNextFile(next: boolean) {
-    switch (this.settingsService.platform) {
-      case Platforms.Electron:
+    switch (this.settingsService.workingMode) {
+      case WorkingMode.LocalDirectory:
         this.electronService.requestNewFile(next);
+        break;
+      case WorkingMode.RemoteServer:
+        // TODO: Get the next file from the server
         break;
       default:
         console.log(
           "'requestNextFile' in 'File service' is not implemented on current platform!"
+        );
+    }
+  }
+
+  requestCurrentFile() {
+    switch (this.settingsService.workingMode) {
+      case WorkingMode.LocalDirectory:
+        this.electronService.listenToFileUpdate(
+          (payload: CurrentFileUpdatePayload) => {
+            this.currentFileObservable.next(payload);
+          }
+        );
+        break;
+      case WorkingMode.RemoteServer:
+        // TODO: Get current file from server
+        break;
+      default:
+        console.log(
+          'You are not in a proper working mode of the application, please revisit your settings!'
         );
     }
   }
