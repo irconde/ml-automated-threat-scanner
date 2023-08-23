@@ -1,0 +1,21 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>
+      Cornerstone Demo
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Cornerstone Demo</ion-title>
+    </ion-toolbar>
+  </ion-header>
+	<div>{{status}}</div>
+  <div>Current directory: {{settings?.selectedImagesDirPath}}</div>
+  <div>Current file name: {{currentFile.fileName}}</div>
+  <div>Number of files: {{currentFile.filesCount}}</div>
+  <button (click)="showFilePicker()" style="padding: 1rem">Select file</button>
+  <app-cs-canvas></app-cs-canvas>
+</ion-content>
