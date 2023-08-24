@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { BrowserWindow } from 'electron';
 import { Channels } from '../../shared/constants/channels';
-import { CurrentLocalDirectoryPayload } from '../../shared/models/channels-payloads';
+import { CurrentLocalDirectoryPayload } from '../../shared/models/file-models';
 import { CachedSettings } from './cached-settings';
 import { ChannelsManager } from './channels-manager';
 

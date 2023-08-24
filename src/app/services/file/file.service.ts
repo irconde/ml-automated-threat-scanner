@@ -72,28 +72,16 @@ export class FileService {
         );
         break;
       case WorkingMode.RemoteServer:
-        switch (this.settingsService.platform) {
-          case Platforms.Android:
-          case Platforms.iOS:
-            // TODO: Http Phonegap plugin
-            break;
-          case Platforms.Electron:
-          case Platforms.Web:
-            //'http://localhost:4001/files/getCurrentFile'
-            this.httpClient
-              .post<CurrentRemoteServerPayload>(
-                `${API.protocol}${this.settingsService.remoteIp}:${this.settingsService.remotePort}${API.getCurrentFile}`,
-                {
-                  fileFormat: this.settingsService.fileFormat,
-                }
-              )
-              .subscribe((result: CurrentRemoteServerPayload) => {
-                this.currentFileObservable.next(result);
-              });
-            break;
-          default:
-          //
-        }
+        this.httpClient
+          .post<CurrentRemoteServerPayload>(
+            `${API.protocol}${this.settingsService.remoteIp}:${this.settingsService.remotePort}${API.getCurrentFile}`,
+            {
+              fileFormat: this.settingsService.fileFormat,
+            }
+          )
+          .subscribe((result: CurrentRemoteServerPayload) => {
+            this.currentFileObservable.next(result);
+          });
         break;
       default:
         console.log(
