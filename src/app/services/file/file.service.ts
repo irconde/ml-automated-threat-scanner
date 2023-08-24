@@ -80,7 +80,7 @@ export class FileService {
           case Platforms.Web:
             this.httpClient
               .post<CurrentRemoteServerPayload>(
-                'localhost:4001/files/getCurrentFile',
+                'http://localhost:4001/files/getCurrentFile',
                 {
                   fileFormat: this.settingsService.fileFormat,
                 }

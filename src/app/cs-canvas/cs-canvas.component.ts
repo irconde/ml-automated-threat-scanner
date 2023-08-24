@@ -4,6 +4,12 @@ import { CornerstoneDirective } from '../directives/cornerstone.directive';
 import { CornerstoneService } from '../services/cornerstone.service';
 import { FileService } from '../services/file/file.service';
 import { SettingsService } from '../services/settings/settings.service';
+import {
+  CurrentLocalDirectoryPayload,
+  CurrentRemoteServerPayload,
+} from '../../../shared/models/file-models';
+import { FileParserService } from '../services/file-parser/file-parser.service';
+import { base64ToArrayBuffer } from '../utilities/general.utilities';
 
 @Component({
   selector: 'app-cs-canvas',
@@ -17,19 +23,47 @@ export class CsCanvasComponent implements OnInit {
   constructor(
     private csService: CornerstoneService,
     private fileService: FileService,
+    private fileParserService: FileParserService,
     private settingsService: SettingsService
   ) {}
 
   ngOnInit() {
-    this.fileService.getCurrentFile().subscribe((currentFile) => {
-      if (!currentFile.pixelData) return;
-
-      this.csService
-        .getImageData(currentFile.fileName, currentFile.pixelData)
-        .subscribe((image) => {
-          this.imageData = image;
-        });
-    });
+    this.fileService
+      .getCurrentFile()
+      .subscribe(
+        (
+          currentFile: CurrentLocalDirectoryPayload | CurrentRemoteServerPayload
+        ) => {
+          console.log(
+            '-------------------Current File-------------------------'
+          );
+          console.log(currentFile);
+          console.log(
+            '--------------------------------------------------------'
+          );
+          if ('file' in currentFile) {
+            this.fileParserService
+              .loadData(base64ToArrayBuffer(currentFile.file))
+              .then((parsedFile) => {
+                console.log(
+                  '-------------------Parsed File--------------------------'
+                );
+                console.log(parsedFile);
+                console.log(
+                  '--------------------------------------------------------'
+                );
+                // TODO: Cornerstone Image Rendering Logic. Viewports etc.
+                // this.csService
+                //   .getImageData(currentFile.fileName, // TODO)
+                //   .subscribe((image) => {
+                //     this.imageData = image;
+                //   });
+              });
+          } else if ('pixelData' in currentFile) {
+            // TODO: Electron logic change to load ORA file
+          }
+        }
+      );
   }
 
   handleChangeImage(next = true) {
