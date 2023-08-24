@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
-import { Platforms, WorkingMode } from '../../../models/platforms';
+import { FileFormat, Platforms, WorkingMode } from '../../../models/platforms';
 import { ElectronService } from '../electron/electron.service';
 import { FileAndDetectionSettings } from '../../../../electron/models/Settings';
 import { Observable, Subject } from 'rxjs';
@@ -11,6 +11,7 @@ import { Observable, Subject } from 'rxjs';
 export class SettingsService {
   private readonly _platform: Platforms;
   private _workingMode: WorkingMode = WorkingMode.RemoteServer;
+  private _fileFormat: FileFormat = FileFormat.OpenRaster;
   private settings: Subject<FileAndDetectionSettings> =
     new Subject<FileAndDetectionSettings>();
 
@@ -52,6 +53,14 @@ export class SettingsService {
 
   public set workingMode(newMode: WorkingMode) {
     this._workingMode = newMode;
+  }
+
+  public get fileFormat(): FileFormat {
+    return this._fileFormat;
+  }
+
+  public set fileFormat(newFormat: FileFormat) {
+    this._fileFormat = newFormat;
   }
 
   private getSystemPlatform(): Platforms {

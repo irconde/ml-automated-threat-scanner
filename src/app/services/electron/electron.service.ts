@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CurrentFileUpdatePayload } from '../../../../shared/models/channels-payloads';
+import { CurrentLocalDirectoryPayload } from '../../../../shared/models/file-models';
 import { getElectronAPI } from '../../get-electron-api';
 import { Channels } from '../../../../shared/constants/channels';
 import { FileAndDetectionSettings } from '../../../../electron/models/Settings';
@@ -10,9 +10,13 @@ import { FileAndDetectionSettings } from '../../../../electron/models/Settings';
 export class ElectronService {
   private electronAPI = getElectronAPI();
 
-  constructor() {}
+  constructor() {
+    //
+  }
 
-  listenToFileUpdate(listener: (payload: CurrentFileUpdatePayload) => void) {
+  listenToFileUpdate(
+    listener: (payload: CurrentLocalDirectoryPayload) => void
+  ) {
     this.electronAPI.on(Channels.CurrentFileUpdate, listener);
   }
 

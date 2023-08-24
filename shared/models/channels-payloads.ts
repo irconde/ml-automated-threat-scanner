@@ -1,16 +1,11 @@
 import { Channels } from '../constants/channels';
 import { FileAndDetectionSettings } from '../../electron/models/Settings';
-
-export interface CurrentFileUpdatePayload {
-  fileName: string;
-  filesCount: number;
-  pixelData?: ArrayBuffer;
-}
+import { CurrentLocalDirectoryPayload } from './file-models';
 
 export type ChannelPayloadMapper = {
   [Channels.NewFileRequest]: boolean;
   [Channels.SettingsUpdate]: FileAndDetectionSettings;
-  [Channels.CurrentFileUpdate]: CurrentFileUpdatePayload;
+  [Channels.CurrentFileUpdate]: CurrentLocalDirectoryPayload;
 };
 
 export type ElectronSendFunc = <Channel extends keyof ChannelPayloadMapper>(

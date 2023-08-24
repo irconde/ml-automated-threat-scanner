@@ -1,10 +1,10 @@
-import * as fs from "fs";
-import * as path from "path";
-import {BrowserWindow} from "electron";
-import {Channels} from "../../shared/constants/channels";
-import {CurrentFileUpdatePayload} from "../../shared/models/channels-payloads";
-import {CachedSettings} from "./cached-settings";
-import {ChannelsManager} from "./channels-manager";
+import * as fs from 'fs';
+import * as path from 'path';
+import { BrowserWindow } from 'electron';
+import { Channels } from '../../shared/constants/channels';
+import { CurrentLocalDirectoryPayload } from '../../shared/models/channels-payloads';
+import { CachedSettings } from './cached-settings';
+import { ChannelsManager } from './channels-manager';
 
 class UserFilesManager extends ChannelsManager {
   static STORAGE_FILE_NAME = 'thumbnails.json';
@@ -22,52 +22,50 @@ class UserFilesManager extends ChannelsManager {
   async #init() {
     const anyFiles = await this.#updateFileNames();
     this.#wireAngularChannels();
-    if(anyFiles) this.#sendCurrentFileUpdate().then()
+    if (anyFiles) this.#sendCurrentFileUpdate().then();
   }
 
   #wireAngularChannels() {
-    this.onAngularRequest(Channels.NewFileRequest, (e, isNext)=> {
-      if(isNext && this.currentFileIndex + 1 < this.fileNames.length) {
+    this.onAngularRequest(Channels.NewFileRequest, (e, isNext) => {
+      if (isNext && this.currentFileIndex + 1 < this.fileNames.length) {
         this.currentFileIndex++;
-        this.#sendCurrentFileUpdate().then()
-      } else if(!isNext && this.currentFileIndex > 0) {
+        this.#sendCurrentFileUpdate().then();
+      } else if (!isNext && this.currentFileIndex > 0) {
         this.currentFileIndex--;
-        this.#sendCurrentFileUpdate().then()
+        this.#sendCurrentFileUpdate().then();
       }
-    })
+    });
   }
 
   async #sendCurrentFileUpdate() {
-    const { selectedImagesDirPath} = this.#settings.get();
+    const { selectedImagesDirPath } = this.#settings.get();
     const pixelData = await fs.promises.readFile(
-      path.join(
-        selectedImagesDirPath!,
-        this.fileNames[this.currentFileIndex]
-      )
-    )
-    const payload: CurrentFileUpdatePayload = {
+      path.join(selectedImagesDirPath!, this.fileNames[this.currentFileIndex])
+    );
+    const payload: CurrentLocalDirectoryPayload = {
       fileName: this.fileNames[this.currentFileIndex],
       filesCount: this.fileNames.length,
       pixelData,
-    }
+    };
     this.sendAngularUpdate(Channels.CurrentFileUpdate, payload);
   }
 
-  static #isFileTypeAllowed(fileName: string) : boolean {
+  static #isFileTypeAllowed(fileName: string): boolean {
     return UserFilesManager.IMAGE_FILE_EXTENSIONS.includes(
       path.extname(fileName).toLowerCase()
     );
   }
 
   // updates the list of file names
-  async #updateFileNames() : Promise<boolean> {
-    const { selectedImagesDirPath} = this.#settings.get();
-    if(!selectedImagesDirPath) return false;
-    const foundFiles: string[] = await fs.promises.readdir(selectedImagesDirPath);
+  async #updateFileNames(): Promise<boolean> {
+    const { selectedImagesDirPath } = this.#settings.get();
+    if (!selectedImagesDirPath) return false;
+    const foundFiles: string[] = await fs.promises.readdir(
+      selectedImagesDirPath
+    );
     this.fileNames = foundFiles.filter(UserFilesManager.#isFileTypeAllowed);
     return !!this.fileNames.length;
   }
-
 }
 
 export default UserFilesManager;

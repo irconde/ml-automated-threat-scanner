@@ -1,22 +1,28 @@
 import { Injectable } from '@angular/core';
-import { CurrentFileUpdatePayload } from '../../../../shared/models/channels-payloads';
+import {
+  CurrentLocalDirectoryPayload,
+  CurrentRemoteServerPayload,
+} from '../../../../shared/models/file-models';
 import { Observable, Subject } from 'rxjs';
 import { SettingsService } from '../settings/settings.service';
 import { Platforms, WorkingMode } from '../../../models/platforms';
 import { ElectronService } from '../electron/electron.service';
 import { FileParserService } from '../file-parser/file-parser.service';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FileService {
-  private currentFileObservable: Subject<CurrentFileUpdatePayload> =
-    new Subject<CurrentFileUpdatePayload>();
+  private currentFileObservable: Subject<
+    CurrentLocalDirectoryPayload | CurrentRemoteServerPayload
+  > = new Subject<CurrentLocalDirectoryPayload | CurrentRemoteServerPayload>();
 
   constructor(
     private settingsService: SettingsService,
     private electronService: ElectronService,
-    private fileParserService: FileParserService
+    private fileParserService: FileParserService,
+    private httpClient: HttpClient
   ) {
     this.init();
   }
@@ -25,7 +31,7 @@ export class FileService {
     this.requestCurrentFile();
   }
 
-  getCurrentFile(): Observable<CurrentFileUpdatePayload> {
+  getCurrentFile(): Observable<CurrentLocalDirectoryPayload> {
     return this.currentFileObservable.asObservable();
   }
 
@@ -59,7 +65,7 @@ export class FileService {
     switch (this.settingsService.workingMode) {
       case WorkingMode.LocalDirectory:
         this.electronService.listenToFileUpdate(
-          (payload: CurrentFileUpdatePayload) => {
+          (payload: CurrentLocalDirectoryPayload) => {
             this.currentFileObservable.next(payload);
           }
         );
@@ -72,7 +78,16 @@ export class FileService {
             break;
           case Platforms.Electron:
           case Platforms.Web:
-            // TODO: Normal HTTP request
+            this.httpClient
+              .post<CurrentRemoteServerPayload>(
+                'localhost:4001/files/getCurrentFile',
+                {
+                  fileFormat: this.settingsService.fileFormat,
+                }
+              )
+              .subscribe((result: CurrentRemoteServerPayload) => {
+                this.currentFileObservable.next(result);
+              });
             break;
           default:
           //
