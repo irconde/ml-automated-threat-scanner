@@ -2,10 +2,10 @@ import { Component } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
 import { CsCanvasComponent } from '../cs-canvas/cs-canvas.component';
-import { CurrentFileUpdatePayload } from '../../../shared/models/channels-payloads';
+import { CurrentLocalDirectoryPayload } from '../../../shared/models/file-models';
 import { FileService } from '../services/file/file.service';
 import { SettingsService } from '../services/settings/settings.service';
-import { FileAndAnnotationSettings } from '../../../electron/models/Settings';
+import { FileAndDetectionSettings } from '../../../electron/models/Settings';
 import { FileParserService } from '../services/file-parser/file-parser.service';
 
 @Component({
@@ -16,13 +16,13 @@ import { FileParserService } from '../services/file-parser/file-parser.service';
   imports: [IonicModule, ExploreContainerComponent, CsCanvasComponent],
 })
 export class AppMain {
-  currentFile: CurrentFileUpdatePayload = {
+  currentFile: CurrentLocalDirectoryPayload = {
     fileName: '',
     filesCount: 0,
     pixelData: undefined,
   };
 
-  settings: FileAndAnnotationSettings | null = null;
+  settings: FileAndDetectionSettings | null = null;
 
   constructor(
     private fileService: FileService,
@@ -34,7 +34,7 @@ export class AppMain {
     });
     settingsService
       .getSettings()
-      .subscribe((settings: FileAndAnnotationSettings) => {
+      .subscribe((settings: FileAndDetectionSettings) => {
         this.settings = settings;
       });
   }

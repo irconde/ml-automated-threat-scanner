@@ -1,27 +1,32 @@
 import { Injectable } from '@angular/core';
-import {CurrentFileUpdatePayload} from "../../../../shared/models/channels-payloads";
-import {getElectronAPI} from "../../get-electron-api";
-import {Channels} from "../../../../shared/constants/channels";
-import {FileAndAnnotationSettings} from "../../../../electron/models/Settings";
+import { CurrentLocalDirectoryPayload } from '../../../../shared/models/file-models';
+import { getElectronAPI } from '../../get-electron-api';
+import { Channels } from '../../../../shared/constants/channels';
+import { FileAndDetectionSettings } from '../../../../electron/models/Settings';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ElectronService {
   private electronAPI = getElectronAPI();
-  constructor() {
 
+  constructor() {
+    //
   }
 
-  listenToFileUpdate(listener: (payload : CurrentFileUpdatePayload) => void) {
+  listenToFileUpdate(
+    listener: (payload: CurrentLocalDirectoryPayload) => void
+  ) {
     this.electronAPI.on(Channels.CurrentFileUpdate, listener);
   }
 
-  listenToSettingsUpdate(listener: (payload: FileAndAnnotationSettings) => void)  {
+  listenToSettingsUpdate(
+    listener: (payload: FileAndDetectionSettings) => void
+  ) {
     this.electronAPI.on(Channels.SettingsUpdate, listener);
   }
 
   requestNewFile(next: boolean) {
-    this.electronAPI.send(Channels.NewFileRequest, next)
+    this.electronAPI.send(Channels.NewFileRequest, next);
   }
 }

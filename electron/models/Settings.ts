@@ -1,5 +1,4 @@
-export interface FileAndAnnotationSettings {
+export interface FileAndDetectionSettings {
   selectedImagesDirPath?: string;
-  selectedAnnotationFile?: string;
+  selectedDetectionFile?: string;
 }
-
