@@ -37,7 +37,9 @@ export class FileParserService {
    * @returns A Promise that resolves to the loaded data.
    * @throws {Error} If loading data fails for any reason.
    */
-  public async loadData(fileData: ArrayBuffer) {
+  public async loadData(
+    fileData: ArrayBuffer
+  ): Promise<{ detectionData: Detection[]; imageData: PixelData[] }> {
     try {
       const doc = await this.toXmlDoc(fileData);
       const parsedOra = await this.parseXmlDoc(doc);

@@ -21,6 +21,26 @@ export class FileService {
     this.init();
   }
 
+  public getCurrentFile(): Observable<CurrentFileUpdatePayload> {
+    return this.configUpdatedSubject.asObservable();
+  }
+
+  public setCurrentFile(payload: CurrentFileUpdatePayload): void {
+    this.configUpdatedSubject.next(payload);
+  }
+
+  public requestNextFile(next: boolean) {
+    switch (this.settingsService.platform) {
+      case Platforms.Electron:
+        this.electronService.requestNewFile(next);
+        break;
+      default:
+        console.log(
+          "'requestNextFile' in 'File service' is not implemented on current platform!"
+        );
+    }
+  }
+
   private init() {
     switch (this.settingsService.platform) {
       case Platforms.Electron:
@@ -32,22 +52,6 @@ export class FileService {
         break;
       default:
         console.log('File service not implemented on current platform!');
-    }
-  }
-
-  getCurrentFile(): Observable<CurrentFileUpdatePayload> {
-    return this.configUpdatedSubject.asObservable();
-  }
-
-  requestNextFile(next: boolean) {
-    switch (this.settingsService.platform) {
-      case Platforms.Electron:
-        this.electronService.requestNewFile(next);
-        break;
-      default:
-        console.log(
-          "'requestNextFile' in 'File service' is not implemented on current platform!"
-        );
     }
   }
 }

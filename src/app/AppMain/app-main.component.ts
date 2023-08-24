@@ -39,13 +39,25 @@ export class AppMain {
       });
   }
 
-  // TODO: remove this. For testing only
-  async showFilePicker() {
-    // @ts-ignore
-    const [fileHandle] = await window.showOpenFilePicker();
-    const file = await fileHandle.getFile();
-    const contents = await file.arrayBuffer();
-    const data = await this.fileParserService.loadData(contents);
-    console.log(data);
+  async showFilePicker(event: Event) {
+    try {
+      const target = event.target as HTMLInputElement;
+      if (target?.files) {
+        const file = target.files[0];
+        const fileName = file.name;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const pixelData = reader.result as ArrayBuffer;
+          this.fileService.setCurrentFile({
+            fileName,
+            pixelData,
+            filesCount: 1,
+          });
+        };
+        reader.readAsArrayBuffer(file);
+      }
+    } catch (e) {
+      console.log(e);
+    }
   }
 }

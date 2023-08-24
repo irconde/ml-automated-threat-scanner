@@ -15,6 +15,6 @@
   <div>Current directory: {{settings?.selectedImagesDirPath}}</div>
   <div>Current file name: {{currentFile.fileName}}</div>
   <div>Number of files: {{currentFile.filesCount}}</div>
-  <button (click)="showFilePicker()" style="padding: 1rem">Select file</button>
+  <input (change)="showFilePicker($event)" style="padding: 1rem" type="file"/>
   <app-cs-canvas></app-cs-canvas>
 </ion-content>
