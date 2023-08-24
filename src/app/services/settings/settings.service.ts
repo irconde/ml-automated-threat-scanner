@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
-import { FileFormat, Platforms, WorkingMode } from '../../../models/platforms';
+import { FileFormat, Platforms, WorkingMode } from '../../../enums/platforms';
 import { ElectronService } from '../electron/electron.service';
 import { FileAndDetectionSettings } from '../../../../electron/models/Settings';
 import { Observable, Subject } from 'rxjs';
@@ -12,6 +12,8 @@ export class SettingsService {
   private readonly _platform: Platforms;
   private _workingMode: WorkingMode = WorkingMode.RemoteServer;
   private _fileFormat: FileFormat = FileFormat.OpenRaster;
+  private _remoteIp = '127.0.0.1';
+  private _remotePort = '4001';
   private settings: Subject<FileAndDetectionSettings> =
     new Subject<FileAndDetectionSettings>();
 
@@ -61,6 +63,22 @@ export class SettingsService {
 
   public set fileFormat(newFormat: FileFormat) {
     this._fileFormat = newFormat;
+  }
+
+  public get remoteIp(): string {
+    return this._remoteIp;
+  }
+
+  public set remoteIp(newIp: string) {
+    this._remoteIp = newIp;
+  }
+
+  public get remotePort(): string {
+    return this._remotePort;
+  }
+
+  public set remotePort(newPort: string) {
+    this._remotePort = newPort;
   }
 
   private getSystemPlatform(): Platforms {

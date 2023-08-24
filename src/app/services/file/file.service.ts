@@ -3,9 +3,10 @@ import {
   CurrentLocalDirectoryPayload,
   CurrentRemoteServerPayload,
 } from '../../../../shared/models/file-models';
+import { API } from '../../../enums/remote-service';
 import { Observable, Subject } from 'rxjs';
 import { SettingsService } from '../settings/settings.service';
-import { Platforms, WorkingMode } from '../../../models/platforms';
+import { Platforms, WorkingMode } from '../../../enums/platforms';
 import { ElectronService } from '../electron/electron.service';
 import { FileParserService } from '../file-parser/file-parser.service';
 import { HttpClient } from '@angular/common/http';
@@ -78,9 +79,10 @@ export class FileService {
             break;
           case Platforms.Electron:
           case Platforms.Web:
+            //'http://localhost:4001/files/getCurrentFile'
             this.httpClient
               .post<CurrentRemoteServerPayload>(
-                'http://localhost:4001/files/getCurrentFile',
+                `${API.protocol}${this.settingsService.remoteIp}:${this.settingsService.remotePort}${API.getCurrentFile}`,
                 {
                   fileFormat: this.settingsService.fileFormat,
                 }
