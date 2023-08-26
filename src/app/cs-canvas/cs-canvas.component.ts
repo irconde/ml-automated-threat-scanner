@@ -20,6 +20,7 @@ import { base64ToArrayBuffer } from '../utilities/general.utilities';
 })
 export class CsCanvasComponent implements OnInit {
   imageData: cornerstone.Image | null = null;
+
   constructor(
     private csService: CornerstoneService,
     private fileService: FileService,
@@ -52,6 +53,18 @@ export class CsCanvasComponent implements OnInit {
                 console.log(
                   '--------------------------------------------------------'
                 );
+
+                this.csService
+                  .getImageData(parsedFile.imageData[0])
+                  .subscribe((image) => {
+                    this.imageData = image;
+                  });
+
+                // @ts-ignore
+                // this.csService.getImageData(imageId, pixelData).subscribe((image) => {
+                //   this.imageData = image;
+                // })
+
                 // TODO: Cornerstone Image Rendering Logic. Viewports etc.
                 // this.csService
                 //   .getImageData(currentFile.fileName, // TODO)
