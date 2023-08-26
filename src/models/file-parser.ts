@@ -1,8 +1,4 @@
-export enum AnnotationType {
-  COCO = "MS COCO",
-  TDR = "DICOS TDR",
-  UNKNOWN = "UNKNOWN",
-}
+import { DetectionType } from './detection';
 
 export interface CanvasViewpoint {
   viewpoint: string;
@@ -12,13 +8,13 @@ export interface CanvasViewpoint {
 }
 
 export interface ParsedORA {
-  format: AnnotationType;
+  format: DetectionType;
   viewpoints: CanvasViewpoint[];
 }
 
 export interface PixelData {
   viewpoint: string;
-  pixelData: Blob | ArrayBuffer,
+  pixelData: Blob | ArrayBuffer;
   imageId: string;
-  type: AnnotationType,
+  type: DetectionType;
 }

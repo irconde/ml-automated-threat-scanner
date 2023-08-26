@@ -9,8 +9,8 @@ describe('CsCanvasComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ CsCanvasComponent ],
-      imports: [IonicModule.forRoot()]
+      declarations: [CsCanvasComponent],
+      imports: [IonicModule.forRoot()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CsCanvasComponent);

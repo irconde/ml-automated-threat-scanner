@@ -1,10 +1,6 @@
 import { Injectable } from '@angular/core';
 import JSZip from 'jszip';
-import {
-  AnnotationType,
-  ParsedORA,
-  PixelData,
-} from '../../../models/file-parser';
+import { ParsedORA, PixelData } from '../../../models/file-parser';
 import { v4 as guid } from 'uuid';
 import {
   cocoBoxToBoundingBox,
@@ -13,6 +9,7 @@ import {
 import {
   CocoDetection,
   Detection,
+  DetectionType,
   DicosDetection,
 } from '../../../models/detection';
 import dicomParser from 'dicom-parser';
@@ -77,7 +74,7 @@ export class FileParserService {
     if (!xmlImages[0]) throw Error('Failed to find image element');
     const currentFileFormat = xmlImages[0].getAttribute('format');
     const parsedORA: ParsedORA = {
-      format: (currentFileFormat as AnnotationType) || AnnotationType.UNKNOWN,
+      format: (currentFileFormat as DetectionType) || DetectionType.UNKNOWN,
       viewpoints: [],
     };
     const stacks = Array.from(xmlImages[0].children);
@@ -89,8 +86,8 @@ export class FileParserService {
       const pixelData = firstLayer.getAttribute('src');
       if (!pixelData) throw Error('Missing src attribute on first layer');
 
-      if (parsedORA.format === AnnotationType.UNKNOWN) {
-        parsedORA.format = this.getAnnotationType(pixelData);
+      if (parsedORA.format === DetectionType.UNKNOWN) {
+        parsedORA.format = this.getDetectionType(pixelData);
       }
 
       const viewpoint = stack.getAttribute('view');
@@ -117,21 +114,21 @@ export class FileParserService {
   }
 
   /**
-   * Determines the annotation type based on the file extension of an image source.
+   * Determines the detection type based on the file extension of an image source.
    *
    * @param imageSrc - The source of the image file.
    * @throws {Error} If the file type cannot be handled.
-   * @returns The determined annotation type.
+   * @returns The determined detection type.
    */
-  private getAnnotationType(imageSrc: string): AnnotationType {
+  private getDetectionType(imageSrc: string): DetectionType {
     const fileExtension = imageSrc.split('.').pop();
     switch (fileExtension) {
       case 'dcs':
-        return AnnotationType.TDR;
+        return DetectionType.TDR;
       case 'png':
       case 'jpg':
       case 'jpeg':
-        return AnnotationType.COCO;
+        return DetectionType.COCO;
       default:
         throw Error('Failed to handle file type');
     }
@@ -176,7 +173,7 @@ export class FileParserService {
           viewpoint: canvasViewpoint.viewpoint,
           pixelData: data,
           imageId:
-            format === AnnotationType.COCO ? canvasViewpoint.imageId : guid(),
+            format === DetectionType.COCO ? canvasViewpoint.imageId : guid(),
           type: format,
         });
       });
@@ -190,44 +187,44 @@ export class FileParserService {
    * Reads pixel data from a specified path in the ZIP archive.
    *
    * @param {string} pixelDataPath - The path to the pixel data in the ZIP archive.
-   * @param {AnnotationType} format - The annotation type format.
+   * @param {DetectionType} format - The detection type format.
    * @throws {Error} If there's an issue loading the pixel data.
    * @returns {Promise<ArrayBuffer | Blob>} A Promise that resolves to the loaded pixel data as an ArrayBuffer or Blob.
    */
   private async readPixelData(
     pixelDataPath: string,
-    format: AnnotationType
+    format: DetectionType
   ): Promise<ArrayBuffer | Blob> {
     const pixelFile = this.zipUtil.file(pixelDataPath);
     if (!pixelFile) throw Error('Failed to load pixel data');
-    const fileType = format === AnnotationType.COCO ? 'arraybuffer' : 'blob';
+    const fileType = format === DetectionType.COCO ? 'arraybuffer' : 'blob';
     return pixelFile.async(fileType);
   }
 
   /**
-   * Reads and loads detection data from a specified source based on the annotation type.
+   * Reads and loads detection data from a specified source based on the detection type.
    *
    * @param {string} detectionDataSrc - The source of the detection data.
-   * @param {AnnotationType} format - The annotation type format.
+   * @param {DetectionType} format - The detection type format.
    * @param {string} viewpoint - The viewpoint associated with the detection data.
-   * @throws {Error} If there's an issue loading or parsing the detection data or if the annotation type is not supported.
+   * @throws {Error} If there's an issue loading or parsing the detection data or if the detection type is not supported.
    * @returns {Promise<Detection>} A Promise that resolves to the loaded detection data.
    */
   private async readDetectionData(
     detectionDataSrc: string,
-    format: AnnotationType,
+    format: DetectionType,
     viewpoint: string
   ): Promise<Detection> {
     const detectionFile = this.zipUtil.file(detectionDataSrc);
     if (!detectionFile) throw Error('Failed to load detection data');
 
     switch (format) {
-      case AnnotationType.COCO:
+      case DetectionType.COCO:
         return this.loadCocoDetections(detectionFile, viewpoint);
-      case AnnotationType.TDR:
+      case DetectionType.TDR:
         return this.loadDicosDetections(detectionFile, viewpoint);
       default:
-        throw Error('Annotation type not supported');
+        throw Error('Detection type not supported');
     }
   }
 
@@ -244,8 +241,8 @@ export class FileParserService {
     viewpoint: string
   ): Promise<CocoDetection> {
     const cocoData = await detectionFile.async('string');
-    const detection = JSON.parse(cocoData);
-    const { annotations, info } = detection;
+    const parsedCocoData = JSON.parse(cocoData);
+    const { annotations, info } = parsedCocoData;
     const { className, confidence, bbox, image_id, segmentation } =
       annotations[0];
     const boundingBox = cocoBoxToBoundingBox(bbox);

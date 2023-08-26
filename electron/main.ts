@@ -32,7 +32,7 @@ app.whenReady().then(async () => {
   const settings = await CachedSettings.create(mainWindow);
   console.log('SETTINGS', settings.get());
   await settings.update({
-    selectedAnnotationFile: '',
+    selectedDetectionFile: '',
     selectedImagesDirPath: 'G:\\EAC\\images\\coco\\val2017-small-test',
   });
   console.log(settings.get());
