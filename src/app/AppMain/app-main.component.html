@@ -12,9 +12,16 @@
       <ion-title size="large">Cornerstone Demo</ion-title>
     </ion-toolbar>
   </ion-header>
-  <div>Current directory: {{settings?.selectedImagesDirPath}}</div>
-  <div>Current file name: {{currentFile.fileName}}</div>
-  <div>Number of files: {{currentFile.filesCount}}</div>
-  <input (change)="showFilePicker($event)" style="padding: 1rem" type="file"/>
+  <h2>Current directory: {{settings?.selectedImagesDirPath}}</h2>
+  <p>Current file name: {{currentFile.fileName}}</p>
+  <p>Number of files: {{currentFile.filesCount}}</p>
+  <div *ngIf="settingsService.isMobile; else htmlFilePicker">
+    <ion-button>Upload file</ion-button>
+  </div>
+  <ng-template #htmlFilePicker>
+    <input (change)="showFilePicker($event)" style="padding: 1rem"
+           type="file"/>
+  </ng-template>
+
   <app-cs-canvas></app-cs-canvas>
 </ion-content>

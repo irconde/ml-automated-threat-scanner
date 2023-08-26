@@ -4,16 +4,18 @@ import { CornerstoneDirective } from '../directives/cornerstone.directive';
 import { CornerstoneService } from '../services/cornerstone.service';
 import { FileService } from '../services/file/file.service';
 import { SettingsService } from '../services/settings/settings.service';
+import { IonicModule } from '@ionic/angular';
 
 @Component({
   selector: 'app-cs-canvas',
   templateUrl: './cs-canvas.component.html',
   styleUrls: ['./cs-canvas.component.scss'],
   standalone: true,
-  imports: [CornerstoneDirective],
+  imports: [CornerstoneDirective, IonicModule],
 })
 export class CsCanvasComponent implements OnInit {
   imageData: cornerstone.Image | null = null;
+
   constructor(
     private csService: CornerstoneService,
     private fileService: FileService,
