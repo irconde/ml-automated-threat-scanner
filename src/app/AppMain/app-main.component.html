@@ -15,13 +15,6 @@
   <h2>Current directory: {{settings?.selectedImagesDirPath}}</h2>
   <p>Current file name: {{currentFile.fileName}}</p>
   <p>Number of files: {{currentFile.filesCount}}</p>
-  <ion-button (click)="handleFileSelection($event)">Upload file</ion-button>
-  <div *ngIf="settingsService.isMobile; else htmlFilePicker">
-  </div>
-  <ng-template #htmlFilePicker>
-    <input (change)="handleFileSelection($event)" style="padding: 1rem"
-           type="file"/>
-  </ng-template>
-
+  <ion-button (click)="fileService.handleFileSelection()">Upload file</ion-button>
   <app-cs-canvas></app-cs-canvas>
 </ion-content>

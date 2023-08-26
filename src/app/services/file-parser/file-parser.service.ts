@@ -38,7 +38,7 @@ export class FileParserService {
    * @throws {Error} If loading data fails for any reason.
    */
   public async loadData(
-    fileData: ArrayBuffer
+    fileData: string
   ): Promise<{ detectionData: Detection[]; imageData: PixelData[] }> {
     try {
       const doc = await this.toXmlDoc(fileData);
@@ -57,8 +57,8 @@ export class FileParserService {
    * @throws {Error} If there's an issue finding or parsing the 'stack.xml' file.
    * @returns A Promise that resolves to an XML Document representing the parsed XML data.
    */
-  private async toXmlDoc(fileData: ArrayBuffer): Promise<Document> {
-    await this.zipUtil.loadAsync(fileData, { base64: false });
+  private async toXmlDoc(fileData: string): Promise<Document> {
+    await this.zipUtil.loadAsync(fileData, { base64: true });
     const stackFile = this.zipUtil.file('stack.xml');
     if (!stackFile) throw Error('Failed to find stack.xml');
     const stackString = await stackFile.async('string');
