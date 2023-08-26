@@ -9,6 +9,7 @@ import { FileAndAnnotationSettings } from '../../../electron/models/Settings';
 import { FileParserService } from '../services/file-parser/file-parser.service';
 import { Platforms } from '../../models/platforms';
 import { CommonModule } from '@angular/common';
+import { FilePicker } from '@capawesome/capacitor-file-picker';
 
 @Component({
   selector: 'app-main',
@@ -48,13 +49,11 @@ export class AppMain {
       });
   }
 
-  async showFilePicker(event: Event) {
+  async handleFileSelection(event: Event) {
     try {
-      const platform = this.settingsService.platform;
-      if (platform in [Platforms.Android, Platforms.iOS]) {
-        // const file = await this.chooser.getFile();
-        // console.log(file);
-        console.log('SHOW FILE PICKER');
+      const result = await FilePicker.pickFiles();
+      console.log(result);
+      if (this.settingsService.isMobile) {
       } else {
         const target = event.target as HTMLInputElement;
         if (target?.files) {
