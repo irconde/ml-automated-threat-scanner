@@ -11,6 +11,11 @@ import {
 import { FileParserService } from '../services/file-parser/file-parser.service';
 import { base64ToArrayBuffer } from '../utilities/general.utilities';
 
+export interface Viewports {
+  top: cornerstone.Image | null;
+  side: cornerstone.Image | null;
+}
+
 @Component({
   selector: 'app-cs-canvas',
   templateUrl: './cs-canvas.component.html',
@@ -19,7 +24,10 @@ import { base64ToArrayBuffer } from '../utilities/general.utilities';
   imports: [CornerstoneDirective],
 })
 export class CsCanvasComponent implements OnInit {
-  imageData: cornerstone.Image | null = null;
+  imageData: Viewports = {
+    top: null,
+    side: null,
+  };
 
   constructor(
     private csService: CornerstoneService,
@@ -54,23 +62,18 @@ export class CsCanvasComponent implements OnInit {
                   '--------------------------------------------------------'
                 );
 
-                this.csService
-                  .getImageData(parsedFile.imageData[0])
-                  .subscribe((image) => {
-                    this.imageData = image;
+                parsedFile.imageData.forEach((pixelData) => {
+                  this.csService.getImageData(pixelData).subscribe((image) => {
+                    if (
+                      Object.keys(this.imageData).includes(pixelData.viewpoint)
+                    ) {
+                      this.imageData[pixelData.viewpoint as keyof Viewports] =
+                        image;
+                    } else {
+                      console.log('Viewport name is not recognized');
+                    }
                   });
-
-                // @ts-ignore
-                // this.csService.getImageData(imageId, pixelData).subscribe((image) => {
-                //   this.imageData = image;
-                // })
-
-                // TODO: Cornerstone Image Rendering Logic. Viewports etc.
-                // this.csService
-                //   .getImageData(currentFile.fileName, // TODO)
-                //   .subscribe((image) => {
-                //     this.imageData = image;
-                //   });
+                });
               });
           } else if ('pixelData' in currentFile) {
             // TODO: Electron logic change to load ORA file

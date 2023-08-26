@@ -1,9 +1,12 @@
-<div>
-  <div class="viewportElement" #viewport [image]="imageData">
+<div style="display: flex">
+  <div class="viewportElement 1" [image]="imageData.top" csDirective>
     <canvas class="cornerstone-canvas"></canvas>
-    <div class="controlButtons">
-      <button (click)="handleChangeImage(false)">Previous</button>
-      <button (click)="handleChangeImage(true)">Next</button>
-    </div>
   </div>
+  <div class="viewportElement" [image]="imageData.side" csDirective>
+    <canvas class="cornerstone-canvas"></canvas>
+  </div>
+</div>
+<div class="controlButtons">
+  <button (click)="handleChangeImage(false)">Previous</button>
+  <button (click)="handleChangeImage(true)">Next</button>
 </div>
