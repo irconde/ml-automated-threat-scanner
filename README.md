@@ -1,6 +1,10 @@
 # IN MIGRATION | Pilot GUI - Cross Platform version 2.2.0
 
-This project is currently in migration from a [React + Electron Application](https://bitbucket.org/eac-ualr/dna-atr-pilot-gui/src/develop/), to a Cross Platform Application using [Ionic and Angular](https://eac-ualr.atlassian.net/wiki/spaces/D/pages/3533897729/Angular+Ionic). The work is currently being migrated, you may find the Sprint board for this project [here](https://eac-ualr.atlassian.net/jira/software/c/projects/DNAATR/boards/164).
+This project is currently in migration from
+a [React + Electron Application](https://bitbucket.org/eac-ualr/dna-atr-pilot-gui/src/develop/), to a Cross Platform
+Application using [Ionic and Angular](https://eac-ualr.atlassian.net/wiki/spaces/D/pages/3533897729/Angular+Ionic). The
+work is currently being migrated, you may find the Sprint board for this
+project [here](https://eac-ualr.atlassian.net/jira/software/c/projects/DNAATR/boards/164).
 
 The Pilot GUI is conceived as the client side of the decision support system developed in the pilot project. This client
 has the primary goal of allowing the end-user - that is, the x-ray machine operator - to visually check the multiple
@@ -42,11 +46,32 @@ mode by using this command:
 ionic serve
 ```
 
+### Mobile Client
+
+To run the mobile versions of the application, you must use the following commands to create the ios and android
+directories.
+
+```
+ionic cap add ios
+ionic cap add android
+```
+
+Use the following commands to run the application on a virtual mobile device or external devices using a web browser
+with hot reloading enabled. Use the following [URL](chrome://inspect/#devices) in Chrome to view the logs for a running
+virtual device on your local
+network
+
+```
+npm run start-ios
+npm run start-android
+```
+
 ### Desktop Client
 
 #### Desktop Dependencies Installation
 
-The Desktop via [Electron](https://www.electronjs.org/) has it's own dependencies that must by installed. If you are the root folder
+The Desktop via [Electron](https://www.electronjs.org/) has it's own dependencies that must by installed. If you are the
+root folder
 you may perform the following commands to install the dependencies.
 
 ```
@@ -61,6 +86,35 @@ Run the following command to start the Desktop app.
 
 ```
 npm run start-electron
+```
+
+## Building the application
+
+### Web version
+
+To run a build for the web run the following command which will create the ``www``
+directory containing the web build files.
+
+```
+ionic build
+```
+
+### Electron version
+
+TODO: electron build instructions are missing
+
+### Mobile version
+
+Considering the iOS and Android directories have already been created, to build for mobile run the following commands
+depending on the targeted platform. This will build the web view and copy any changes to the native iOS and Android
+directories. Then it will open the build files in Xcode for iOS or in Android Studio for Android.
+
+```
+npm run build-mobile
+
+// run one of these commands
+ionic cap open ios
+ionic cap open android
 ```
 
 ## Mock file server
