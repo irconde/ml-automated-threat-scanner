@@ -35,6 +35,7 @@ export class FileService {
   async handleFileSelection() {
     try {
       const result = await FilePicker.pickFiles({ readData: true });
+      this.settingsService.workingMode = WorkingMode.IndividualFile;
       const file = result.files[0];
       const fileName = file.name;
       const base_64_string = file.data;
@@ -101,8 +102,11 @@ export class FileService {
               fileFormat: this.settingsService.fileFormat,
             }
           )
-          .subscribe((result: CurrentRemoteServerPayload) => {
-            this.currentFileObservable.next(result);
+          .subscribe({
+            next: (result: CurrentRemoteServerPayload) =>
+              this.currentFileObservable.next(result),
+            error: (error) =>
+              console.log(`Error connection with server: ${error.message}`),
           });
         break;
       default:

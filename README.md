@@ -35,6 +35,12 @@ Access the root folder of the project from a terminal and run the following comm
 npm install
 ```
 
+You as well need Ionic installed globally:
+
+```
+npm install -g @ionic/cli
+```
+
 ## Starting the client in development mode
 
 ### Web Client
@@ -55,6 +61,8 @@ directories.
 ionic cap add ios
 ionic cap add android
 ```
+
+**Note**: You must have built the Web version of the Application to use these next commands, see building the [Web version](#web-version)
 
 Use the following commands to run the application on a virtual mobile device or external devices using a web browser
 with hot reloading enabled. Use the following [URL](chrome://inspect/#devices) in Chrome to view the logs for a running
@@ -98,10 +106,6 @@ directory containing the web build files.
 ```
 ionic build
 ```
-
-### Electron version
-
-TODO: electron build instructions are missing
 
 ### Mobile version
 
