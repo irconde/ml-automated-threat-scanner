@@ -121,6 +121,8 @@ ionic cap open ios
 ionic cap open android
 ```
 
+**Note:** Android requires [JDK 17](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) or greater
+
 ## Mock file server
 
 You can test the client developed in this project using a mock server that can be accessed
