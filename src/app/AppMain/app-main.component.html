@@ -12,10 +12,9 @@
       <ion-title size="large">Cornerstone Demo</ion-title>
     </ion-toolbar>
   </ion-header>
-  <!--<div>{{status}}</div>-->
-  <div>Current directory: {{settings?.selectedImagesDirPath}}</div>
-  <div>Current file name: {{currentFile.fileName}}</div>
-  <div>Number of files: {{currentFile.filesCount}}</div>
-  <button (click)="showFilePicker()" style="padding: 1rem">Select file</button>
+  <h2>Current directory: {{settings?.selectedImagesDirPath}}</h2>
+  <p>Current file name: {{currentFile.fileName}}</p>
+  <p>Number of files: {{currentFile.filesCount}}</p>
+  <ion-button (click)="fileService.handleFileSelection()">Upload file</ion-button>
   <app-cs-canvas></app-cs-canvas>
 </ion-content>

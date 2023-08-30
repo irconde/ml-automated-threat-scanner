@@ -10,3 +10,7 @@ export interface CurrentLocalDirectoryPayload extends BaseFile {
 export interface CurrentRemoteServerPayload extends BaseFile {
   file: string;
 }
+
+export type FilePayload =
+  | CurrentLocalDirectoryPayload
+  | CurrentRemoteServerPayload;

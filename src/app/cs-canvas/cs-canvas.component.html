@@ -1,9 +1,9 @@
 <div>
-  <div class="viewportElement" #viewport [image]="imageData">
+  <div #viewport [image]="imageData" class="viewportElement">
     <canvas class="cornerstone-canvas"></canvas>
-    <div class="controlButtons">
+    <ion-item class="controlButtons" style="border: 1px solid red">
       <button (click)="handleChangeImage(false)">Previous</button>
       <button (click)="handleChangeImage(true)">Next</button>
-    </div>
+    </ion-item>
   </div>
 </div>
