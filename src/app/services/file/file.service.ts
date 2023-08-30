@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {
   CurrentLocalDirectoryPayload,
   CurrentRemoteServerPayload,
+  FilePayload,
 } from '../../../../shared/models/file-models';
 import { API } from '../../../enums/remote-service';
 import { Observable, Subject } from 'rxjs';
@@ -9,15 +10,15 @@ import { SettingsService } from '../settings/settings.service';
 import { Platforms, WorkingMode } from '../../../enums/platforms';
 import { ElectronService } from '../electron/electron.service';
 import { FileParserService } from '../file-parser/file-parser.service';
+import { FilePicker } from '@capawesome/capacitor-file-picker';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FileService {
-  private currentFileObservable: Subject<
-    CurrentLocalDirectoryPayload | CurrentRemoteServerPayload
-  > = new Subject<CurrentLocalDirectoryPayload | CurrentRemoteServerPayload>();
+  private currentFileObservable: Subject<FilePayload> =
+    new Subject<FilePayload>();
 
   constructor(
     private settingsService: SettingsService,
@@ -28,8 +29,30 @@ export class FileService {
     this.init();
   }
 
-  private init() {
-    this.requestCurrentFile();
+  /**
+   * Used by all platforms to show a file picker for an individual .ORA file
+   */
+  async handleFileSelection() {
+    try {
+      const result = await FilePicker.pickFiles({ readData: true });
+      this.settingsService.workingMode = WorkingMode.IndividualFile;
+      const file = result.files[0];
+      const fileName = file.name;
+      const base_64_string = file.data;
+      if (base_64_string) {
+        const imageInfo = await this.fileParserService.loadData(base_64_string);
+        console.log({ fileName });
+        console.log(imageInfo);
+      } else {
+        console.log('File is empty');
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  public setCurrentFile(payload: FilePayload): void {
+    this.currentFileObservable.next(payload);
   }
 
   getCurrentFile(): Observable<CurrentLocalDirectoryPayload> {
@@ -79,8 +102,11 @@ export class FileService {
               fileFormat: this.settingsService.fileFormat,
             }
           )
-          .subscribe((result: CurrentRemoteServerPayload) => {
-            this.currentFileObservable.next(result);
+          .subscribe({
+            next: (result: CurrentRemoteServerPayload) =>
+              this.currentFileObservable.next(result),
+            error: (error) =>
+              console.log(`Error connection with server: ${error.message}`),
           });
         break;
       default:
@@ -88,5 +114,9 @@ export class FileService {
           'You are not in a proper working mode of the application, please revisit your settings!'
         );
     }
+  }
+
+  private init() {
+    this.requestCurrentFile();
   }
 }

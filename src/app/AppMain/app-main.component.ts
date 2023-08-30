@@ -6,14 +6,20 @@ import { CurrentLocalDirectoryPayload } from '../../../shared/models/file-models
 import { FileService } from '../services/file/file.service';
 import { SettingsService } from '../services/settings/settings.service';
 import { FileAndDetectionSettings } from '../../../electron/models/Settings';
-import { FileParserService } from '../services/file-parser/file-parser.service';
+import { Platforms } from '../../enums/platforms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-main',
   templateUrl: 'app-main.component.html',
   styleUrls: ['app-main.component.scss'],
   standalone: true,
-  imports: [IonicModule, ExploreContainerComponent, CsCanvasComponent],
+  imports: [
+    IonicModule,
+    ExploreContainerComponent,
+    CsCanvasComponent,
+    CommonModule,
+  ],
 })
 export class AppMain {
   currentFile: CurrentLocalDirectoryPayload = {
@@ -23,11 +29,11 @@ export class AppMain {
   };
 
   settings: FileAndDetectionSettings | null = null;
+  public readonly Platforms: typeof Platforms = Platforms;
 
   constructor(
-    private fileService: FileService,
-    private settingsService: SettingsService,
-    private fileParserService: FileParserService
+    public fileService: FileService,
+    public settingsService: SettingsService
   ) {
     fileService.getCurrentFile().subscribe((currentFile) => {
       this.currentFile = currentFile;
@@ -37,15 +43,5 @@ export class AppMain {
       .subscribe((settings: FileAndDetectionSettings) => {
         this.settings = settings;
       });
-  }
-
-  // TODO: remove this. For testing only
-  async showFilePicker() {
-    // @ts-ignore
-    const [fileHandle] = await window.showOpenFilePicker();
-    const file = await fileHandle.getFile();
-    const contents = await file.arrayBuffer();
-    const data = await this.fileParserService.loadData(contents);
-    console.log(data);
   }
 }

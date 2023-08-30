@@ -10,6 +10,7 @@ import { Observable, Subject } from 'rxjs';
 })
 export class SettingsService {
   private readonly _platform: Platforms;
+  private readonly _isMobile: boolean;
   private _workingMode: WorkingMode = WorkingMode.RemoteServer;
   private _fileFormat: FileFormat = FileFormat.OpenRaster;
   private _remoteIp = '127.0.0.1';
@@ -22,8 +23,17 @@ export class SettingsService {
     private electronService: ElectronService
   ) {
     this._platform = this.getSystemPlatform();
+    this._isMobile = [Platforms.iOS, Platforms.Android].includes(
+      this._platform
+    );
     this.init();
   }
+
+
+  public get isMobile(): boolean {
+    return this._isMobile;
+  }
+
 
   private init() {
     switch (this.platform) {

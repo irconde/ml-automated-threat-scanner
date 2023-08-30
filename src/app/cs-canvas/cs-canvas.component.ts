@@ -9,7 +9,7 @@ import {
   CurrentRemoteServerPayload,
 } from '../../../shared/models/file-models';
 import { FileParserService } from '../services/file-parser/file-parser.service';
-import { base64ToArrayBuffer } from '../utilities/general.utilities';
+import { IonicModule } from '@ionic/angular';
 
 export interface Viewports {
   top: cornerstone.Image | null;
@@ -21,9 +21,10 @@ export interface Viewports {
   templateUrl: './cs-canvas.component.html',
   styleUrls: ['./cs-canvas.component.scss'],
   standalone: true,
-  imports: [CornerstoneDirective],
+  imports: [CornerstoneDirective, IonicModule],
 })
 export class CsCanvasComponent implements OnInit {
+
   imageData: Viewports = {
     top: null,
     side: null,
@@ -52,7 +53,7 @@ export class CsCanvasComponent implements OnInit {
           );
           if ('file' in currentFile) {
             this.fileParserService
-              .loadData(base64ToArrayBuffer(currentFile.file))
+              .loadData(currentFile.file)
               .then((parsedFile) => {
                 console.log(
                   '-------------------Parsed File--------------------------'

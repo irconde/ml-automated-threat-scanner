@@ -68,8 +68,7 @@ export const retrieveBoundingBoxData = (
   const BYTES_PER_FLOAT = 4;
   const B_BOX_POINT_COUNT = 2;
 
-  const bBoxDataSet =
-    image.dataSet?.elements['x40101037']?.items?.at(0)?.dataSet;
+  const bBoxDataSet = image.dataSet?.elements['x40101037']?.items?.[0]?.dataSet;
 
   if (bBoxDataSet?.elements === undefined)
     throw Error('Missing bounding box for detection');
@@ -104,7 +103,7 @@ export const retrieveBoundingBoxData = (
  * @returns Description of the potential threat object
  */
 export const retrieveObjectClass = (image: dicomParser.Element): string => {
-  const firstItem = image.dataSet?.elements['x40101038']?.items?.at(0);
+  const firstItem = image.dataSet?.elements['x40101038']?.items?.[0];
   const className = firstItem?.dataSet?.string(
     DICOS_DICTIONARY['ThreatCategoryDescription'].tag
   );
@@ -131,7 +130,7 @@ export const decimalToPercentage = (num: number): number => {
 export const retrieveConfidenceLevel = (image: dicomParser.Element): number => {
   const items = image.dataSet?.elements['x40101038']?.items;
   const confidenceTag = DICOS_DICTIONARY.ATDAssessmentProbability.tag;
-  const confidence = items?.at(0)?.dataSet?.float(confidenceTag);
+  const confidence = items?.[0]?.dataSet?.float(confidenceTag);
   if (confidence) return confidence;
   else throw Error('Missing required confidence parameter');
 };
@@ -151,9 +150,9 @@ export const retrieveMaskData = (
   const dataSet = image.dataSet;
   if (dataSet === undefined) return;
   const dicomElem =
-    dataSet.elements['x40101037'].items?.at(0)?.dataSet?.elements['x40101001'];
+    dataSet.elements['x40101037'].items?.[0]?.dataSet?.elements['x40101001'];
   if (dicomElem === undefined) return;
-  const baseDataSet = dicomElem.items?.at(0)?.dataSet;
+  const baseDataSet = dicomElem.items?.[0]?.dataSet;
   if (baseDataSet?.elements === undefined) return;
 
   const baseByteArraySize =
