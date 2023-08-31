@@ -1,12 +1,11 @@
-<div style="display: flex">
-  <div class="viewportElement 1" [image]="imageData.top" csDirective>
-    <canvas class="cornerstone-canvas"></canvas>
-  </div>
-  <div class="viewportElement" [image]="imageData.side" csDirective>
-    <canvas class="cornerstone-canvas"></canvas>
-  </div>
+<div class="viewports">
+	<div *ngFor="let viewpoint of getImageData();"
+	     class="viewportElement {{viewpoint}} {{imageData[viewpoint] ? '' : 'hidden'}}"
+	     [image]="imageData[viewpoint]" csDirective>
+		<canvas class="cornerstone-canvas"></canvas>
+	</div>
 </div>
 <ion-item class="controlButtons">
-  <button (click)="handleChangeImage(false)">Previous</button>
-  <button (click)="handleChangeImage(true)">Next</button>
+	<button (click)="handleChangeImage(false)">Previous</button>
+	<button (click)="handleChangeImage(true)">Next</button>
 </ion-item>

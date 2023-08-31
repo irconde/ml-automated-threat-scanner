@@ -16,7 +16,7 @@ export class CornerstoneDirective implements OnInit, AfterViewInit {
   element: HTMLElement;
   currentIndex = 0;
 
-  @Input('image')
+  @Input()
   set image(imageData: cornerstone.Image | null) {
     if (!imageData?.imageId) return;
 

@@ -1,15 +1,14 @@
 export interface BaseFile {
   fileName: string;
   filesCount: number;
+  file: string;
 }
 
 export interface CurrentLocalDirectoryPayload extends BaseFile {
-  pixelData?: ArrayBuffer;
+  // pixelData?: ArrayBuffer;
 }
 
-export interface CurrentRemoteServerPayload extends BaseFile {
-  file: string;
-}
+export interface CurrentRemoteServerPayload extends BaseFile {}
 
 export type FilePayload =
   | CurrentLocalDirectoryPayload
