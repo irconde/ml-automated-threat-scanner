@@ -1,9 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
-  CurrentLocalDirectoryPayload,
-  CurrentRemoteServerPayload,
-  FilePayload,
-} from '../../../../shared/models/file-models';
+import { FilePayload, FileStatus } from '../../../../shared/models/file-models';
 import { API } from '../../../enums/remote-service';
 import { Observable, Subject } from 'rxjs';
 import { SettingsService } from '../settings/settings.service';
@@ -24,7 +20,7 @@ export class FileService {
     private settingsService: SettingsService,
     private electronService: ElectronService,
     private fileParserService: FileParserService,
-    private httpClient: HttpClient
+    private httpClient: HttpClient,
   ) {
     this.init();
   }
@@ -40,9 +36,12 @@ export class FileService {
       const fileName = file.name;
       const base_64_string = file.data;
       if (base_64_string) {
-        const imageInfo = await this.fileParserService.loadData(base_64_string);
-        console.log({ fileName });
-        console.log(imageInfo);
+        this.setCurrentFile({
+          status: FileStatus.Ok,
+          fileName,
+          filesCount: 1,
+          file: base_64_string,
+        });
       } else {
         console.log('File is empty');
       }
@@ -55,7 +54,7 @@ export class FileService {
     this.currentFileObservable.next(payload);
   }
 
-  getCurrentFile(): Observable<CurrentLocalDirectoryPayload> {
+  getCurrentFile(): Observable<FilePayload> {
     return this.currentFileObservable.asObservable();
   }
 
@@ -80,7 +79,7 @@ export class FileService {
         break;
       default:
         console.log(
-          "'requestNextFile' in 'File service' is not implemented on current platform!"
+          "'requestNextFile' in 'File service' is not implemented on current platform!",
         );
     }
   }
@@ -88,22 +87,20 @@ export class FileService {
   requestCurrentFile() {
     switch (this.settingsService.workingMode) {
       case WorkingMode.LocalDirectory:
-        this.electronService.listenToFileUpdate(
-          (payload: CurrentLocalDirectoryPayload) => {
-            this.currentFileObservable.next(payload);
-          }
-        );
+        this.electronService.listenToFileUpdate((payload: FilePayload) => {
+          this.currentFileObservable.next(payload);
+        });
         break;
       case WorkingMode.RemoteServer:
         this.httpClient
-          .post<CurrentRemoteServerPayload>(
+          .post<FilePayload>(
             `${API.protocol}${this.settingsService.remoteIp}:${this.settingsService.remotePort}${API.getCurrentFile}`,
             {
               fileFormat: this.settingsService.fileFormat,
-            }
+            },
           )
           .subscribe({
-            next: (result: CurrentRemoteServerPayload) =>
+            next: (result: FilePayload) =>
               this.currentFileObservable.next(result),
             error: (error) =>
               console.log(`Error connection with server: ${error.message}`),
@@ -111,7 +108,7 @@ export class FileService {
         break;
       default:
         console.log(
-          'You are not in a proper working mode of the application, please revisit your settings!'
+          'You are not in a proper working mode of the application, please revisit your settings!',
         );
     }
   }

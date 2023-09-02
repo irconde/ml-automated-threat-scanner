@@ -11,7 +11,7 @@ import { Observable, Subject } from 'rxjs';
 export class SettingsService {
   private readonly _platform: Platforms;
   private readonly _isMobile: boolean;
-  private _workingMode: WorkingMode = WorkingMode.LocalDirectory;
+  private _workingMode: WorkingMode = WorkingMode.RemoteServer;
   private _fileFormat: FileFormat = FileFormat.OpenRaster;
   private _remoteIp = '127.0.0.1';
   private _remotePort = '4001';
