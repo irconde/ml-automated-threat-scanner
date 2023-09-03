@@ -1,109 +1,119 @@
-<div style="display: none">
-  <div class="modal-card">
-    <div>
-      <div>icon</div>
-      <h2>Modal Title</h2>
-      <button class="close-modal">X</button>
-    </div>
-    <div class="modal-content">
-      <div id="settings-section-1">
-        <div>
-          <p>Work Connected to a Remote Service</p>
-          <p>Choose this option if you want to receive/send images from/to a server.</p>
-        </div>
-        <button>toggle button</button>
-      </div>
-      <div id="settings-section-2">
-        <div id="host-info">
-          <div>icon</div>
-          <div class="inputs">
-            <div>input 1</div>
-            <div>:</div>
-            <div>input 2</div>
-          </div>
-          <button>Autoconnect</button>
-        </div>
-        <button>
-          Check Connection
-        </button>
-      </div>
-      <div id="settings-section-3">
-        <div>
-          ______________________________________________________
-        </div>
-      </div>
-      <div id="settings-section-4">
-        <p>
-          File management
-        </p>
-        <p>
-          Default file management options to streamline file input and output.
-        </p>
-      </div>
-      <div id="settings-section-5">
-        <div>
-          <div>icon</div>
-          <div>Working directory input</div>
-          <button>Select FOlder</button>
-        </div>
-        <div>
-          <div>
-            <div>icon</div>
-            <div>Output file format</div>
-          </div>
-          <div>
-            <div>icon</div>
-            <div>Annotations format</div>
-          </div>
-          <div>
-            <div>icon</div>
-            <div>Filename suffix</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div>Save Settings</div>
-  </div>
-</div>
-<!---------------DELETE ABOVE----------------->
-<!-------------------------------------------->
-
-
 <div class="modal-wrapper">
   <mat-card>
+    <!--    HEADER    -->
     <mat-card-header>
       <div class="modal-title-wrapper">
         <mat-icon aria-hidden="false" aria-label="Settings cog icon" fontIcon="settings"/>
         <mat-card-title>Settings</mat-card-title>
       </div>
-      <button mat-icon-button color="primary" aria-label="Example icon button with a home icon">
+      <button mat-icon-button color="primary" aria-label="Close icon">
         <mat-icon>close</mat-icon>
       </button>
     </mat-card-header>
+
+    <!--    CONTENT    -->
     <mat-card-content>
-      <div style="margin-top: 0" class="settings-section">
+      <!--    REMOTE SERVICE TOGGLE    -->
+      <div class="settings-section">
         <div>
           <p class="settings-text">Work Connected to a Remote Service</p>
           <p class="settings-subtext">Choose this option if you want to receive/send images from/to a server.</p>
         </div>
-        <mat-slide-toggle [(ngModel)]="isChecked"/>
+        <mat-slide-toggle [(ngModel)]="isRemoteService"/>
       </div>
-      <div class="settings-section" style="flex-direction: column">
+
+      <!--    HOST AND PORT INFO    -->
+      <div class="settings-section section-column">
+
+        <!--    SERVER INFO TOP    -->
         <div id="server-info-top">
-          <div id="server-info-wrapper">
+          <div class="input-info-wrapper">
             <mat-icon aria-hidden="false" aria-label="Cloud icon" fontIcon="cloud"/>
-            <div id="server-info">
-              <input matInput placeholder="Host" type="text" value="">
+
+            <!--    INPUTS    -->
+            <div class="input-info">
+              <mat-form-field>
+                <mat-label>Host</mat-label>
+                <input matInput placeholder="Ex. 127.0.0.1" type="text" value="">
+              </mat-form-field>
               <span>:</span>
-              <input matInput placeholder="Port" type="text" value="">
+              <mat-form-field>
+                <mat-label>Port</mat-label>
+                <input matInput placeholder="Ex. 5500" type="text" value="">
+              </mat-form-field>
             </div>
           </div>
           <div id="settings-checkbox-wrapper">
-            <mat-checkbox>Autoconnect</mat-checkbox>
+            <mat-checkbox [(ngModel)]="autoconnectChecked">Autoconnect</mat-checkbox>
           </div>
         </div>
+
+        <!--    SERVER INFO BOTTOM    -->
         <div id="server-info-bottom">
           <button mat-flat-button color="primary">Check Connection</button>
+        </div>
+      </div>
+
+      <!--      DIVIDER    -->
+      <mat-divider/>
+
+      <!--    FILE SELECTION    -->
+      <div class="settings-section section-column">
+        <p class="settings-text">File management</p>
+        <p class="settings-subtext">Default file management options to streamline file input and output.</p>
+      </div>
+      <div class="settings-section">
+        <div class="input-info-wrapper">
+          <mat-icon aria-hidden="false" aria-label="Folder icon" fontIcon="folder"/>
+
+          <!--    INPUT    -->
+          <div class="input-info">
+            <mat-form-field>
+              <mat-label>Working Directory</mat-label>
+              <input id="directory-input" matInput placeholder="C:/User/Documents/Important/Images" type="text"
+                     value="">
+            </mat-form-field>
+          </div>
+        </div>
+        <button mat-flat-button color="primary">Select Folder</button>
+      </div>
+
+      <!--    FILE OUTPUT OPTIONS    -->
+      <div class="settings-section">
+        <div class="input-info-wrapper">
+          <mat-icon aria-hidden="false" aria-label="File icon" fontIcon="insert_drive_file"/>
+          <div class="input-info">
+            <mat-form-field>
+              <mat-label>Output File Format</mat-label>
+              <mat-select>
+                <mat-option *ngFor="let option of output_options" [value]="option.value">
+                  {{option.viewValue}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="input-info-wrapper">
+          <mat-icon aria-hidden="false" aria-label="Pencil icon" fontIcon="edit"/>
+          <div class="input-info">
+            <mat-form-field>
+              <mat-label>Annotations Format</mat-label>
+              <mat-select>
+                <mat-option *ngFor="let option of annotation_options" [value]="option.value">
+                  {{option.viewValue}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="input-info-wrapper">
+          <mat-icon aria-hidden="false" aria-label="Pencil icon" fontIcon="edit"/>
+          <div class="input-info">
+            <mat-form-field>
+              <mat-label>Filename Suffix</mat-label>
+              <input matInput placeholder="Filename Suffix" type="text" value="">
+            </mat-form-field>
+          </div>
         </div>
       </div>
     </mat-card-content>

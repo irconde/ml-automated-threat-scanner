@@ -8,6 +8,19 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatSelectModule } from '@angular/material/select';
+import { NgForOf } from '@angular/common';
+
+interface OutputOptions {
+  value: string;
+  viewValue: string;
+}
+
+interface AnnotationOptions {
+  value: string;
+  viewValue: string;
+}
 
 @Component({
   selector: 'app-settings-modal',
@@ -22,6 +35,9 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     FormsModule,
     MatInputModule,
     MatCheckboxModule,
+    MatDividerModule,
+    MatSelectModule,
+    NgForOf,
   ],
 })
 export class SettingsModalComponent {
@@ -30,5 +46,14 @@ export class SettingsModalComponent {
     private fileService: FileService,
   ) {}
 
-  isChecked = true;
+  isRemoteService = true;
+  autoconnectChecked = true;
+  output_options: OutputOptions[] = [
+    { value: '0', viewValue: 'ORA' },
+    { value: '1', viewValue: 'ZIP' },
+  ];
+  annotation_options: AnnotationOptions[] = [
+    { value: '0', viewValue: 'JSON' },
+    { value: '1', viewValue: 'DICOS+TDR' },
+  ];
 }

@@ -32,6 +32,10 @@
   align-items: center;
   padding: 1rem;
   width: 100%;
+
+  .mdc-icon-button {
+    color: #ffffff;
+  }
 }
 
 .modal-title-wrapper {
@@ -56,6 +60,11 @@
   padding: 1rem 1.5rem;
   overflow-y: auto;
   outline: 1px solid blue;
+  gap: 1rem;
+
+  button {
+    background: #3880ff;
+  }
 }
 
 .settings-section {
@@ -63,8 +72,14 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  outline: 1px solid red;
-  margin: 0.75rem 0;
+}
+
+.section-column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
 }
 
 .settings-text {
@@ -88,19 +103,22 @@ mat-slide-toggle {
   width: 100%;
 }
 
-#server-info-wrapper {
+.input-info-wrapper {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  width: 100%;
 }
 
-#server-info {
+.input-info {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
   font-size: 1rem;
+
+  span {
+    font-size: x-large;
+  }
 }
 
 #settings-checkbox-wrapper {
@@ -115,7 +133,27 @@ mat-slide-toggle {
   justify-content: flex-start;
   align-items: center;
   width: 100%;
-  padding: 1.5rem 0;
+  padding: 0.5rem 0 1rem;
+}
+
+mat-divider {
+  width: 100%;
+  border-top-color: #5d5d5d;
+  opacity: 0.5;
+  margin-bottom: 1rem;
+}
+
+mat-form-field {
+  height: 4.5rem;
+
+  mat-label {
+    font-size: small;
+  }
+
+}
+
+mat-option {
+  font-size: small;
 }
 
 // FOOTER
@@ -128,6 +166,7 @@ mat-slide-toggle {
 
   button {
     font-size: large;
+    background: #3880ff;
   }
 }
 
