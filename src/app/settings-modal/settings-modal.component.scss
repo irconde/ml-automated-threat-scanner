@@ -1,0 +1,136 @@
+.modal-wrapper {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  z-index: 999;
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.mat-mdc-card {
+  width: 45rem;
+  height: 45rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #1c1c1c;
+  color: white;
+  z-index: 1000;
+  padding: 1rem;
+  position: relative;
+  left: 35%;
+  top: 12%;
+}
+
+// HEADER
+.mat-mdc-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  width: 100%;
+}
+
+.modal-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.mat-mdc-card-title {
+  font-size: 2rem;
+  font-weight: 500;
+}
+
+// CONTENT
+.mat-mdc-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  padding: 1rem 1.5rem;
+  overflow-y: auto;
+  outline: 1px solid blue;
+}
+
+.settings-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  outline: 1px solid red;
+  margin: 0.75rem 0;
+}
+
+.settings-text {
+  font-size: 1.25rem;
+  color: #ffffff;
+}
+
+.settings-subtext {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #5d5d5d;
+}
+
+mat-slide-toggle {
+}
+
+#server-info-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+#server-info-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+#server-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+
+#settings-checkbox-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+#server-info-bottom {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  padding: 1.5rem 0;
+}
+
+// FOOTER
+.settings-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+  padding: 1rem;
+
+  button {
+    font-size: large;
+  }
+}
+
+.mat-mdc-unelevated-button {
+  padding: 1.25rem 1rem;
+}

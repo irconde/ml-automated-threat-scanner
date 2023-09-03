@@ -8,6 +8,7 @@ import { SettingsService } from '../services/settings/settings.service';
 import { FileAndDetectionSettings } from '../../../electron/models/Settings';
 import { Platforms } from '../../enums/platforms';
 import { CommonModule } from '@angular/common';
+import {SettingsModalComponent} from "../settings-modal/settings-modal.component";
 
 @Component({
   selector: 'app-main',
@@ -19,6 +20,7 @@ import { CommonModule } from '@angular/common';
     ExploreContainerComponent,
     CsCanvasComponent,
     CommonModule,
+    SettingsModalComponent,
   ],
 })
 export class AppMain {
@@ -33,7 +35,7 @@ export class AppMain {
 
   constructor(
     public fileService: FileService,
-    public settingsService: SettingsService
+    public settingsService: SettingsService,
   ) {
     fileService.getCurrentFile().subscribe((currentFile) => {
       this.currentFile = currentFile;
