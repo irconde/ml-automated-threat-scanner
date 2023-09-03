@@ -8,7 +8,7 @@ import { FilePayload, FileStatus } from '../../shared/models/file-models';
 
 class UserFilesManager extends ChannelsManager {
   static STORAGE_FILE_NAME = 'thumbnails.json';
-  static IMAGE_FILE_EXTENSIONS = ['.ora'];
+  static IMAGE_FILE_EXTENSIONS = ['.ora', '.zip'];
   fileNames: string[] = [];
   currentFileIndex = 0;
   #settings: CachedSettings;
