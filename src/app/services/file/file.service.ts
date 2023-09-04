@@ -12,6 +12,7 @@ import { ElectronService } from '../electron/electron.service';
 import { FileParserService } from '../file-parser/file-parser.service';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
 import { HttpClient } from '@angular/common/http';
+import { ApplicationSettings } from '../../../../electron/models/Settings';
 
 @Injectable({
   providedIn: 'root',
@@ -19,14 +20,18 @@ import { HttpClient } from '@angular/common/http';
 export class FileService {
   private currentFileObservable: Subject<FilePayload> =
     new Subject<FilePayload>();
+  private settings: ApplicationSettings | null = null;
 
   constructor(
     private settingsService: SettingsService,
     private electronService: ElectronService,
     private fileParserService: FileParserService,
-    private httpClient: HttpClient
+    private httpClient: HttpClient,
   ) {
-    this.init();
+    this.settingsService.getSettings().subscribe((settings) => {
+      this.settings = settings;
+      this.init();
+    });
   }
 
   /**
@@ -35,7 +40,7 @@ export class FileService {
   async handleFileSelection() {
     try {
       const result = await FilePicker.pickFiles({ readData: true });
-      this.settingsService.workingMode = WorkingMode.IndividualFile;
+      //this.settingsService.workingMode = WorkingMode.IndividualFile;
       const file = result.files[0];
       const fileName = file.name;
       const base_64_string = file.data;
@@ -60,7 +65,7 @@ export class FileService {
   }
 
   requestNextFile(next: boolean) {
-    switch (this.settingsService.workingMode) {
+    switch (this.settings?.workingMode) {
       case WorkingMode.LocalDirectory:
         this.electronService.requestNewFile(next);
         break;
@@ -80,27 +85,28 @@ export class FileService {
         break;
       default:
         console.log(
-          "'requestNextFile' in 'File service' is not implemented on current platform!"
+          "'requestNextFile' in 'File service' is not implemented on current platform!",
         );
     }
   }
 
   requestCurrentFile() {
-    switch (this.settingsService.workingMode) {
+    const { remoteIp, remotePort, fileFormat } = this.settings!;
+    switch (this.settings?.workingMode) {
       case WorkingMode.LocalDirectory:
         this.electronService.listenToFileUpdate(
           (payload: CurrentLocalDirectoryPayload) => {
             this.currentFileObservable.next(payload);
-          }
+          },
         );
         break;
       case WorkingMode.RemoteServer:
         this.httpClient
           .post<CurrentRemoteServerPayload>(
-            `${API.protocol}${this.settingsService.remoteIp}:${this.settingsService.remotePort}${API.getCurrentFile}`,
+            `${API.protocol}${remoteIp}:${remotePort}${API.getCurrentFile}`,
             {
-              fileFormat: this.settingsService.fileFormat,
-            }
+              fileFormat,
+            },
           )
           .subscribe({
             next: (result: CurrentRemoteServerPayload) =>
@@ -111,7 +117,7 @@ export class FileService {
         break;
       default:
         console.log(
-          'You are not in a proper working mode of the application, please revisit your settings!'
+          'You are not in a proper working mode of the application, please revisit your settings!',
         );
     }
   }

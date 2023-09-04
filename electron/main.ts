@@ -19,22 +19,14 @@ const createWindow = async (): Promise<BrowserWindow> => {
     ? 'http://localhost:4200'
     : `file://${path.join(__dirname, '..', 'www', 'index.html')}`;
 
-  try {
-    await mainWindow.loadURL(htmlPath);
-    return mainWindow;
-  } catch (e) {
-    throw e;
-  }
+  await mainWindow.loadURL(htmlPath);
+  return mainWindow;
 };
 
 app.whenReady().then(async () => {
   const mainWindow = await createWindow();
   const settings = await CachedSettings.create(mainWindow);
   console.log('SETTINGS', settings.get());
-  await settings.update({
-    selectedDetectionFile: '',
-    selectedImagesDirPath: 'G:\\EAC\\images\\coco\\val2017-small-test',
-  });
   console.log(settings.get());
   userFilesManager = new UserFilesManager(settings, mainWindow);
 

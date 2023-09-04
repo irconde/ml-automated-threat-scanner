@@ -1,25 +1,23 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { FileAndDetectionSettings } from '../models/Settings';
 import { BrowserWindow } from 'electron';
 import { Channels } from '../../shared/constants/channels';
 import { ChannelsManager } from './channels-manager';
+import { ApplicationSettings, DEFAULT_SETTINGS } from '../models/Settings';
 
 const { app } = require('electron');
 const isDev = require('electron-is-dev');
 
 export class CachedSettings extends ChannelsManager {
-  static DefaultSettings: FileAndDetectionSettings = {
-    selectedImagesDirPath: undefined,
-    selectedDetectionFile: undefined,
-  };
   readonly #settingsFilePath: string;
-  #selectedImagesDirPath: string | undefined;
-  #selectedDetectionFile: string | undefined;
+  #settings: ApplicationSettings = DEFAULT_SETTINGS;
 
   private constructor(browserWindow: BrowserWindow) {
     super(browserWindow);
     this.#settingsFilePath = CachedSettings.getUserDataPath('_settings.json');
+    this.onAngularRequest(Channels.SettingsUpdate, async (e, settings) => {
+      await this.update(settings);
+    });
   }
 
   static async create(browserWindow: BrowserWindow): Promise<CachedSettings> {
@@ -28,26 +26,28 @@ export class CachedSettings extends ChannelsManager {
     return settings;
   }
 
-  #setPaths(settings: FileAndDetectionSettings) {
-    this.#selectedImagesDirPath = settings.selectedImagesDirPath;
-    this.#selectedDetectionFile = settings.selectedDetectionFile;
+  #updateCachedSettings(settings: ApplicationSettings) {
+    this.#settings.fileFormat = settings.fileFormat;
+    this.#settings.remoteIp = settings.remoteIp;
+    this.#settings.remotePort = settings.remotePort;
+    this.#settings.workingMode = settings.workingMode;
+    this.#settings.selectedImagesDirPath = settings.selectedImagesDirPath;
+    this.#settings.autoConnect = settings.autoConnect;
+    this.#settings.fileNameSuffix = settings.fileNameSuffix;
+    this.#settings.detectionFormat = settings.detectionFormat;
   }
 
   static getUserDataPath(fileName: string): string {
     return isDev ? fileName : path.join(app.getPath('userData'), fileName);
   }
 
-  async update(updatedSettings: FileAndDetectionSettings): Promise<void> {
-    try {
-      await fs.promises.writeFile(
-        this.#settingsFilePath,
-        JSON.stringify(updatedSettings)
-      );
-      this.#setPaths(updatedSettings);
-      this.sendAngularUpdate(Channels.SettingsUpdate, this.get());
-    } catch (e) {
-      throw e;
-    }
+  async update(updatedSettings: ApplicationSettings): Promise<void> {
+    await fs.promises.writeFile(
+      this.#settingsFilePath,
+      JSON.stringify(updatedSettings),
+    );
+    this.#updateCachedSettings(updatedSettings);
+    this.sendAngularUpdate(Channels.SettingsUpdate, this.get());
   }
 
   async #initFromFile(): Promise<void> {
@@ -55,17 +55,14 @@ export class CachedSettings extends ChannelsManager {
       const data = await fs.promises.readFile(this.#settingsFilePath, {
         encoding: 'utf-8',
       });
-      const storedSettings = JSON.parse(data) as FileAndDetectionSettings;
-      this.#setPaths(storedSettings);
+      const storedSettings = JSON.parse(data) as ApplicationSettings;
+      this.#updateCachedSettings(storedSettings);
     } catch (e) {
-      this.#setPaths(CachedSettings.DefaultSettings);
+      this.#updateCachedSettings(DEFAULT_SETTINGS);
     }
   }
 
-  get(): FileAndDetectionSettings {
-    return {
-      selectedImagesDirPath: this.#selectedImagesDirPath,
-      selectedDetectionFile: this.#selectedDetectionFile,
-    };
+  get(): ApplicationSettings {
+    return this.#settings;
   }
 }

@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
-import { FileFormat, Platforms, WorkingMode } from '../../../enums/platforms';
+import { Platforms } from '../../../enums/platforms';
 import { ElectronService } from '../electron/electron.service';
-import { FileAndDetectionSettings } from '../../../../electron/models/Settings';
 import { Observable, Subject } from 'rxjs';
+import { ApplicationSettings } from '../../../../electron/models/Settings';
 
 @Injectable({
   providedIn: 'root',
@@ -11,47 +11,41 @@ import { Observable, Subject } from 'rxjs';
 export class SettingsService {
   private readonly _platform: Platforms;
   private readonly _isMobile: boolean;
-  private _workingMode: WorkingMode = WorkingMode.RemoteServer;
-  private _fileFormat: FileFormat = FileFormat.OpenRaster;
-  private _remoteIp = '127.0.0.1';
-  private _remotePort = '4001';
-  private settings: Subject<FileAndDetectionSettings> =
-    new Subject<FileAndDetectionSettings>();
+  private settings: Subject<ApplicationSettings> =
+    new Subject<ApplicationSettings>();
 
   constructor(
     private platformService: Platform,
-    private electronService: ElectronService
+    private electronService: ElectronService,
   ) {
     this._platform = this.getSystemPlatform();
     this._isMobile = [Platforms.iOS, Platforms.Android].includes(
-      this._platform
+      this._platform,
     );
     this.init();
   }
-
 
   public get isMobile(): boolean {
     return this._isMobile;
   }
 
-
   private init() {
     switch (this.platform) {
       case Platforms.Electron:
         this.electronService.listenToSettingsUpdate(
-          (settings: FileAndDetectionSettings) => {
+          (settings: ApplicationSettings) => {
             this.settings.next(settings);
-          }
+          },
         );
         break;
       default:
         console.log(
-          'Settings service initialization failed! Platform not supported!'
+          'Settings service initialization failed! Platform not supported!',
         );
     }
   }
 
-  public getSettings(): Observable<FileAndDetectionSettings> {
+  public getSettings(): Observable<ApplicationSettings> {
     return this.settings.asObservable();
   }
 
@@ -59,36 +53,14 @@ export class SettingsService {
     return this._platform;
   }
 
-  public get workingMode(): WorkingMode {
-    return this._workingMode;
-  }
-
-  public set workingMode(newMode: WorkingMode) {
-    this._workingMode = newMode;
-  }
-
-  public get fileFormat(): FileFormat {
-    return this._fileFormat;
-  }
-
-  public set fileFormat(newFormat: FileFormat) {
-    this._fileFormat = newFormat;
-  }
-
-  public get remoteIp(): string {
-    return this._remoteIp;
-  }
-
-  public set remoteIp(newIp: string) {
-    this._remoteIp = newIp;
-  }
-
-  public get remotePort(): string {
-    return this._remotePort;
-  }
-
-  public set remotePort(newPort: string) {
-    this._remotePort = newPort;
+  public async update(settings: ApplicationSettings): Promise<void> {
+    switch (this.platform) {
+      case Platforms.Electron:
+        this.electronService.updateSettings(settings);
+        break;
+      default:
+        console.log('Settings service update failed! Platform not supported!');
+    }
   }
 
   private getSystemPlatform(): Platforms {
