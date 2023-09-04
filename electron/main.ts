@@ -1,6 +1,7 @@
 import { CachedSettings } from './file-managers/cached-settings';
 import UserFilesManager from './file-managers/user-files-manager';
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain } from 'electron';
+import { Channels } from '../shared/constants/channels';
 
 const path = require('path');
 const isDev = require('electron-is-dev');
@@ -41,4 +42,15 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
+});
+
+ipcMain.handle(Channels.FolderPickerInvoke, async () => {
+  const result = await dialog.showOpenDialog({
+    properties: ['openDirectory'],
+  });
+
+  // if the event is cancelled by the user
+  if (result.canceled) return { path: '' };
+
+  return { path: result.filePaths[0] };
 });

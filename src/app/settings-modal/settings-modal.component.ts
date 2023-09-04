@@ -22,6 +22,8 @@ import {
 } from '../../../electron/models/Settings';
 import { FileFormat, WorkingMode } from '../../enums/platforms';
 import { DetectionType } from '../../models/detection';
+import { getElectronAPI } from '../get-electron-api';
+import { Channels } from '../../../shared/constants/channels';
 
 interface OutputOptions {
   value: string;
@@ -79,7 +81,10 @@ export class SettingsModalComponent implements OnInit {
           if (key === 'workingMode') {
             value = value === WorkingMode.RemoteServer;
           }
-          acc[key] = new FormControl(value);
+          acc[key] = new FormControl({
+            value,
+            disabled: key === 'selectedImagesDirPath',
+          });
           return acc;
         },
         {},
@@ -103,7 +108,11 @@ export class SettingsModalComponent implements OnInit {
 
   //TODO: change to electron only
   openDirectoryPicker() {
-    console.log('Opening directory picker...');
+    getElectronAPI().invoke(Channels.FolderPickerInvoke, null, ({ path }) => {
+      // don't update the form if cancelled
+      if (!path) return;
+      this.form.patchValue({ selectedImagesDirPath: path });
+    });
   }
 
   checkConnection() {}
@@ -125,7 +134,7 @@ export class SettingsModalComponent implements OnInit {
       autoConnect: this.form.get('autoConnect')?.value,
       selectedImagesDirPath: this.form.get('selectedImagesDirPath')?.value,
     };
-    console.log({ formSettings });
+
     this.submitting = true;
     this.settingsService.update(formSettings).finally(() => {
       this.submitting = false;
