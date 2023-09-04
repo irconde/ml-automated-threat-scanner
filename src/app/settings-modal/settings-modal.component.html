@@ -126,6 +126,7 @@
 			<div class="settings-footer">
 				<button mat-flat-button color="primary" (click)="saveSettings()">Save Settings</button>
 			</div>
+			<span>{{submitting ? "Loading..." : ""}}</span>
 		</mat-card>
 	</form>
 </div>

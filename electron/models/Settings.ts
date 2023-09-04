@@ -1,10 +1,5 @@
-import {FileFormat, WorkingMode} from '../../src/enums/platforms';
-import {DetectionType} from '../../src/models/detection'; // export interface FileAndDetectionSettings {
-
-// export interface FileAndDetectionSettings {
-//   selectedImagesDirPath?: string;
-//   selectedDetectionFile?: string;
-// }
+import { FileFormat, WorkingMode } from '../../src/enums/platforms';
+import { DetectionType } from '../../src/models/detection'; // export interface FileAndDetectionSettings {
 
 export interface ApplicationSettings {
   workingMode: WorkingMode;

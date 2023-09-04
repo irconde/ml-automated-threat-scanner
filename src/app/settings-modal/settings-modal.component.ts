@@ -53,27 +53,38 @@ interface AnnotationOptions {
   ],
 })
 export class SettingsModalComponent implements OnInit {
+  submitting: boolean = false;
   settings: ApplicationSettings = DEFAULT_SETTINGS;
-  form: FormGroup<Record<keyof ApplicationSettings, FormControl>> =
-    new FormGroup(
-      Object.keys(DEFAULT_SETTINGS).reduce<Record<string, FormControl>>(
-        (acc, key: string) => {
-          acc[key] = new FormControl(
-            DEFAULT_SETTINGS[key as keyof ApplicationSettings],
-          );
-          return acc;
-        },
-        {},
-      ),
-    );
+  form: FormGroup<Record<keyof ApplicationSettings, FormControl>>;
 
   constructor(
     private settingsService: SettingsService,
     private fileService: FileService,
   ) {
+    console.log('form created');
+    this.form = this.getFormGroup();
     settingsService.getSettings().subscribe((settings) => {
+      console.log('settings received');
+      console.log({ settings });
       this.settings = settings;
+      this.form = this.getFormGroup();
     });
+  }
+
+  private getFormGroup() {
+    return new FormGroup(
+      Object.keys(this.settings).reduce<Record<string, FormControl>>(
+        (acc, key: string) => {
+          let value = this.settings[key as keyof ApplicationSettings];
+          if (key === 'workingMode') {
+            value = value === WorkingMode.RemoteServer;
+          }
+          acc[key] = new FormControl(value);
+          return acc;
+        },
+        {},
+      ),
+    );
   }
 
   output_options: OutputOptions[] = [
@@ -115,6 +126,9 @@ export class SettingsModalComponent implements OnInit {
       selectedImagesDirPath: this.form.get('selectedImagesDirPath')?.value,
     };
     console.log({ formSettings });
-    //this.settingsService.update(DEFAULT_SETTINGS).then();
+    this.submitting = true;
+    this.settingsService.update(formSettings).finally(() => {
+      this.submitting = false;
+    });
   }
 }

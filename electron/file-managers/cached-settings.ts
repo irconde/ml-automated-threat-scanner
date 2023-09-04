@@ -59,6 +59,8 @@ export class CachedSettings extends ChannelsManager {
       this.#updateCachedSettings(storedSettings);
     } catch (e) {
       this.#updateCachedSettings(DEFAULT_SETTINGS);
+    } finally {
+      this.sendAngularUpdate(Channels.SettingsUpdate, this.get());
     }
   }
 
