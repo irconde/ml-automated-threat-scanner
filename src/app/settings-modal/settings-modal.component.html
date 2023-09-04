@@ -19,7 +19,8 @@
           <p class="settings-text">Work Connected to a Remote Service</p>
           <p class="settings-subtext">Choose this option if you want to receive/send images from/to a server.</p>
         </div>
-        <mat-slide-toggle [(ngModel)]="isRemoteService"/>
+        <mat-slide-toggle (change)="toggleRemoteService($event)"
+                          [(ngModel)]="isRemoteService"/>
       </div>
 
       <!--    HOST AND PORT INFO    -->
@@ -34,23 +35,24 @@
             <div class="input-info">
               <mat-form-field>
                 <mat-label>Host</mat-label>
-                <input matInput placeholder="Ex. 127.0.0.1" type="text" value="">
+                <input matInput placeholder="Ex. 127.0.0.1" type="text" [(ngModel)]="hostValue">
               </mat-form-field>
               <span>:</span>
               <mat-form-field>
                 <mat-label>Port</mat-label>
-                <input matInput placeholder="Ex. 5500" type="text" value="">
+                <input matInput placeholder="Ex. 5500" type="text" [(ngModel)]="portValue">
               </mat-form-field>
             </div>
           </div>
           <div id="settings-checkbox-wrapper">
-            <mat-checkbox [(ngModel)]="autoconnectChecked">Autoconnect</mat-checkbox>
+            <mat-checkbox (change)="toggleAutoconnect($event)" [(ngModel)]="autoconnectChecked">Autoconnect
+            </mat-checkbox>
           </div>
         </div>
 
         <!--    SERVER INFO BOTTOM    -->
         <div id="server-info-bottom">
-          <button mat-flat-button color="primary">Check Connection</button>
+          <button mat-flat-button color="primary" (click)="checkConnection()">Check Connection</button>
         </div>
       </div>
 
@@ -70,12 +72,12 @@
           <div class="input-info">
             <mat-form-field>
               <mat-label>Working Directory</mat-label>
-              <input id="directory-input" matInput placeholder="C:/User/Documents/Important/Images" type="text"
-                     value="">
+              <input id="directory-input" disabled matInput placeholder="C:/User/Documents/Important/Images" type="text"
+                     [(ngModel)]="workingDirectory">
             </mat-form-field>
           </div>
         </div>
-        <button mat-flat-button color="primary">Select Folder</button>
+        <button mat-flat-button color="primary" (click)="openDirectoryPicker()">Select Folder</button>
       </div>
 
       <!--    FILE OUTPUT OPTIONS    -->
@@ -85,7 +87,7 @@
           <div class="input-info">
             <mat-form-field>
               <mat-label>Output File Format</mat-label>
-              <mat-select>
+              <mat-select (selectionChange)="setFileFormat($event)">
                 <mat-option *ngFor="let option of output_options" [value]="option.value">
                   {{option.viewValue}}
                 </mat-option>
@@ -98,7 +100,7 @@
           <div class="input-info">
             <mat-form-field>
               <mat-label>Annotations Format</mat-label>
-              <mat-select>
+              <mat-select (selectionChange)="setAnnotationFormat($event)">
                 <mat-option *ngFor="let option of annotation_options" [value]="option.value">
                   {{option.viewValue}}
                 </mat-option>
@@ -118,7 +120,7 @@
       </div>
     </mat-card-content>
     <div class="settings-footer">
-      <button mat-flat-button color="primary">Save Settings</button>
+      <button mat-flat-button color="primary" (click)="saveSettings()">Save Settings</button>
     </div>
   </mat-card>
 </div>
