@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { SettingsService } from '../services/settings/settings.service';
-import { FileService } from '../services/file/file.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -24,6 +23,7 @@ import { FileFormat, WorkingMode } from '../../enums/platforms';
 import { DetectionType } from '../../models/detection';
 import { getElectronAPI } from '../get-electron-api';
 import { Channels } from '../../../shared/constants/channels';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 interface OutputOptions {
   value: string;
@@ -52,6 +52,7 @@ interface AnnotationOptions {
     MatSelectModule,
     NgForOf,
     ReactiveFormsModule,
+    MatDialogModule,
   ],
 })
 export class SettingsModalComponent implements OnInit {
@@ -60,14 +61,11 @@ export class SettingsModalComponent implements OnInit {
   form: FormGroup<Record<keyof ApplicationSettings, FormControl>>;
 
   constructor(
+    public dialogRef: MatDialogRef<SettingsModalComponent>,
     private settingsService: SettingsService,
-    private fileService: FileService,
   ) {
-    console.log('form created');
     this.form = this.getFormGroup();
     settingsService.getSettings().subscribe((settings) => {
-      console.log('settings received');
-      console.log({ settings });
       this.settings = settings;
       this.form = this.getFormGroup();
     });

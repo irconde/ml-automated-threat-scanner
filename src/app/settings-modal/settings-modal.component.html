@@ -1,134 +1,132 @@
-<div class="modal-wrapper">
-	<form [formGroup]="form" (ngSubmit)="saveSettings()" novalidate>
-		<mat-card>
-			<!--    HEADER    -->
-			<mat-card-header>
-				<div class="modal-title-wrapper">
-					<mat-icon aria-hidden="false" aria-label="Settings cog icon" fontIcon="settings"/>
-					<mat-card-title>Settings</mat-card-title>
-				</div>
-				<button mat-icon-button color="primary" type="button" aria-label="Close icon">
-					<mat-icon>close</mat-icon>
-				</button>
-			</mat-card-header>
-
-			<!--    CONTENT    -->
-			<mat-card-content>
-				<!--    REMOTE SERVICE TOGGLE    -->
-				<div class="settings-section">
-					<div>
-						<p class="settings-text">Work Connected to a Remote Service</p>
-						<p class="settings-subtext">Choose this option if you want to receive/send images from/to a
-						                            server.</p>
-					</div>
-					<mat-slide-toggle formControlName="workingMode"/>
-				</div>
-
-				<!--    HOST AND PORT INFO    -->
-				<div class="settings-section section-column">
-
-					<!--    SERVER INFO TOP    -->
-					<div id="server-info-top">
-						<div class="input-info-wrapper">
-							<mat-icon aria-hidden="false" aria-label="Cloud icon" fontIcon="cloud"/>
-
-							<!--    INPUTS    -->
-							<div class="input-info">
-								<mat-form-field>
-									<mat-label>Host</mat-label>
-									<input matInput placeholder="Ex. 127.0.0.1" type="text" formControlName="remoteIp">
-								</mat-form-field>
-								<span>:</span>
-								<mat-form-field>
-									<mat-label>Port</mat-label>
-									<input matInput placeholder="Ex. 5500" type="text" formControlName="remotePort">
-								</mat-form-field>
-							</div>
-						</div>
-						<div id="settings-checkbox-wrapper">
-							<mat-checkbox formControlName="autoConnect">
-								Autoconnect
-							</mat-checkbox>
-						</div>
-					</div>
-
-					<!--    SERVER INFO BOTTOM    -->
-					<div id="server-info-bottom">
-						<button mat-flat-button color="primary" type="button" (click)="checkConnection()">Check
-						                                                                                  Connection
-						</button>
-					</div>
-				</div>
-
-				<!--      DIVIDER    -->
-				<mat-divider/>
-
-				<!--    FILE SELECTION    -->
-				<div class="settings-section section-column">
-					<p class="settings-text">File management</p>
-					<p class="settings-subtext">Default file management options to streamline file input and output.</p>
-				</div>
-				<div class="settings-section">
-					<div class="input-info-wrapper">
-						<mat-icon aria-hidden="false" aria-label="Folder icon" fontIcon="folder"/>
-
-						<!--    INPUT    -->
-						<div class="input-info">
-							<mat-form-field>
-								<mat-label>Working Directory</mat-label>
-								<input id="directory-input" matInput
-								       placeholder="C:/User/Documents/Important/Images" type="text"
-								       formControlName="selectedImagesDirPath">
-							</mat-form-field>
-						</div>
-					</div>
-					<button mat-flat-button color="primary" (click)="openDirectoryPicker()">Select Folder</button>
-				</div>
-
-				<!--    FILE OUTPUT OPTIONS    -->
-				<div class="settings-section">
-					<div class="input-info-wrapper">
-						<mat-icon aria-hidden="false" aria-label="File icon" fontIcon="insert_drive_file"/>
-						<div class="input-info">
-							<mat-form-field>
-								<mat-label>Output File Format</mat-label>
-								<mat-select formControlName="fileFormat">
-									<mat-option *ngFor="let option of output_options" [value]="option.value">
-										{{option.viewValue}}
-									</mat-option>
-								</mat-select>
-							</mat-form-field>
-						</div>
-					</div>
-					<div class="input-info-wrapper">
-						<mat-icon aria-hidden="false" aria-label="Pencil icon" fontIcon="edit"/>
-						<div class="input-info">
-							<mat-form-field>
-								<mat-label>Annotations Format</mat-label>
-								<mat-select formControlName="detectionFormat">
-									<mat-option *ngFor="let option of annotation_options" [value]="option.value">
-										{{option.viewValue}}
-									</mat-option>
-								</mat-select>
-							</mat-form-field>
-						</div>
-					</div>
-					<div class="input-info-wrapper">
-						<mat-icon aria-hidden="false" aria-label="Pencil icon" fontIcon="edit"/>
-						<div class="input-info">
-							<mat-form-field>
-								<mat-label>Filename Suffix</mat-label>
-								<input matInput placeholder="Filename Suffix" type="text"
-								       formControlName="fileNameSuffix" value="">
-							</mat-form-field>
-						</div>
-					</div>
-				</div>
-			</mat-card-content>
-			<div class="settings-footer">
-				<button mat-flat-button color="primary"
-				        type="submit">{{submitting ? "Saving..." : "Save Settings"}}</button>
+<form [formGroup]="form" (ngSubmit)="saveSettings()" novalidate>
+	<mat-card>
+		<!--    HEADER    -->
+		<mat-card-header>
+			<div class="modal-title-wrapper">
+				<mat-icon aria-hidden="false" aria-label="Settings cog icon" fontIcon="settings"/>
+				<mat-card-title>Settings</mat-card-title>
 			</div>
-		</mat-card>
-	</form>
-</div>
+			<button mat-icon-button mat-dialog-close color="primary" type="button" aria-label="Close icon">
+				<mat-icon>close</mat-icon>
+			</button>
+		</mat-card-header>
+
+		<!--    CONTENT    -->
+		<mat-card-content>
+			<!--    REMOTE SERVICE TOGGLE    -->
+			<div class="settings-section">
+				<div>
+					<p class="settings-text">Work Connected to a Remote Service</p>
+					<p class="settings-subtext">Choose this option if you want to receive/send images from/to a
+					                            server.</p>
+				</div>
+				<mat-slide-toggle formControlName="workingMode"/>
+			</div>
+
+			<!--    HOST AND PORT INFO    -->
+			<div class="settings-section section-column">
+
+				<!--    SERVER INFO TOP    -->
+				<div id="server-info-top">
+					<div class="input-info-wrapper">
+						<mat-icon aria-hidden="false" aria-label="Cloud icon" fontIcon="cloud"/>
+
+						<!--    INPUTS    -->
+						<div class="input-info">
+							<mat-form-field>
+								<mat-label>Host</mat-label>
+								<input matInput placeholder="Ex. 127.0.0.1" type="text" formControlName="remoteIp">
+							</mat-form-field>
+							<span>:</span>
+							<mat-form-field>
+								<mat-label>Port</mat-label>
+								<input matInput placeholder="Ex. 5500" type="text" formControlName="remotePort">
+							</mat-form-field>
+						</div>
+					</div>
+					<div id="settings-checkbox-wrapper">
+						<mat-checkbox formControlName="autoConnect">
+							Autoconnect
+						</mat-checkbox>
+					</div>
+				</div>
+
+				<!--    SERVER INFO BOTTOM    -->
+				<div id="server-info-bottom">
+					<button mat-flat-button color="primary" type="button" (click)="checkConnection()">Check
+					                                                                                  Connection
+					</button>
+				</div>
+			</div>
+
+			<!--      DIVIDER    -->
+			<mat-divider/>
+
+			<!--    FILE SELECTION    -->
+			<div class="settings-section section-column">
+				<p class="settings-text">File management</p>
+				<p class="settings-subtext">Default file management options to streamline file input and output.</p>
+			</div>
+			<div class="settings-section">
+				<div class="input-info-wrapper">
+					<mat-icon aria-hidden="false" aria-label="Folder icon" fontIcon="folder"/>
+
+					<!--    INPUT    -->
+					<div class="input-info">
+						<mat-form-field>
+							<mat-label>Working Directory</mat-label>
+							<input id="directory-input" matInput
+							       placeholder="C:/User/Documents/Important/Images" type="text"
+							       formControlName="selectedImagesDirPath">
+						</mat-form-field>
+					</div>
+				</div>
+				<button mat-flat-button color="primary" (click)="openDirectoryPicker()">Select Folder</button>
+			</div>
+
+			<!--    FILE OUTPUT OPTIONS    -->
+			<div class="settings-section">
+				<div class="input-info-wrapper">
+					<mat-icon aria-hidden="false" aria-label="File icon" fontIcon="insert_drive_file"/>
+					<div class="input-info">
+						<mat-form-field>
+							<mat-label>Output File Format</mat-label>
+							<mat-select formControlName="fileFormat">
+								<mat-option *ngFor="let option of output_options" [value]="option.value">
+									{{option.viewValue}}
+								</mat-option>
+							</mat-select>
+						</mat-form-field>
+					</div>
+				</div>
+				<div class="input-info-wrapper">
+					<mat-icon aria-hidden="false" aria-label="Pencil icon" fontIcon="edit"/>
+					<div class="input-info">
+						<mat-form-field>
+							<mat-label>Annotations Format</mat-label>
+							<mat-select formControlName="detectionFormat">
+								<mat-option *ngFor="let option of annotation_options" [value]="option.value">
+									{{option.viewValue}}
+								</mat-option>
+							</mat-select>
+						</mat-form-field>
+					</div>
+				</div>
+				<div class="input-info-wrapper">
+					<mat-icon aria-hidden="false" aria-label="Pencil icon" fontIcon="edit"/>
+					<div class="input-info">
+						<mat-form-field>
+							<mat-label>Filename Suffix</mat-label>
+							<input matInput placeholder="Filename Suffix" type="text"
+							       formControlName="fileNameSuffix" value="">
+						</mat-form-field>
+					</div>
+				</div>
+			</div>
+		</mat-card-content>
+		<div class="settings-footer">
+			<button mat-flat-button color="primary"
+			        type="submit">{{submitting ? "Saving..." : "Save Settings"}}</button>
+		</div>
+	</mat-card>
+</form>

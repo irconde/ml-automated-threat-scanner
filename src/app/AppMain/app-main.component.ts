@@ -9,6 +9,9 @@ import { Platforms } from '../../enums/platforms';
 import { CommonModule } from '@angular/common';
 import { SettingsModalComponent } from '../settings-modal/settings-modal.component';
 import { ApplicationSettings } from '../../../electron/models/Settings';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-main',
@@ -21,6 +24,9 @@ import { ApplicationSettings } from '../../../electron/models/Settings';
     CsCanvasComponent,
     CommonModule,
     SettingsModalComponent,
+    MatIconModule,
+    MatButtonModule,
+    MatDialogModule,
   ],
 })
 export class AppMain {
@@ -36,12 +42,19 @@ export class AppMain {
   constructor(
     public fileService: FileService,
     public settingsService: SettingsService,
+    public dialog: MatDialog,
   ) {
     fileService.getCurrentFile().subscribe((currentFile) => {
       this.currentFile = currentFile;
     });
     settingsService.getSettings().subscribe((settings: ApplicationSettings) => {
       this.settings = settings;
+    });
+  }
+
+  openSettingsModal() {
+    this.dialog.open(SettingsModalComponent, {
+      autoFocus: false,
     });
   }
 }
