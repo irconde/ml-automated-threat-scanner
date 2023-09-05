@@ -1,6 +1,14 @@
+.viewports {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 70%;
+}
+
 .viewportElement {
-  width: 512px;
-  height: 512px;
+  width: 50%;
+  height: 100%;
   border: 1px solid orange;
 }
 
@@ -8,6 +16,10 @@
   width: 100%;
   height: 100%;
   border: 5px solid blue;
+}
+
+.viewportElement.hidden {
+  display: none;
 }
 
 .controlButtons {

@@ -1,9 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
-  CurrentLocalDirectoryPayload,
-  CurrentRemoteServerPayload,
-  FilePayload,
-} from '../../../../shared/models/file-models';
+import { FilePayload, FileStatus } from '../../../../shared/models/file-models';
 import { API } from '../../../enums/remote-service';
 import { Observable, Subject } from 'rxjs';
 import { SettingsService } from '../settings/settings.service';
@@ -40,14 +36,17 @@ export class FileService {
   async handleFileSelection() {
     try {
       const result = await FilePicker.pickFiles({ readData: true });
-      //this.settingsService.workingMode = WorkingMode.IndividualFile;
+      this.settings.workingMode = WorkingMode.IndividualFile;
       const file = result.files[0];
       const fileName = file.name;
       const base_64_string = file.data;
       if (base_64_string) {
-        const imageInfo = await this.fileParserService.loadData(base_64_string);
-        console.log({ fileName });
-        console.log(imageInfo);
+        this.setCurrentFile({
+          status: FileStatus.Ok,
+          fileName,
+          filesCount: 1,
+          file: base_64_string,
+        });
       } else {
         console.log('File is empty');
       }
@@ -60,7 +59,7 @@ export class FileService {
     this.currentFileObservable.next(payload);
   }
 
-  getCurrentFile(): Observable<CurrentLocalDirectoryPayload> {
+  getCurrentFile(): Observable<FilePayload> {
     return this.currentFileObservable.asObservable();
   }
 
@@ -94,22 +93,20 @@ export class FileService {
     const { remoteIp, remotePort, fileFormat } = this.settings!;
     switch (this.settings?.workingMode) {
       case WorkingMode.LocalDirectory:
-        this.electronService.listenToFileUpdate(
-          (payload: CurrentLocalDirectoryPayload) => {
-            this.currentFileObservable.next(payload);
-          },
-        );
+        this.electronService.listenToFileUpdate((payload: FilePayload) => {
+          this.currentFileObservable.next(payload);
+        });
         break;
       case WorkingMode.RemoteServer:
         this.httpClient
-          .post<CurrentRemoteServerPayload>(
+          .post<FilePayload>(
             `${API.protocol}${remoteIp}:${remotePort}${API.getCurrentFile}`,
             {
               fileFormat,
             },
           )
           .subscribe({
-            next: (result: CurrentRemoteServerPayload) =>
+            next: (result: FilePayload) =>
               this.currentFileObservable.next(result),
             error: (error) =>
               console.log(`Error connection with server: ${error.message}`),

@@ -1,6 +1,6 @@
 import { Channels } from '../constants/channels';
+import { FilePayload } from './file-models';
 import { ApplicationSettings } from '../../electron/models/Settings';
-import { CurrentLocalDirectoryPayload } from './file-models';
 
 export type ChannelPayloadMapper = {
   // angular payload
@@ -8,7 +8,7 @@ export type ChannelPayloadMapper = {
   // angular or electron payload
   [Channels.SettingsUpdate]: ApplicationSettings;
   // electron payload
-  [Channels.CurrentFileUpdate]: CurrentLocalDirectoryPayload;
+  [Channels.CurrentFileUpdate]: FilePayload;
   // electron payload
   [Channels.FolderPickerInvoke]: { path: string };
 };

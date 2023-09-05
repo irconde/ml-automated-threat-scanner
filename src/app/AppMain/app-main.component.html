@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
 	<ion-toolbar>
 		<ion-title>
-			Cornerstone Demo
+			Pilot GUI
 		</ion-title>
 	</ion-toolbar>
 </ion-header>
@@ -9,15 +9,15 @@
 <ion-content [fullscreen]="true">
 	<ion-header collapse="condense">
 		<ion-toolbar>
-			<ion-title size="large">Cornerstone Demo</ion-title>
+			<ion-title size="large">Pilot GUI</ion-title>
 		</ion-toolbar>
-	</ion-header>
 	<h2>Current directory: {{settings?.selectedImagesDirPath}}</h2>
-	<p>Current file name: {{currentFile.fileName}}</p>
-	<p>Number of files: {{currentFile.filesCount}}</p>
+	<p>Current file name: {{currentFile?.fileName}}</p>
+	<p>Number of files: {{currentFile?.filesCount}}</p>
 	<ion-button (click)="fileService.handleFileSelection()">Upload file</ion-button>
 	<button mat-icon-button color="white" type="button" aria-label="Settings cog icon" (click)="openSettingsModal()">
 		<mat-icon>settings</mat-icon>
 	</button>
 	<app-cs-canvas></app-cs-canvas>
+	</ion-header>
 </ion-content>
