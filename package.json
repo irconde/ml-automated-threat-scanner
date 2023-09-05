@@ -1,6 +1,6 @@
 {
-  "name": "dna-client-ui",
-  "productName": "Pilot GUI",
+  "name": "ml-atr",
+  "productName": "ML Automated Threat Scanner",
   "version": "2.2.0",
   "author": "Emerging Analytics Center",
   "homepage": "https://eac-ualr.org/",
@@ -9,6 +9,7 @@
     "start": "ng serve",
     "build": "ng build",
     "build-mobile": "ionic build && ionic cap copy",
+    "build-electron": "cd electron && npm run build",
     "start-electron": "concurrently \"npm run start\" \"wait-on http://localhost:4200 && cd electron && npm run start\" -k",
     "start-ios": "ionic capacitor run ios -l --external",
     "start-android": "ionic capacitor run android -l --external",
