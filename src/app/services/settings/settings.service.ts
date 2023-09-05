@@ -20,20 +20,18 @@ export class SettingsService {
 
   constructor(
     private platformService: Platform,
-    private electronService: ElectronService
+    private electronService: ElectronService,
   ) {
     this._platform = this.getSystemPlatform();
     this._isMobile = [Platforms.iOS, Platforms.Android].includes(
-      this._platform
+      this._platform,
     );
     this.init();
   }
 
-
   public get isMobile(): boolean {
     return this._isMobile;
   }
-
 
   private init() {
     switch (this.platform) {
@@ -41,12 +39,12 @@ export class SettingsService {
         this.electronService.listenToSettingsUpdate(
           (settings: FileAndDetectionSettings) => {
             this.settings.next(settings);
-          }
+          },
         );
         break;
       default:
         console.log(
-          'Settings service initialization failed! Platform not supported!'
+          'Settings service initialization failed! Platform not supported!',
         );
     }
   }

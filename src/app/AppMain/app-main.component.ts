@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
 import { CsCanvasComponent } from '../cs-canvas/cs-canvas.component';
-import { CurrentLocalDirectoryPayload } from '../../../shared/models/file-models';
+import { FilePayload } from '../../../shared/models/file-models';
 import { FileService } from '../services/file/file.service';
 import { SettingsService } from '../services/settings/settings.service';
 import { FileAndDetectionSettings } from '../../../electron/models/Settings';
@@ -22,18 +22,14 @@ import { CommonModule } from '@angular/common';
   ],
 })
 export class AppMain {
-  currentFile: CurrentLocalDirectoryPayload = {
-    fileName: '',
-    filesCount: 0,
-    pixelData: undefined,
-  };
+  currentFile: FilePayload | null = null;
 
   settings: FileAndDetectionSettings | null = null;
   public readonly Platforms: typeof Platforms = Platforms;
 
   constructor(
     public fileService: FileService,
-    public settingsService: SettingsService
+    public settingsService: SettingsService,
   ) {
     fileService.getCurrentFile().subscribe((currentFile) => {
       this.currentFile = currentFile;
