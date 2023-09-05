@@ -36,7 +36,7 @@ export class FileService {
   async handleFileSelection() {
     try {
       const result = await FilePicker.pickFiles({ readData: true });
-      this.settings.workingMode = WorkingMode.IndividualFile;
+      this.settings!.workingMode = WorkingMode.IndividualFile;
       const file = result.files[0];
       const fileName = file.name;
       const base_64_string = file.data;
