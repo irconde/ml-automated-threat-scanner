@@ -33,7 +33,8 @@ app.whenReady().then(async () => {
   console.log('SETTINGS', settings.get());
   await settings.update({
     selectedDetectionFile: '',
-    selectedImagesDirPath: 'G:\\EAC\\images\\coco\\val2017-small-test',
+    selectedImagesDirPath:
+      'C:\\Users\\Luka\\Desktop\\DNA\\xray\\dna-atr-socket.io-server\\static\\img',
   });
   console.log(settings.get());
   userFilesManager = new UserFilesManager(settings, mainWindow);

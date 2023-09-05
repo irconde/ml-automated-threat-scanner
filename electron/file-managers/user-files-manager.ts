@@ -2,13 +2,13 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { BrowserWindow } from 'electron';
 import { Channels } from '../../shared/constants/channels';
-import { CurrentLocalDirectoryPayload } from '../../shared/models/file-models';
 import { CachedSettings } from './cached-settings';
 import { ChannelsManager } from './channels-manager';
+import { FilePayload, FileStatus } from '../../shared/models/file-models';
 
 class UserFilesManager extends ChannelsManager {
   static STORAGE_FILE_NAME = 'thumbnails.json';
-  static IMAGE_FILE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.dcm'];
+  static IMAGE_FILE_EXTENSIONS = ['.ora', '.zip'];
   fileNames: string[] = [];
   currentFileIndex = 0;
   #settings: CachedSettings;
@@ -39,20 +39,22 @@ class UserFilesManager extends ChannelsManager {
 
   async #sendCurrentFileUpdate() {
     const { selectedImagesDirPath } = this.#settings.get();
-    const pixelData = await fs.promises.readFile(
-      path.join(selectedImagesDirPath!, this.fileNames[this.currentFileIndex])
+    const file = await fs.promises.readFile(
+      path.join(selectedImagesDirPath!, this.fileNames[this.currentFileIndex]),
+      { encoding: 'base64' },
     );
-    const payload: CurrentLocalDirectoryPayload = {
+    const payload: FilePayload = {
       fileName: this.fileNames[this.currentFileIndex],
       filesCount: this.fileNames.length,
-      pixelData,
+      file,
+      status: FileStatus.Ok,
     };
     this.sendAngularUpdate(Channels.CurrentFileUpdate, payload);
   }
 
   static #isFileTypeAllowed(fileName: string): boolean {
     return UserFilesManager.IMAGE_FILE_EXTENSIONS.includes(
-      path.extname(fileName).toLowerCase()
+      path.extname(fileName).toLowerCase(),
     );
   }
 
@@ -61,7 +63,7 @@ class UserFilesManager extends ChannelsManager {
     const { selectedImagesDirPath } = this.#settings.get();
     if (!selectedImagesDirPath) return false;
     const foundFiles: string[] = await fs.promises.readdir(
-      selectedImagesDirPath
+      selectedImagesDirPath,
     );
     this.fileNames = foundFiles.filter(UserFilesManager.#isFileTypeAllowed);
     return !!this.fileNames.length;
