@@ -17,7 +17,7 @@ export class SettingsService {
     new BehaviorSubject<ApplicationSettings | null>(null);
 
   constructor(
-    private platformService: Platform, // private electronService: ElectronService,
+    private platformService: Platform,
     private electronService: ElectronService,
   ) {
     this._platform = this.getSystemPlatform();
