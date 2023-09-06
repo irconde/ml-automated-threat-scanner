@@ -15,13 +15,15 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSelectModule } from '@angular/material/select';
 import { NgForOf } from '@angular/common';
-import { ApplicationSettings } from '../../../electron/models/Settings';
 import { FileFormat, WorkingMode } from '../../enums/platforms';
 import { DetectionType } from '../../models/detection';
 import { getElectronAPI } from '../get-electron-api';
 import { Channels } from '../../../shared/constants/channels';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { DEFAULT_SETTINGS } from '../services/settings/models/Settings';
+import {
+  ApplicationSettings,
+  DEFAULT_SETTINGS,
+} from '../services/settings/models/Settings';
 
 interface OutputOptions {
   value: string;
@@ -154,6 +156,7 @@ export class SettingsModalComponent implements OnInit {
     this.submitting = true;
     this.settingsService.update(formSettings).finally(() => {
       this.submitting = false;
+      this.dialogRef.close();
     });
   }
 }

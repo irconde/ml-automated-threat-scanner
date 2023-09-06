@@ -1,4 +1,3 @@
-import { CachedSettings } from './file-managers/cached-settings';
 import UserFilesManager from './file-managers/user-files-manager';
 import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import { Channels } from '../shared/constants/channels';
@@ -26,10 +25,7 @@ const createWindow = async (): Promise<BrowserWindow> => {
 
 app.whenReady().then(async () => {
   const mainWindow = await createWindow();
-  const settings = await CachedSettings.create(mainWindow);
-  console.log('SETTINGS', settings.get());
-  console.log(settings.get());
-  userFilesManager = new UserFilesManager(settings, mainWindow);
+  userFilesManager = new UserFilesManager(mainWindow);
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

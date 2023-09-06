@@ -1,6 +1,6 @@
 import { Channels } from '../constants/channels';
 import { FilePayload } from './file-models';
-import { ApplicationSettings } from '../../electron/models/Settings';
+import { ApplicationSettings } from '../../src/app/services/settings/models/Settings';
 
 export type ChannelPayloadMapper = {
   // angular payload

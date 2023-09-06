@@ -4,6 +4,7 @@ import { Platforms } from '../../../enums/platforms';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ApplicationSettings, DEFAULT_SETTINGS } from './models/Settings';
 import { Preferences } from '@capacitor/preferences';
+import { ElectronService } from '../electron/electron.service';
 
 @Injectable({
   providedIn: 'root',
@@ -17,6 +18,7 @@ export class SettingsService {
 
   constructor(
     private platformService: Platform, // private electronService: ElectronService,
+    private electronService: ElectronService,
   ) {
     this._platform = this.getSystemPlatform();
     this._isMobile = [Platforms.iOS, Platforms.Android].includes(
@@ -31,6 +33,9 @@ export class SettingsService {
 
   private async init() {
     const settings = await this.loadSettings(); // Load settings using Capacitor Preferences
+    if (this.platform === Platforms.Electron) {
+      this.electronService.sendSettingsUpdate(settings); // Send settings to Electron
+    }
     this.settings.next(settings);
   }
 
@@ -46,6 +51,9 @@ export class SettingsService {
     newSettings: ApplicationSettings,
   ): Promise<ApplicationSettings> {
     await this.setSettings(newSettings); // Save settings using Capacitor Preferences
+    if (this.platform === Platforms.Electron) {
+      this.electronService.sendSettingsUpdate(newSettings); // Send settings to Electron
+    }
     this.settings.next(newSettings); // Notify subscribers about the updated settings
     return newSettings;
   }

@@ -104,34 +104,33 @@ import * as path from 'path';
 import { BrowserWindow } from 'electron';
 import { Channels } from '../../shared/constants/channels';
 import { ChannelsManager } from './channels-manager';
-import { loadSettings } from '../models/Settings';
 import { FilePayload, FileStatus } from '../../shared/models/file-models';
+import { CachedSettings } from './cached-settings';
 
 class UserFilesManager extends ChannelsManager {
   static STORAGE_FILE_NAME = 'thumbnails.json';
   static IMAGE_FILE_EXTENSIONS = ['.ora', '.zip'];
   fileNames: string[] = [];
   currentFileIndex = 0;
+  cachedSettings: CachedSettings;
 
   constructor(browserWindow: BrowserWindow) {
     super(browserWindow);
-    this.#init().then();
-  }
-
-  async #init() {
-    // Load settings using the Settings module
-    // const settings: ApplicationSettings = await loadSettings();
-    // Access the settings directly if needed
-    // const { selectedImagesDirPath } = settings;
-    // const anyFiles = await this.#updateFileNames(
-    //   JSON.parse(JSON.stringify(selectedImagesDirPath)),
-    // );
-    // this.#wireAngularChannels();
-    // if (anyFiles) this.#sendCurrentFileUpdate().then();
+    this.cachedSettings = new CachedSettings(
+      browserWindow,
+      async (settings) => {
+        const path = settings?.selectedImagesDirPath;
+        if (path) {
+          const anyFiles = await this.#updateFileNames(path);
+          if (anyFiles) this.#sendCurrentFileUpdate().then();
+        }
+      },
+    );
+    this.#wireAngularChannels();
   }
 
   #wireAngularChannels() {
-    this.onAngularRequest(Channels.NewFileRequest, (e, isNext) => {
+    this.onAngularEvent(Channels.NewFileRequest, (e, isNext) => {
       if (isNext && this.currentFileIndex + 1 < this.fileNames.length) {
         this.currentFileIndex++;
         this.#sendCurrentFileUpdate().then();
@@ -143,9 +142,13 @@ class UserFilesManager extends ChannelsManager {
   }
 
   async #sendCurrentFileUpdate() {
-    const { selectedImagesDirPath } = await loadSettings(); // Load settings
+    const settings = this.cachedSettings.get();
+    if (!settings) return;
     const file = await fs.promises.readFile(
-      path.join(selectedImagesDirPath!, this.fileNames[this.currentFileIndex]),
+      path.join(
+        settings.selectedImagesDirPath!,
+        this.fileNames[this.currentFileIndex],
+      ),
       { encoding: 'base64' },
     );
     const payload: FilePayload = {
