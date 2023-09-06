@@ -8,7 +8,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "build-mobile": "ionic build && ionic cap copy",
+    "build-mobile": "ionic cap copy",
     "build-electron": "cd electron && npm run build",
     "start-electron": "concurrently \"ionic serve --no-open\" \"wait-on http://localhost:8100 && cd electron && npm run start\" -k",
     "start-ios": "ionic capacitor run ios -l --external",

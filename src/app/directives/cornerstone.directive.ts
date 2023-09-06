@@ -6,7 +6,7 @@ import {
   Input,
   OnInit,
 } from '@angular/core';
-import { cornerstone } from '../csSetup';
+import {cornerstone, cornerstoneTools} from '../csSetup';
 
 @Directive({
   selector: '[csDirective]',
@@ -32,7 +32,7 @@ export class CornerstoneDirective implements OnInit, AfterViewInit {
   onMouseWheel(event: {
     wheelDelta: number;
     detail: string;
-    preventDefault: Function;
+    preventDefault: ()=>void;
   }) {
     console.log('mouseWheel');
   }
@@ -42,9 +42,17 @@ export class CornerstoneDirective implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     // Enable the element with Cornerstone
     cornerstone.enable(this.element);
+    const PanTool = cornerstoneTools.PanTool;
+    cornerstoneTools.addTool(PanTool);
+    cornerstoneTools.setToolActive('Pan', { mouseButtonMask: 1 });
+    const Zoom = cornerstoneTools.ZoomMouseWheelTool;
+    cornerstoneTools.addTool(Zoom);
+    cornerstoneTools.setToolActive('ZoomMouseWheel', {});
+    const ZoomTouchPinchTool = cornerstoneTools.ZoomTouchPinchTool;
+    cornerstoneTools.addTool(ZoomTouchPinchTool);
+    cornerstoneTools.setToolActive('ZoomTouchPinch', {});
 
-    // // following code won't work on mobile. It's causing the buttons to stop working
-
+    // following code won't work on mobile. It's causing the buttons to stop working
     // cornerstoneTools.mouseInput.enable(this.element);
     // cornerstoneTools.mouseWheelInput.enable(this.element);
     // cornerstoneTools.wwwc.activate(this.element, 1); // ww/wc is the default tool for left mouse button
@@ -56,11 +64,11 @@ export class CornerstoneDirective implements OnInit, AfterViewInit {
     // cornerstoneTools.panTouchDrag.activate(this.element);
     // cornerstoneTools.zoomTouchPinch.activate(this.element);
 
-    // element.addEventListener(
+    // this.element.addEventListener(
     //   "cornerstoneimagerendered",
     //   this.onImageRendered
     // );
-    // element.addEventListener("cornerstonenewimage", this.onNewImage);
+    // this.element.addEventListener("cornerstonenewimage", this.onNewImage);
     // window.addEventListener("resize", this.onWindowResize);
   }
 
