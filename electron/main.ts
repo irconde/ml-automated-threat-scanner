@@ -2,8 +2,9 @@ import UserFilesManager from './file-managers/user-files-manager';
 import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import { Channels } from '../shared/constants/channels';
 
-const path = require('path');
-const isDev = require('electron-is-dev');
+import path from 'path';
+import isDev from 'electron-is-dev';
+
 let userFilesManager: null | UserFilesManager = null;
 
 const createWindow = async (): Promise<BrowserWindow> => {
@@ -16,7 +17,7 @@ const createWindow = async (): Promise<BrowserWindow> => {
   });
 
   const htmlPath = isDev
-    ? 'http://localhost:4200'
+    ? 'http://localhost:8100'
     : `file://${path.join(__dirname, '..', 'www', 'index.html')}`;
 
   await mainWindow.loadURL(htmlPath);
