@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { Platforms } from '../../../enums/platforms';
-import { ElectronService } from '../electron/electron.service';
-import { Observable, Subject } from 'rxjs';
-import { ApplicationSettings } from '../../../../electron/models/Settings';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { ApplicationSettings, DEFAULT_SETTINGS } from './models/Settings';
+import { Preferences } from '@capacitor/preferences';
 
 @Injectable({
   providedIn: 'root',
@@ -11,41 +11,30 @@ import { ApplicationSettings } from '../../../../electron/models/Settings';
 export class SettingsService {
   private readonly _platform: Platforms;
   private readonly _isMobile: boolean;
-  private settings: Subject<ApplicationSettings> =
-    new Subject<ApplicationSettings>();
+  private readonly STORAGE_KEY = 'SETTINGS_KEY';
+  private settings: BehaviorSubject<ApplicationSettings | null> =
+    new BehaviorSubject<ApplicationSettings | null>(null);
 
   constructor(
-    private platformService: Platform,
-    private electronService: ElectronService,
+    private platformService: Platform, // private electronService: ElectronService,
   ) {
     this._platform = this.getSystemPlatform();
     this._isMobile = [Platforms.iOS, Platforms.Android].includes(
       this._platform,
     );
-    this.init();
+    this.init().then();
   }
 
   public get isMobile(): boolean {
     return this._isMobile;
   }
 
-  private init() {
-    switch (this.platform) {
-      case Platforms.Electron:
-        this.electronService.listenToSettingsUpdate(
-          (settings: ApplicationSettings) => {
-            this.settings.next(settings);
-          },
-        );
-        break;
-      default:
-        console.log(
-          'Settings service initialization failed! Platform not supported!',
-        );
-    }
+  private async init() {
+    const settings = await this.loadSettings(); // Load settings using Capacitor Preferences
+    this.settings.next(settings);
   }
 
-  public getSettings(): Observable<ApplicationSettings> {
+  public getSettings(): Observable<ApplicationSettings | null> {
     return this.settings.asObservable();
   }
 
@@ -53,15 +42,29 @@ export class SettingsService {
     return this._platform;
   }
 
-  public async update(settings: ApplicationSettings): Promise<void> {
-    switch (this.platform) {
-      case Platforms.Electron:
-        this.electronService.updateSettings(settings);
-        break;
-      default:
-        console.log('Settings service update failed! Platform not supported!');
-    }
+  public async update(
+    newSettings: ApplicationSettings,
+  ): Promise<ApplicationSettings> {
+    await this.setSettings(newSettings); // Save settings using Capacitor Preferences
+    this.settings.next(newSettings); // Notify subscribers about the updated settings
+    return newSettings;
   }
+
+  private setSettings = async (settings: ApplicationSettings) => {
+    await Preferences.set({
+      key: this.STORAGE_KEY,
+      value: JSON.stringify(settings),
+    });
+  };
+
+  private loadSettings = async (): Promise<ApplicationSettings> => {
+    const { value } = await Preferences.get({ key: this.STORAGE_KEY });
+    if (value !== null) {
+      return JSON.parse(value) as ApplicationSettings;
+    }
+    await this.setSettings(DEFAULT_SETTINGS);
+    return DEFAULT_SETTINGS;
+  };
 
   private getSystemPlatform(): Platforms {
     if (this.platformService.is('electron')) {

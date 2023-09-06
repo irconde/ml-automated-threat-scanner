@@ -8,10 +8,10 @@ import { SettingsService } from '../services/settings/settings.service';
 import { Platforms } from '../../enums/platforms';
 import { CommonModule } from '@angular/common';
 import { SettingsModalComponent } from '../settings-modal/settings-modal.component';
-import { ApplicationSettings } from '../../../electron/models/Settings';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ApplicationSettings } from '../services/settings/models/Settings';
 
 @Component({
   selector: 'app-main',
@@ -43,9 +43,11 @@ export class AppMain {
     fileService.getCurrentFile().subscribe((currentFile) => {
       this.currentFile = currentFile;
     });
-    settingsService.getSettings().subscribe((settings: ApplicationSettings) => {
-      this.settings = settings;
-    });
+    settingsService
+      .getSettings()
+      .subscribe((settings: ApplicationSettings | null) => {
+        this.settings = settings;
+      });
   }
 
   openSettingsModal() {

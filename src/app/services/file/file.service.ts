@@ -8,7 +8,7 @@ import { ElectronService } from '../electron/electron.service';
 import { FileParserService } from '../file-parser/file-parser.service';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
 import { HttpClient } from '@angular/common/http';
-import { ApplicationSettings } from '../../../../electron/models/Settings';
+import { ApplicationSettings } from '../settings/models/Settings';
 
 @Injectable({
   providedIn: 'root',
@@ -26,7 +26,10 @@ export class FileService {
   ) {
     this.settingsService.getSettings().subscribe((settings) => {
       this.settings = settings;
-      this.init();
+      // TODO: Refactor to only request current file when specific settings are changed
+      if (settings) {
+        this.requestCurrentFile(settings);
+      }
     });
   }
 
@@ -89,13 +92,19 @@ export class FileService {
     }
   }
 
-  requestCurrentFile() {
-    const { remoteIp, remotePort, fileFormat } = this.settings!;
+  requestCurrentFile(settings: ApplicationSettings) {
+    const { remoteIp, remotePort, fileFormat } = settings;
     switch (this.settings?.workingMode) {
       case WorkingMode.LocalDirectory:
-        this.electronService.listenToFileUpdate((payload: FilePayload) => {
-          this.currentFileObservable.next(payload);
-        });
+        if (this.settingsService.platform === Platforms.Electron) {
+          this.electronService.listenToFileUpdate((payload: FilePayload) => {
+            this.currentFileObservable.next(payload);
+          });
+        } else {
+          console.log(
+            'Working mode is a local directory but platform is not electron',
+          );
+        }
         break;
       case WorkingMode.RemoteServer:
         this.httpClient
@@ -117,9 +126,5 @@ export class FileService {
           'You are not in a proper working mode of the application, please revisit your settings!',
         );
     }
-  }
-
-  private init() {
-    this.requestCurrentFile();
   }
 }

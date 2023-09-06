@@ -15,15 +15,13 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSelectModule } from '@angular/material/select';
 import { NgForOf } from '@angular/common';
-import {
-  ApplicationSettings,
-  DEFAULT_SETTINGS,
-} from '../../../electron/models/Settings';
+import { ApplicationSettings } from '../../../electron/models/Settings';
 import { FileFormat, WorkingMode } from '../../enums/platforms';
 import { DetectionType } from '../../models/detection';
 import { getElectronAPI } from '../get-electron-api';
 import { Channels } from '../../../shared/constants/channels';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { DEFAULT_SETTINGS } from '../services/settings/models/Settings';
 
 interface OutputOptions {
   value: string;
@@ -57,7 +55,7 @@ interface AnnotationOptions {
 })
 export class SettingsModalComponent implements OnInit {
   submitting: boolean = false;
-  settings: ApplicationSettings = DEFAULT_SETTINGS;
+  settings: ApplicationSettings | null = null;
   form: FormGroup<Record<keyof ApplicationSettings, FormControl>>;
 
   constructor(
@@ -67,18 +65,39 @@ export class SettingsModalComponent implements OnInit {
     this.form = this.getFormGroup();
     settingsService.getSettings().subscribe((settings) => {
       this.settings = settings;
-      this.form = this.getFormGroup();
+      if (settings) this.setFormValues(settings);
     });
+  }
+
+  private setFormValues(settings: ApplicationSettings) {
+    Object.keys(settings).forEach((key) => {
+      const value = this.getFormControlValue(
+        key as keyof ApplicationSettings,
+        settings,
+      );
+      this.form.get(key)?.setValue(value);
+    });
+  }
+
+  private getFormControlValue(
+    key: keyof ApplicationSettings,
+    settings: ApplicationSettings,
+  ) {
+    let value = settings[key as keyof ApplicationSettings];
+    if (key === 'workingMode') {
+      value = value === WorkingMode.RemoteServer;
+    }
+    return value;
   }
 
   private getFormGroup() {
     return new FormGroup(
-      Object.keys(this.settings).reduce<Record<string, FormControl>>(
+      Object.keys(DEFAULT_SETTINGS).reduce<Record<string, FormControl>>(
         (acc, key: string) => {
-          let value = this.settings[key as keyof ApplicationSettings];
-          if (key === 'workingMode') {
-            value = value === WorkingMode.RemoteServer;
-          }
+          const value = this.getFormControlValue(
+            key as keyof ApplicationSettings,
+            DEFAULT_SETTINGS,
+          );
           acc[key] = new FormControl({
             value,
             disabled: key === 'selectedImagesDirPath',
@@ -104,7 +123,6 @@ export class SettingsModalComponent implements OnInit {
     console.log('Settings Modal Component Initialized');
   }
 
-  //TODO: change to electron only
   openDirectoryPicker() {
     getElectronAPI().invoke(Channels.FolderPickerInvoke, null, ({ path }) => {
       // don't update the form if cancelled
