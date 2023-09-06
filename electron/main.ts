@@ -2,8 +2,9 @@ import { CachedSettings } from './file-managers/cached-settings';
 import UserFilesManager from './file-managers/user-files-manager';
 import { app, BrowserWindow } from 'electron';
 
-const path = require('path');
-const isDev = require('electron-is-dev');
+import path from 'path';
+import isDev from 'electron-is-dev';
+
 let userFilesManager: null | UserFilesManager = null;
 
 const createWindow = async (): Promise<BrowserWindow> => {
@@ -16,7 +17,7 @@ const createWindow = async (): Promise<BrowserWindow> => {
   });
 
   const htmlPath = isDev
-    ? 'http://localhost:4200'
+    ? 'http://localhost:8100'
     : `file://${path.join(__dirname, '..', 'www', 'index.html')}`;
 
   try {
@@ -33,8 +34,7 @@ app.whenReady().then(async () => {
   console.log('SETTINGS', settings.get());
   await settings.update({
     selectedDetectionFile: '',
-    selectedImagesDirPath:
-      'C:\\Users\\Luka\\Desktop\\DNA\\xray\\dna-atr-socket.io-server\\static\\img',
+    selectedImagesDirPath: 'G:\\EAC\\dna-atr-socket.io-server\\static\\img',
   });
   console.log(settings.get());
   userFilesManager = new UserFilesManager(settings, mainWindow);
