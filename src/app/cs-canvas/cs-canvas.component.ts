@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { cornerstone } from '../csSetup';
 import { CornerstoneDirective } from '../directives/cornerstone.directive';
 import { CornerstoneService } from '../services/cornerstone.service';
 import { FileService } from '../services/file/file.service';
@@ -9,11 +8,7 @@ import { FileParserService } from '../services/file-parser/file-parser.service';
 import { IonicModule } from '@ionic/angular';
 import { KeyValuePipe, NgForOf, NgIf, NgStyle } from '@angular/common';
 import { of } from 'rxjs';
-
-export interface Viewports {
-  top: cornerstone.Image | null;
-  side: cornerstone.Image | null;
-}
+import { ViewportsMap } from '../../models/viewport';
 
 @Component({
   selector: 'app-cs-canvas',
@@ -30,10 +25,12 @@ export interface Viewports {
   ],
 })
 export class CsCanvasComponent implements OnInit {
-  imageData: Viewports = {
-    top: null,
-    side: null,
+  viewportsData: ViewportsMap = {
+    top: { imageData: null, detectionData: [] },
+    side: { imageData: null, detectionData: [] },
   };
+  protected readonly of = of;
+  protected readonly Object = Object;
 
   constructor(
     private csService: CornerstoneService,
@@ -42,8 +39,8 @@ export class CsCanvasComponent implements OnInit {
     private settingsService: SettingsService,
   ) {}
 
-  public getImageData(): (keyof Viewports)[] {
-    return Object.keys(this.imageData) as (keyof Viewports)[];
+  public getImageData(): (keyof ViewportsMap)[] {
+    return Object.keys(this.viewportsData) as (keyof ViewportsMap)[];
   }
 
   ngOnInit() {
@@ -56,21 +53,26 @@ export class CsCanvasComponent implements OnInit {
         console.log(parsedFile);
         console.log('--------------------------------------------------------');
 
-        Object.keys(this.imageData).forEach((key, i): void => {
-          const pixelData = parsedFile.imageData[i];
+        Object.keys(this.viewportsData).forEach((key): void => {
+          const viewpoint = key as keyof ViewportsMap;
+          const pixelData = parsedFile.imageData.find(
+            (img) => img.viewpoint === key,
+          );
           if (!pixelData) {
-            this.imageData[key as keyof Viewports] = null;
+            this.viewportsData[viewpoint].imageData = null;
+            this.viewportsData[viewpoint].detectionData = [];
             return;
           }
-          const isValidView = Object.keys(this.imageData).includes(
-            pixelData.viewpoint,
-          );
-          if (isValidView) {
-            this.csService.getImageData(pixelData).subscribe((image) => {
-              this.imageData[pixelData.viewpoint as keyof Viewports] = image;
-            });
-          } else
-            throw Error(`${pixelData.viewpoint} is not a valid viewpoint name`);
+
+          this.csService.getImageData(pixelData).subscribe((imageData) => {
+            const detectionData = parsedFile.detectionData.filter(
+              (detect) => detect.viewpoint === viewpoint,
+            );
+            this.viewportsData[viewpoint] = {
+              imageData,
+              detectionData,
+            };
+          });
         });
       });
     });
@@ -79,7 +81,4 @@ export class CsCanvasComponent implements OnInit {
   handleChangeImage(next = true) {
     this.fileService.requestNextFile(next);
   }
-
-  protected readonly of = of;
-  protected readonly Object = Object;
 }

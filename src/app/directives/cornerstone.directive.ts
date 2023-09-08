@@ -7,6 +7,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { cornerstone } from '../csSetup';
+import { ViewportData } from '../../models/viewport';
 
 @Directive({
   selector: '[csDirective]',
@@ -16,16 +17,16 @@ export class CornerstoneDirective implements OnInit, AfterViewInit {
   element: HTMLElement;
   currentIndex = 0;
 
-  @Input()
-  set image(imageData: cornerstone.Image | null) {
-    if (!imageData?.imageId) return;
-
-    cornerstone.enable(this.element);
-    this.displayImage(imageData);
-  }
-
   constructor(public elementRef: ElementRef) {
     this.element = elementRef.nativeElement;
+  }
+
+  @Input()
+  set image({ imageData, detectionData }: ViewportData) {
+    if (!imageData?.imageId) return;
+    console.log(detectionData);
+    cornerstone.enable(this.element);
+    this.displayImage(imageData);
   }
 
   @HostListener('mousewheel', ['$event'])
