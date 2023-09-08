@@ -9,7 +9,7 @@ const API = {
       listener(data);
     });
   },
-  invoke: (channel: string, arg: any, callback: (result: any) => void) => {
+  invoke: (channel, arg, callback) => {
     ipcRenderer.invoke(channel, arg).then(callback);
   },
 };
