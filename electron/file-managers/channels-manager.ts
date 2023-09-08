@@ -1,6 +1,7 @@
 import { BrowserWindow, ipcMain } from 'electron';
 import {
-  ChannelPayloadMapper, ElectronChannelPayloadMapper,
+  AngularChannelPayloadMapper,
+  ElectronChannelPayloadMapper,
   ElectronSendFunc,
 } from '../../shared/models/channels-payloads';
 
@@ -15,25 +16,25 @@ export class ChannelsManager {
     this.browserWindow.webContents.send(channel, payload);
   };
 
-  protected onAngularEvent<Channel extends keyof ChannelPayloadMapper>(
+  protected onAngularEvent<Channel extends keyof AngularChannelPayloadMapper>(
     channel: Channel,
     listener: (
       e: Electron.IpcMainEvent,
-      payload: ChannelPayloadMapper[Channel],
+      payload: AngularChannelPayloadMapper[Channel],
     ) => void,
   ) {
     ipcMain.on(channel, listener);
   }
 
-  protected handleAngularEvent<Channel extends keyof ChannelPayloadMapper>(
+  protected handleAngularEvent<
+    Channel extends keyof AngularChannelPayloadMapper,
+  >(
     channel: Channel,
     listener: (
       e: Electron.IpcMainEvent,
-      payload: ChannelPayloadMapper[Channel]
-    ) => Promise<ElectronChannelPayloadMapper[Channel]>
+      payload: AngularChannelPayloadMapper[Channel],
+    ) => Promise<ElectronChannelPayloadMapper[Channel]>,
   ) {
-
-    ipcMain.handle(channel, listener)
+    ipcMain.handle(channel, listener);
   }
-
 }

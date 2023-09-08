@@ -65,7 +65,17 @@ export class FileService {
   public requestNextFile(next: boolean) {
     switch (this.settings?.workingMode) {
       case WorkingMode.LocalDirectory:
-        this.electronService.requestNewFile(next);
+        if (!this.settings.selectedImagesDirPath) return;
+        this.electronService.requestNewFile(
+          {
+            isNext: next,
+            selectedImagesDirPath: this.settings.selectedImagesDirPath,
+          },
+          (filePayload: FilePayload | null) => {
+            // if no more files, don't update the current file
+            if (filePayload !== null) this.setCurrentFile(filePayload);
+          },
+        );
         break;
       case WorkingMode.RemoteServer:
         switch (this.settingsService.platform) {
@@ -88,29 +98,6 @@ export class FileService {
     }
   }
 
-  // private requestInitialFile(settings: ApplicationSettings) {
-  //   switch (this.settings?.workingMode) {
-  //     case WorkingMode.LocalDirectory:
-  //       if (this.settingsService.platform === Platforms.Electron) {
-  //         // this.electronService.listenToFileUpdate((payload: FilePayload) => {
-  //         //   this.currentFileObservable.next(payload);
-  //         // });
-  //       } else {
-  //         console.log(
-  //           'Working mode is a local directory but platform is not electron',
-  //         );
-  //       }
-  //       break;
-  //     case WorkingMode.RemoteServer:
-  //       this.requestCurrentFileFromServer(settings);
-  //       break;
-  //     default:
-  //       console.log(
-  //         'You are not in a proper working mode of the application, please revisit your settings!',
-  //       );
-  //   }
-  // }
-
   private handleSettingsChange(newSettings: ApplicationSettings | null) {
     switch (newSettings?.workingMode) {
       case WorkingMode.LocalDirectory:
@@ -132,7 +119,9 @@ export class FileService {
    * to update the files and send the new current file
    * @param newSettings - the new settings payload received from the modal
    */
-  private requestNewImageDirFromElectron(newSettings: ApplicationSettings) {
+  private requestNewImageDirFromElectron(
+    newSettings: ApplicationSettings,
+  ): void {
     const skipUpdate =
       this.shouldSkipUpdate(
         newSettings,
@@ -151,7 +140,7 @@ export class FileService {
   }
 
   /**
-   *
+   * Checks whether an update should be skipped based on the provided settings and keys.
    * @param newSettings - new settings passed from the settings modal
    * @param keys - the properties of the settings to track
    * @private
@@ -161,11 +150,12 @@ export class FileService {
     ...keys: (keyof ApplicationSettings)[]
   ): boolean {
     return keys.every(
-      (key) => this.settings && newSettings[key] === this.settings[key],
+      (key: keyof ApplicationSettings) =>
+        this.settings && newSettings[key] === this.settings[key],
     );
   }
 
-  private requestCurrentFileFromServer(newSettings: ApplicationSettings) {
+  private requestCurrentFileFromServer(newSettings: ApplicationSettings): void {
     // only send a request to the server if one of the attributes have changed
     const skipUpdate = this.shouldSkipUpdate(
       newSettings,

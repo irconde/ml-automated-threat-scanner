@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { getElectronAPI } from '../../get-electron-api';
 import { Channels } from '../../../../shared/constants/channels';
 import { FilePayload } from '../../../../shared/models/file-models';
-import { ApplicationSettings } from '../settings/models/Settings';
+import { AngularChannelPayloadMapper } from '../../../../shared/models/channels-payloads';
 
 @Injectable({
   providedIn: 'root',
@@ -16,18 +16,17 @@ export class ElectronService {
     this.electronAPI.on(Channels.CurrentFileUpdate, listener);
   }
 
-  requestNewFile(next: boolean) {
-    this.electronAPI.send(Channels.NewFileRequest, next);
-  }
-
-  sendSettingsUpdate(settings: ApplicationSettings) {
-    this.electronAPI.send(Channels.SettingsUpdate, settings);
+  requestNewFile(
+    payload: AngularChannelPayloadMapper[Channels.NewFileInvoke],
+    callback: (payload: FilePayload | null) => void,
+  ) {
+    this.electronAPI.invoke(Channels.NewFileInvoke, payload, callback);
   }
 
   initFiles(
     sentPayload: { selectedImagesDirPath: string },
     callback: (electronPayload: FilePayload | null) => void,
   ) {
-    this.electronAPI.invoke(Channels.InitFilesRequest, sentPayload, callback);
+    this.electronAPI.invoke(Channels.InitFilesInvoke, sentPayload, callback);
   }
 }

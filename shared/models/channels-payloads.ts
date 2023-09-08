@@ -1,42 +1,49 @@
-import { Channels } from '../constants/channels';
-import { FilePayload } from './file-models';
-import { ApplicationSettings } from '../../src/app/services/settings/models/Settings';
+import {Channels} from '../constants/channels';
+import {FilePayload} from './file-models';
 
-export type ChannelPayloadMapper = {
+/**
+ * Maps a channel to the type of payload sent by Angular
+ */
+export type AngularChannelPayloadMapper = {
   // angular payload
-  [Channels.NewFileRequest]: boolean;
-  // angular or electron payload
-  [Channels.SettingsUpdate]: ApplicationSettings;
+  [Channels.NewFileInvoke]: { isNext: boolean; selectedImagesDirPath: string };
   // electron payload
   [Channels.CurrentFileUpdate]: FilePayload;
   // electron payload
   [Channels.FolderPickerInvoke]: { path: string };
-  [Channels.InitFilesRequest]: { selectedImagesDirPath: string };
+  [Channels.InitFilesInvoke]: { selectedImagesDirPath: string };
 };
 
+/**
+ * Maps a channel to the type of payload sent by electron
+ */
 export type ElectronChannelPayloadMapper = {
   // angular payload
-  [Channels.NewFileRequest]: void;
-  // angular or electron payload
-  [Channels.SettingsUpdate]: ApplicationSettings;
+  [Channels.NewFileInvoke]: FilePayload | null;
   // electron payload
   [Channels.CurrentFileUpdate]: FilePayload;
   // electron payload
   [Channels.FolderPickerInvoke]: { path: string };
-  [Channels.InitFilesRequest]: FilePayload | null;
+  [Channels.InitFilesInvoke]: FilePayload | null;
 };
 
-export type ElectronSendFunc = <Channel extends keyof ChannelPayloadMapper>(
+export type ElectronSendFunc = <
+  Channel extends keyof AngularChannelPayloadMapper,
+>(
   channel: Channel,
-  payload: ChannelPayloadMapper[Channel],
+  payload: AngularChannelPayloadMapper[Channel],
 ) => void;
-export type ElectronOnFunc = <Channel extends keyof ChannelPayloadMapper>(
+export type ElectronOnFunc = <
+  Channel extends keyof AngularChannelPayloadMapper,
+>(
   channel: Channel,
-  listener: (payload: ChannelPayloadMapper[Channel]) => void,
+  listener: (payload: ElectronChannelPayloadMapper[Channel]) => void,
 ) => void;
-export type ElectronInvokeFunc = <Channel extends keyof ChannelPayloadMapper>(
+export type ElectronInvokeFunc = <
+  Channel extends keyof AngularChannelPayloadMapper,
+>(
   channel: Channel,
-  sentPayload: ChannelPayloadMapper[Channel] | null,
+  sentPayload: AngularChannelPayloadMapper[Channel] | null,
   callback: (payload: ElectronChannelPayloadMapper[Channel]) => void,
 ) => void;
 

@@ -13,29 +13,35 @@ class UserFilesManager extends ChannelsManager {
 
   constructor(browserWindow: BrowserWindow) {
     super(browserWindow);
-
-    // const path = settings?.selectedImagesDirPath;
-    // if (path) {
-    //   const anyFiles = await this.#updateFileNames(path);
-    //   if (anyFiles) this.#sendCurrentFileUpdate().then();
-    // }
-    //
-
     this.#wireAngularChannels();
   }
 
+  static #isFileTypeAllowed(fileName: string): boolean {
+    return UserFilesManager.IMAGE_FILE_EXTENSIONS.includes(
+      path.extname(fileName).toLowerCase(),
+    );
+  }
+
   #wireAngularChannels() {
-    this.onAngularEvent(Channels.NewFileRequest, (e, isNext) => {
-      if (isNext && this.currentFileIndex + 1 < this.fileNames.length) {
-        this.currentFileIndex++;
-        // this.#sendCurrentFileUpdate().then();
-      } else if (!isNext && this.currentFileIndex > 0) {
-        this.currentFileIndex--;
-        // this.#sendCurrentFileUpdate().then();
-      }
-    });
     this.handleAngularEvent(
-      Channels.InitFilesRequest,
+      Channels.NewFileInvoke,
+      async (
+        e,
+        { isNext, selectedImagesDirPath },
+      ): Promise<FilePayload | null> => {
+        if (isNext && this.currentFileIndex + 1 < this.fileNames.length) {
+          this.currentFileIndex++;
+          return this.#getCurrentFilePayload(selectedImagesDirPath);
+        } else if (!isNext && this.currentFileIndex > 0) {
+          this.currentFileIndex--;
+          return this.#getCurrentFilePayload(selectedImagesDirPath);
+        } else {
+          return null;
+        }
+      },
+    );
+    this.handleAngularEvent(
+      Channels.InitFilesInvoke,
       async (e, { selectedImagesDirPath }) => {
         const anyFiles = await this.#updateFileNames(selectedImagesDirPath);
         return anyFiles
@@ -47,9 +53,10 @@ class UserFilesManager extends ChannelsManager {
 
   async #getCurrentFilePayload(
     selectedImagesDirPath: string,
-  ): Promise<FilePayload> {
+  ): Promise<FilePayload | null> {
+    if (!selectedImagesDirPath) return null;
     const file = await fs.promises.readFile(
-      path.join(selectedImagesDirPath!, this.fileNames[this.currentFileIndex]),
+      path.join(selectedImagesDirPath, this.fileNames[this.currentFileIndex]),
       { encoding: 'base64' },
     );
     return {
@@ -58,12 +65,6 @@ class UserFilesManager extends ChannelsManager {
       file,
       status: FileStatus.Ok,
     };
-  }
-
-  static #isFileTypeAllowed(fileName: string): boolean {
-    return UserFilesManager.IMAGE_FILE_EXTENSIONS.includes(
-      path.extname(fileName).toLowerCase(),
-    );
   }
 
   async #updateFileNames(selectedImagesDirPath: string) {

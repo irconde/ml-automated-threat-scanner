@@ -15,8 +15,8 @@
   <h2>Current directory: {{settings?.selectedImagesDirPath}}</h2>
   <p>Current file name: {{currentFile?.fileName}}</p>
   <p>Number of files: {{currentFile?.filesCount}}</p>
-  <ion-button (click)="fileService.handleFileSelection()">Upload file</ion-button>
-  <button mat-icon-button color="white" type="button" aria-label="Settings cog icon" (click)="openSettingsModal()">
+  <ion-button (click)="fileService.handleFileSelection()">INDIVIDUAL FILE</ion-button>
+  <button (click)="openSettingsModal()" aria-label="Settings cog icon" color="white" mat-icon-button type="button">
     <mat-icon>settings</mat-icon>
   </button>
   <app-cs-canvas></app-cs-canvas>

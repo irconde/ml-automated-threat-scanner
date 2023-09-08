@@ -31,31 +31,25 @@ export class SettingsService {
     return this._isMobile;
   }
 
-  private async init() {
-    const settings = await this.loadSettings(); // Load settings using Capacitor Preferences
-    if (this.platform === Platforms.Electron) {
-      this.electronService.sendSettingsUpdate(settings); // Send settings to Electron
-    }
-    this.settings.next(settings);
+  public get platform(): Platforms {
+    return this._platform;
   }
 
   public getSettings(): Observable<ApplicationSettings | null> {
     return this.settings.asObservable();
   }
 
-  public get platform(): Platforms {
-    return this._platform;
-  }
-
   public async update(
     newSettings: ApplicationSettings,
   ): Promise<ApplicationSettings> {
     await this.setSettings(newSettings); // Save settings using Capacitor Preferences
-    if (this.platform === Platforms.Electron) {
-      this.electronService.sendSettingsUpdate(newSettings); // Send settings to Electron
-    }
     this.settings.next(newSettings); // Notify subscribers about the updated settings
     return newSettings;
+  }
+
+  private async init() {
+    const settings = await this.loadSettings(); // Load settings using Capacitor Preferences
+    this.settings.next(settings);
   }
 
   private setSettings = async (settings: ApplicationSettings) => {
