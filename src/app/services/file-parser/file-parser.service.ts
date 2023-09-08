@@ -8,9 +8,9 @@ import {
 } from '../../utilities/detection.utilities';
 import {
   CocoDetection,
-  Detection,
   DetectionType,
   DicosDetection,
+  RawDetection,
 } from '../../../models/detection';
 import dicomParser from 'dicom-parser';
 import * as DICOS from '../../utilities/dicos.utilities';
@@ -35,8 +35,8 @@ export class FileParserService {
    * @throws {Error} If loading data fails for any reason.
    */
   public async loadData(
-    fileData: string
-  ): Promise<{ detectionData: Detection[]; imageData: PixelData[] }> {
+    fileData: string,
+  ): Promise<{ detectionData: RawDetection[]; imageData: PixelData[] }> {
     try {
       const doc = await this.toXmlDoc(fileData);
       const parsedOra = await this.parseXmlDoc(doc);
@@ -142,11 +142,11 @@ export class FileParserService {
    * @returns A Promise that resolves to an object containing loaded detection data and image pixel data.
    */
   private async loadFilesData(
-    parsedOR: ParsedORA
-  ): Promise<{ detectionData: Detection[]; imageData: PixelData[] }> {
+    parsedOR: ParsedORA,
+  ): Promise<{ detectionData: RawDetection[]; imageData: PixelData[] }> {
     const { format } = parsedOR;
-    const detectionData: Detection[] = [];
-    const allPromises: Promise<Detection | Blob | ArrayBuffer>[] = [];
+    const detectionData: RawDetection[] = [];
+    const allPromises: Promise<RawDetection | Blob | ArrayBuffer>[] = [];
     const imageData: PixelData[] = [];
     parsedOR.viewpoints.forEach((canvasViewpoint) => {
       // load detection data
@@ -154,7 +154,7 @@ export class FileParserService {
         const detectionPromise = this.readDetectionData(
           detectionPath,
           format,
-          canvasViewpoint.viewpoint
+          canvasViewpoint.viewpoint,
         );
         allPromises.push(detectionPromise);
         detectionPromise.then((detection) => {
@@ -164,7 +164,7 @@ export class FileParserService {
       // load pixel data
       const pixelDataPromise = this.readPixelData(
         canvasViewpoint.pixelData,
-        format
+        format,
       );
       allPromises.push(pixelDataPromise);
 
@@ -193,7 +193,7 @@ export class FileParserService {
    */
   private async readPixelData(
     pixelDataPath: string,
-    format: DetectionType
+    format: DetectionType,
   ): Promise<ArrayBuffer | Blob> {
     const pixelFile = this.zipUtil.file(pixelDataPath);
     if (!pixelFile) throw Error('Failed to load pixel data');
@@ -208,13 +208,13 @@ export class FileParserService {
    * @param {DetectionType} format - The detection type format.
    * @param {string} viewpoint - The viewpoint associated with the detection data.
    * @throws {Error} If there's an issue loading or parsing the detection data or if the detection type is not supported.
-   * @returns {Promise<Detection>} A Promise that resolves to the loaded detection data.
+   * @returns {Promise<RawDetection>} A Promise that resolves to the loaded detection data.
    */
   private async readDetectionData(
     detectionDataSrc: string,
     format: DetectionType,
-    viewpoint: string
-  ): Promise<Detection> {
+    viewpoint: string,
+  ): Promise<RawDetection> {
     const detectionFile = this.zipUtil.file(detectionDataSrc);
     if (!detectionFile) throw Error('Failed to load detection data');
 
@@ -238,7 +238,7 @@ export class FileParserService {
    */
   private async loadCocoDetections(
     detectionFile: JSZip.JSZipObject,
-    viewpoint: string
+    viewpoint: string,
   ): Promise<CocoDetection> {
     const cocoData = await detectionFile.async('string');
     const parsedCocoData = JSON.parse(cocoData);
@@ -271,13 +271,13 @@ export class FileParserService {
    */
   private async loadDicosDetections(
     detectionFile: JSZip.JSZipObject,
-    viewpoint: string
+    viewpoint: string,
   ): Promise<DicosDetection> {
     const dicosData: Uint8Array = await detectionFile.async('uint8array');
     const dataSet: dicomParser.DataSet = dicomParser.parseDicom(dicosData);
 
     const algorithm = dataSet.string(
-      DICOS.DICOS_DICTIONARY.ThreatDetectionAlgorithmandVersion.tag
+      DICOS.DICOS_DICTIONARY.ThreatDetectionAlgorithmandVersion.tag,
     );
     const threatSequence = dataSet.elements['x40101011'];
     const alarmObjectNumTag =
@@ -296,7 +296,7 @@ export class FileParserService {
       const boundingBox = DICOS.retrieveBoundingBoxData(dicomElement);
       const className = DICOS.retrieveObjectClass(dicomElement);
       const confidence = DICOS.decimalToPercentage(
-        DICOS.retrieveConfidenceLevel(dicomElement)
+        DICOS.retrieveConfidenceLevel(dicomElement),
       );
       const binaryMask = DICOS.retrieveMaskData(dicomElement, dataSet);
       return {

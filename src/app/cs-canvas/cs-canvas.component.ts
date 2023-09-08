@@ -9,6 +9,7 @@ import { IonicModule } from '@ionic/angular';
 import { KeyValuePipe, NgForOf, NgIf, NgStyle } from '@angular/common';
 import { of } from 'rxjs';
 import { ViewportsMap } from '../../models/viewport';
+import { Detection } from '../../models/detection';
 
 @Component({
   selector: 'app-cs-canvas',
@@ -65,9 +66,19 @@ export class CsCanvasComponent implements OnInit {
           }
 
           this.csService.getImageData(pixelData).subscribe((imageData) => {
-            const detectionData = parsedFile.detectionData.filter(
-              (detect) => detect.viewpoint === viewpoint,
-            );
+            const detectionData = parsedFile.detectionData
+              .filter((detect) => detect.viewpoint === viewpoint)
+              .map<Detection>((detection) => ({
+                ...detection,
+                // TODO: set these values to something that makes sense
+                selected: false,
+                categorySelected: false,
+                visible: false,
+                id: '',
+                isCrowd: false,
+                color: 'orange',
+                categoryName: '',
+              }));
             this.viewportsData[viewpoint] = {
               imageData,
               detectionData,

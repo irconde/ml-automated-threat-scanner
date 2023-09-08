@@ -14,7 +14,7 @@ export interface Point {
   anchor: { top: number; bottom: number; left: number; right: number };
 }
 
-interface GeneralDetection {
+interface RawGeneralDetection {
   algorithm: string;
   className: string;
   confidence: number;
@@ -24,14 +24,26 @@ interface GeneralDetection {
   detectionFromFile: boolean;
 }
 
-export interface DicosDetection extends GeneralDetection {
+export interface RawDicosDetection extends RawGeneralDetection {
   boundingBox: number[];
 }
 
-export interface CocoDetection extends GeneralDetection {
+export interface RawCocoDetection extends RawGeneralDetection {
   polygonMask: Point[];
   boundingBox: BoundingBox;
   imageId: string;
 }
 
-export type Detection = CocoDetection | DicosDetection;
+export type RawDetection = RawCocoDetection | RawDicosDetection;
+
+interface DetectionStateProps {
+  selected: boolean;
+  visible: boolean;
+  color: string;
+  categorySelected: boolean;
+  id: string;
+  isCrowd: boolean;
+  categoryName: string;
+}
+
+export type Detection = RawDetection & DetectionStateProps;
