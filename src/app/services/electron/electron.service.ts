@@ -23,4 +23,11 @@ export class ElectronService {
   sendSettingsUpdate(settings: ApplicationSettings) {
     this.electronAPI.send(Channels.SettingsUpdate, settings);
   }
+
+  initFiles(
+    sentPayload: { selectedImagesDirPath: string },
+    callback: (electronPayload: FilePayload | null) => void,
+  ) {
+    this.electronAPI.invoke(Channels.InitFilesRequest, sentPayload, callback);
+  }
 }

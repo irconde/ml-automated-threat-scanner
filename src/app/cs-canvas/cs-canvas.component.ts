@@ -34,6 +34,8 @@ export class CsCanvasComponent implements OnInit {
     top: null,
     side: null,
   };
+  protected readonly of = of;
+  protected readonly Object = Object;
 
   constructor(
     private csService: CornerstoneService,
@@ -47,39 +49,49 @@ export class CsCanvasComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.fileService.getCurrentFile().subscribe((currentFile: FilePayload) => {
-      console.log('-------------------Current File-------------------------');
-      console.log(currentFile);
-      console.log('--------------------------------------------------------');
-      this.fileParserService.loadData(currentFile.file).then((parsedFile) => {
-        console.log('-------------------Parsed File--------------------------');
-        console.log(parsedFile);
+    this.fileService
+      .getCurrentFile()
+      .subscribe((currentFile: FilePayload | null) => {
+        console.log('-------------------Current File-------------------------');
+        console.log(currentFile);
         console.log('--------------------------------------------------------');
-
-        Object.keys(this.imageData).forEach((key, i): void => {
-          const pixelData = parsedFile.imageData[i];
-          if (!pixelData) {
-            this.imageData[key as keyof Viewports] = null;
-            return;
-          }
-          const isValidView = Object.keys(this.imageData).includes(
-            pixelData.viewpoint,
+        if (currentFile === null) {
+          this.imageData.top = null;
+          this.imageData.side = null;
+          return;
+        }
+        this.fileParserService.loadData(currentFile.file).then((parsedFile) => {
+          console.log(
+            '-------------------Parsed File--------------------------',
           );
-          if (isValidView) {
-            this.csService.getImageData(pixelData).subscribe((image) => {
-              this.imageData[pixelData.viewpoint as keyof Viewports] = image;
-            });
-          } else
-            throw Error(`${pixelData.viewpoint} is not a valid viewpoint name`);
+          console.log(parsedFile);
+          console.log(
+            '--------------------------------------------------------',
+          );
+
+          Object.keys(this.imageData).forEach((key, i): void => {
+            const pixelData = parsedFile.imageData[i];
+            if (!pixelData) {
+              this.imageData[key as keyof Viewports] = null;
+              return;
+            }
+            const isValidView = Object.keys(this.imageData).includes(
+              pixelData.viewpoint,
+            );
+            if (isValidView) {
+              this.csService.getImageData(pixelData).subscribe((image) => {
+                this.imageData[pixelData.viewpoint as keyof Viewports] = image;
+              });
+            } else
+              throw Error(
+                `${pixelData.viewpoint} is not a valid viewpoint name`,
+              );
+          });
         });
       });
-    });
   }
 
   handleChangeImage(next = true) {
     this.fileService.requestNextFile(next);
   }
-
-  protected readonly of = of;
-  protected readonly Object = Object;
 }

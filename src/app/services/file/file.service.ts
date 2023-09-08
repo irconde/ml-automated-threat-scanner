@@ -14,8 +14,8 @@ import { ApplicationSettings } from '../settings/models/Settings';
   providedIn: 'root',
 })
 export class FileService {
-  private currentFileObservable: Subject<FilePayload> =
-    new Subject<FilePayload>();
+  private currentFileObservable: Subject<FilePayload | null> =
+    new Subject<FilePayload | null>();
   private settings: ApplicationSettings | null = null;
 
   constructor(
@@ -24,19 +24,15 @@ export class FileService {
     private fileParserService: FileParserService,
     private httpClient: HttpClient,
   ) {
-    this.settingsService.getSettings().subscribe((settings) => {
-      this.settings = settings;
-      // TODO: Refactor to only request current file when specific settings are changed
-      if (settings) {
-        this.requestCurrentFile(settings);
-      }
-    });
+    this.settingsService
+      .getSettings()
+      .subscribe((newSettings) => this.handleSettingsChange(newSettings));
   }
 
   /**
    * Used by all platforms to show a file picker for an individual .ORA file
    */
-  async handleFileSelection() {
+  public async handleFileSelection() {
     try {
       const result = await FilePicker.pickFiles({ readData: true });
       this.settings!.workingMode = WorkingMode.IndividualFile;
@@ -58,15 +54,15 @@ export class FileService {
     }
   }
 
-  public setCurrentFile(payload: FilePayload): void {
+  public setCurrentFile(payload: FilePayload | null): void {
     this.currentFileObservable.next(payload);
   }
 
-  getCurrentFile(): Observable<FilePayload> {
+  public getCurrentFile(): Observable<FilePayload | null> {
     return this.currentFileObservable.asObservable();
   }
 
-  requestNextFile(next: boolean) {
+  public requestNextFile(next: boolean) {
     switch (this.settings?.workingMode) {
       case WorkingMode.LocalDirectory:
         this.electronService.requestNewFile(next);
@@ -92,39 +88,107 @@ export class FileService {
     }
   }
 
-  requestCurrentFile(settings: ApplicationSettings) {
-    const { remoteIp, remotePort, fileFormat } = settings;
-    switch (this.settings?.workingMode) {
+  // private requestInitialFile(settings: ApplicationSettings) {
+  //   switch (this.settings?.workingMode) {
+  //     case WorkingMode.LocalDirectory:
+  //       if (this.settingsService.platform === Platforms.Electron) {
+  //         // this.electronService.listenToFileUpdate((payload: FilePayload) => {
+  //         //   this.currentFileObservable.next(payload);
+  //         // });
+  //       } else {
+  //         console.log(
+  //           'Working mode is a local directory but platform is not electron',
+  //         );
+  //       }
+  //       break;
+  //     case WorkingMode.RemoteServer:
+  //       this.requestCurrentFileFromServer(settings);
+  //       break;
+  //     default:
+  //       console.log(
+  //         'You are not in a proper working mode of the application, please revisit your settings!',
+  //       );
+  //   }
+  // }
+
+  private handleSettingsChange(newSettings: ApplicationSettings | null) {
+    switch (newSettings?.workingMode) {
       case WorkingMode.LocalDirectory:
-        if (this.settingsService.platform === Platforms.Electron) {
-          this.electronService.listenToFileUpdate((payload: FilePayload) => {
-            this.currentFileObservable.next(payload);
-          });
-        } else {
-          console.log(
-            'Working mode is a local directory but platform is not electron',
-          );
-        }
+        this.requestNewImageDirFromElectron(newSettings);
         break;
       case WorkingMode.RemoteServer:
-        this.httpClient
-          .post<FilePayload>(
-            `${API.protocol}${remoteIp}:${remotePort}${API.getCurrentFile}`,
-            {
-              fileFormat,
-            },
-          )
-          .subscribe({
-            next: (result: FilePayload) =>
-              this.currentFileObservable.next(result),
-            error: (error) =>
-              console.log(`Error connection with server: ${error.message}`),
-          });
+        this.requestCurrentFileFromServer(newSettings);
         break;
       default:
-        console.log(
-          'You are not in a proper working mode of the application, please revisit your settings!',
-        );
+        break;
+    }
+
+    // update the settings
+    this.settings = newSettings;
+  }
+
+  /**
+   * If the selectedImagesDirPath changes in the new settings, a request is sent to electron
+   * to update the files and send the new current file
+   * @param newSettings - the new settings payload received from the modal
+   */
+  private requestNewImageDirFromElectron(newSettings: ApplicationSettings) {
+    const skipUpdate =
+      this.shouldSkipUpdate(
+        newSettings,
+        'selectedImagesDirPath',
+        'workingMode',
+      ) || this.settingsService.platform !== Platforms.Electron;
+
+    if (!skipUpdate && newSettings?.selectedImagesDirPath) {
+      this.electronService.initFiles(
+        { selectedImagesDirPath: newSettings.selectedImagesDirPath },
+        (filePayload) => {
+          this.setCurrentFile(filePayload);
+        },
+      );
+    }
+  }
+
+  /**
+   *
+   * @param newSettings - new settings passed from the settings modal
+   * @param keys - the properties of the settings to track
+   * @private
+   */
+  private shouldSkipUpdate(
+    newSettings: ApplicationSettings,
+    ...keys: (keyof ApplicationSettings)[]
+  ): boolean {
+    return keys.every(
+      (key) => this.settings && newSettings[key] === this.settings[key],
+    );
+  }
+
+  private requestCurrentFileFromServer(newSettings: ApplicationSettings) {
+    // only send a request to the server if one of the attributes have changed
+    const skipUpdate = this.shouldSkipUpdate(
+      newSettings,
+      'remoteIp',
+      'remotePort',
+      'fileFormat',
+      'workingMode',
+    );
+    if (skipUpdate) return;
+    else {
+      const { remoteIp, remotePort, fileFormat } = newSettings;
+      this.httpClient
+        .post<FilePayload>(
+          `${API.protocol}${remoteIp}:${remotePort}${API.getCurrentFile}`,
+          {
+            fileFormat,
+          },
+        )
+        .subscribe({
+          next: (filePayload) => this.setCurrentFile(filePayload),
+          error: (error) =>
+            console.log(`Error connection with server: ${error.message}`),
+        });
     }
   }
 }

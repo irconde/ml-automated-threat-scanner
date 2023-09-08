@@ -4,27 +4,23 @@ import { BrowserWindow } from 'electron';
 import { Channels } from '../../shared/constants/channels';
 import { ChannelsManager } from './channels-manager';
 import { FilePayload, FileStatus } from '../../shared/models/file-models';
-import { CachedSettings } from './cached-settings';
 
 class UserFilesManager extends ChannelsManager {
   static STORAGE_FILE_NAME = 'thumbnails.json';
   static IMAGE_FILE_EXTENSIONS = ['.ora', '.zip'];
   fileNames: string[] = [];
   currentFileIndex = 0;
-  cachedSettings: CachedSettings;
 
   constructor(browserWindow: BrowserWindow) {
     super(browserWindow);
-    this.cachedSettings = new CachedSettings(
-      browserWindow,
-      async (settings) => {
-        const path = settings?.selectedImagesDirPath;
-        if (path) {
-          const anyFiles = await this.#updateFileNames(path);
-          if (anyFiles) this.#sendCurrentFileUpdate().then();
-        }
-      },
-    );
+
+    // const path = settings?.selectedImagesDirPath;
+    // if (path) {
+    //   const anyFiles = await this.#updateFileNames(path);
+    //   if (anyFiles) this.#sendCurrentFileUpdate().then();
+    // }
+    //
+
     this.#wireAngularChannels();
   }
 
@@ -32,31 +28,36 @@ class UserFilesManager extends ChannelsManager {
     this.onAngularEvent(Channels.NewFileRequest, (e, isNext) => {
       if (isNext && this.currentFileIndex + 1 < this.fileNames.length) {
         this.currentFileIndex++;
-        this.#sendCurrentFileUpdate().then();
+        // this.#sendCurrentFileUpdate().then();
       } else if (!isNext && this.currentFileIndex > 0) {
         this.currentFileIndex--;
-        this.#sendCurrentFileUpdate().then();
+        // this.#sendCurrentFileUpdate().then();
       }
     });
+    this.handleAngularEvent(
+      Channels.InitFilesRequest,
+      async (e, { selectedImagesDirPath }) => {
+        const anyFiles = await this.#updateFileNames(selectedImagesDirPath);
+        return anyFiles
+          ? this.#getCurrentFilePayload(selectedImagesDirPath)
+          : null;
+      },
+    );
   }
 
-  async #sendCurrentFileUpdate() {
-    const settings = this.cachedSettings.get();
-    if (!settings) return;
+  async #getCurrentFilePayload(
+    selectedImagesDirPath: string,
+  ): Promise<FilePayload> {
     const file = await fs.promises.readFile(
-      path.join(
-        settings.selectedImagesDirPath!,
-        this.fileNames[this.currentFileIndex],
-      ),
+      path.join(selectedImagesDirPath!, this.fileNames[this.currentFileIndex]),
       { encoding: 'base64' },
     );
-    const payload: FilePayload = {
+    return {
       fileName: this.fileNames[this.currentFileIndex],
       filesCount: this.fileNames.length,
       file,
       status: FileStatus.Ok,
     };
-    this.sendAngularUpdate(Channels.CurrentFileUpdate, payload);
   }
 
   static #isFileTypeAllowed(fileName: string): boolean {

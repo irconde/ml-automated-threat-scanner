@@ -11,6 +11,19 @@ export type ChannelPayloadMapper = {
   [Channels.CurrentFileUpdate]: FilePayload;
   // electron payload
   [Channels.FolderPickerInvoke]: { path: string };
+  [Channels.InitFilesRequest]: { selectedImagesDirPath: string };
+};
+
+export type ElectronChannelPayloadMapper = {
+  // angular payload
+  [Channels.NewFileRequest]: void;
+  // angular or electron payload
+  [Channels.SettingsUpdate]: ApplicationSettings;
+  // electron payload
+  [Channels.CurrentFileUpdate]: FilePayload;
+  // electron payload
+  [Channels.FolderPickerInvoke]: { path: string };
+  [Channels.InitFilesRequest]: FilePayload | null;
 };
 
 export type ElectronSendFunc = <Channel extends keyof ChannelPayloadMapper>(
@@ -24,7 +37,7 @@ export type ElectronOnFunc = <Channel extends keyof ChannelPayloadMapper>(
 export type ElectronInvokeFunc = <Channel extends keyof ChannelPayloadMapper>(
   channel: Channel,
   sentPayload: ChannelPayloadMapper[Channel] | null,
-  callback: (payload: ChannelPayloadMapper[Channel]) => void,
+  callback: (payload: ElectronChannelPayloadMapper[Channel]) => void,
 ) => void;
 
 export interface ElectronAPI {
