@@ -28,3 +28,13 @@ export const DETECTION_STYLE = {
   LABEL_TEXT_COLOR: COLORS.WHITE,
   BORDER_WIDTH: 2,
 } as const;
+
+export enum EDITION_MODE {
+  LABEL = 'label',
+  BOUNDING = 'bounding',
+  MOVE = 'movement',
+  POLYGON = 'polygon',
+  DELETE = 'delete',
+  NO_TOOL = 'none',
+  COLOR = 'color',
+}

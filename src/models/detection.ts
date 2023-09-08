@@ -42,7 +42,7 @@ interface DetectionStateProps {
   color: string;
   categorySelected: boolean;
   id: string;
-  isCrowd: boolean;
+  isCrowd: 1 | 0;
   categoryName: string;
 }
 

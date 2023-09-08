@@ -7,10 +7,10 @@ import {
   getMasks,
 } from '../../utilities/detection.utilities';
 import {
-  CocoDetection,
   DetectionType,
-  DicosDetection,
+  RawCocoDetection,
   RawDetection,
+  RawDicosDetection,
 } from '../../../models/detection';
 import dicomParser from 'dicom-parser';
 import * as DICOS from '../../utilities/dicos.utilities';
@@ -234,12 +234,12 @@ export class FileParserService {
    * @param {JSZip.JSZipObject} detectionFile - The COCO format detection data file.
    * @param {string} viewpoint - The viewpoint associated with the detection data.
    * @throws {Error} If there's an issue loading or parsing the COCO format detection data.
-   * @returns {Promise<CocoDetection>} A Promise that resolves to the loaded COCO format detection data.
+   * @returns {Promise<RawCocoDetection>} A Promise that resolves to the loaded COCO format detection data.
    */
   private async loadCocoDetections(
     detectionFile: JSZip.JSZipObject,
     viewpoint: string,
-  ): Promise<CocoDetection> {
+  ): Promise<RawCocoDetection> {
     const cocoData = await detectionFile.async('string');
     const parsedCocoData = JSON.parse(cocoData);
     const { annotations, info } = parsedCocoData;
@@ -267,12 +267,12 @@ export class FileParserService {
    * @param {JSZip.JSZipObject} detectionFile - The DICOS format detection data file.
    * @param {string} viewpoint - The viewpoint associated with the detection data.
    * @throws {Error} If there's an issue loading or parsing the DICOS format detection data.
-   * @returns {Promise<DicosDetection>} A Promise that resolves to the loaded DICOS format detection data.
+   * @returns {Promise<RawDicosDetection>} A Promise that resolves to the loaded DICOS format detection data.
    */
   private async loadDicosDetections(
     detectionFile: JSZip.JSZipObject,
     viewpoint: string,
-  ): Promise<DicosDetection> {
+  ): Promise<RawDicosDetection> {
     const dicosData: Uint8Array = await detectionFile.async('uint8array');
     const dataSet: dicomParser.DataSet = dicomParser.parseDicom(dicosData);
 

@@ -73,11 +73,11 @@ export class CsCanvasComponent implements OnInit {
                 // TODO: set these values to something that makes sense
                 selected: false,
                 categorySelected: false,
-                visible: false,
+                visible: true,
                 id: '',
-                isCrowd: false,
+                isCrowd: 0,
                 color: 'orange',
-                categoryName: '',
+                categoryName: detection.className,
               }));
             this.viewportsData[viewpoint] = {
               imageData,
