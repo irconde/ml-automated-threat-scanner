@@ -7,9 +7,8 @@ import { FilePayload } from '../../../shared/models/file-models';
 import { FileParserService } from '../services/file-parser/file-parser.service';
 import { IonicModule } from '@ionic/angular';
 import { KeyValuePipe, NgForOf, NgIf, NgStyle } from '@angular/common';
-import { of } from 'rxjs';
 import { ViewportsMap } from '../../models/viewport';
-import { Detection } from '../../models/detection';
+import { Detection, RawDetection } from '../../models/detection';
 
 @Component({
   selector: 'app-cs-canvas',
@@ -30,8 +29,6 @@ export class CsCanvasComponent implements OnInit {
     top: { imageData: null, detectionData: [] },
     side: { imageData: null, detectionData: [] },
   };
-  protected readonly of = of;
-  protected readonly Object = Object;
 
   constructor(
     private csService: CornerstoneService,
@@ -68,17 +65,7 @@ export class CsCanvasComponent implements OnInit {
           this.csService.getImageData(pixelData).subscribe((imageData) => {
             const detectionData = parsedFile.detectionData
               .filter((detect) => detect.viewpoint === viewpoint)
-              .map<Detection>((detection) => ({
-                ...detection,
-                // TODO: set these values to something that makes sense
-                selected: false,
-                categorySelected: false,
-                visible: true,
-                id: '',
-                isCrowd: 0,
-                color: 'orange',
-                categoryName: detection.className,
-              }));
+              .map(this.getDetection);
             this.viewportsData[viewpoint] = {
               imageData,
               detectionData,
@@ -91,5 +78,22 @@ export class CsCanvasComponent implements OnInit {
 
   handleChangeImage(next = true) {
     this.fileService.requestNextFile(next);
+  }
+
+  /**
+   * Converts a raw detection to a detection for the application to use
+   */
+  private getDetection(rawDetection: RawDetection): Detection {
+    return {
+      ...rawDetection,
+      // TODO: set these values to something that makes sense
+      selected: false,
+      categorySelected: false,
+      visible: true,
+      id: '',
+      isCrowd: 0,
+      color: 'orange',
+      categoryName: rawDetection.className,
+    };
   }
 }
