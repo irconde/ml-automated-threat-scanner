@@ -38,8 +38,12 @@ export class CornerstoneDirective implements AfterViewInit {
     const context = enabledElement.canvas?.getContext('2d');
     this.displayImage(imageData);
     if (context) {
-      const handleImageRender = () => {
-        this.renderDetections(context, detectionData);
+      const handleImageRender = (event: any) => {
+        this.renderDetections(
+          context,
+          detectionData,
+          enabledElement.viewport?.scale,
+        );
         this.element.removeEventListener(
           this.CS_EVENT.RENDER,
           handleImageRender,
@@ -86,9 +90,8 @@ export class CornerstoneDirective implements AfterViewInit {
   private renderDetections(
     context: CanvasRenderingContext2D,
     detections: Detection[],
+    zoom = 1,
   ): void {
-    // TODO: get the actual zoom level
-    const ZOOM = 1;
     // TODO: get the actual selected detection
     const SELECTED_DETECTION = detections[0];
     // TODO: get the actual selected category
@@ -97,8 +100,8 @@ export class CornerstoneDirective implements AfterViewInit {
     const CURRENT_EDITION_MODE = EDITION_MODE.NO_TOOL;
 
     const { BORDER_WIDTH, FONT_DETAILS } = DETECTION_STYLE;
-    context.font = FONT_DETAILS.get(ZOOM);
-    context.lineWidth = BORDER_WIDTH / ZOOM;
+    context.font = FONT_DETAILS.get(zoom);
+    context.lineWidth = BORDER_WIDTH / zoom;
 
     detections.forEach((detection) => {
       if (
@@ -133,7 +136,7 @@ export class CornerstoneDirective implements AfterViewInit {
 
       context.globalAlpha = 1.0;
 
-      this.renderDetectionLabel(context, detection, ZOOM);
+      this.renderDetectionLabel(context, detection, zoom);
     });
   }
 
