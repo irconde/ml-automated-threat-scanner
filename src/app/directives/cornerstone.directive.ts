@@ -4,7 +4,6 @@ import {
   ElementRef,
   HostListener,
   Input,
-  OnInit,
 } from '@angular/core';
 import { cornerstone } from '../csSetup';
 import { ViewportData } from '../../models/viewport';
@@ -20,7 +19,7 @@ import {
   selector: '[csDirective]',
   standalone: true,
 })
-export class CornerstoneDirective implements OnInit, AfterViewInit {
+export class CornerstoneDirective implements AfterViewInit {
   element: HTMLElement;
   currentIndex = 0;
   private readonly CS_EVENT = {
@@ -39,22 +38,21 @@ export class CornerstoneDirective implements OnInit, AfterViewInit {
     const context = enabledElement.canvas?.getContext('2d');
     this.displayImage(imageData);
     if (context) {
-      this.element.addEventListener(this.CS_EVENT.RENDER, () =>
-        this.renderDetections(context, detectionData),
-      );
+      const handleImageRender = () => {
+        this.renderDetections(context, detectionData);
+        this.element.removeEventListener(
+          this.CS_EVENT.RENDER,
+          handleImageRender,
+        );
+      };
+      this.element.addEventListener(this.CS_EVENT.RENDER, handleImageRender);
     }
   }
 
   @HostListener('mousewheel', ['$event'])
-  onMouseWheel(event: {
-    wheelDelta: number;
-    detail: string;
-    preventDefault: Function;
-  }) {
+  onMouseWheel() {
     console.log('mouseWheel');
   }
-
-  ngOnInit() {}
 
   ngAfterViewInit() {
     // Enable the element with Cornerstone
@@ -82,13 +80,10 @@ export class CornerstoneDirective implements OnInit, AfterViewInit {
     cornerstone.displayImage(this.element, image);
   }
 
-  private handleImageRender() {}
-
   private renderDetections(
     context: CanvasRenderingContext2D,
     detections: Detection[],
   ): void {
-    console.log('renderDetections', detections);
     // TODO: get the actual zoom level
     const ZOOM = 1;
     // TODO: get the actual selected detection
