@@ -80,6 +80,9 @@ export class CornerstoneDirective implements AfterViewInit {
     cornerstone.displayImage(this.element, image);
   }
 
+  /**
+   * Draws the detections on the given rendering context
+   */
   private renderDetections(
     context: CanvasRenderingContext2D,
     detections: Detection[],
@@ -93,69 +96,99 @@ export class CornerstoneDirective implements AfterViewInit {
     // TODO: get the actual edition mode
     const CURRENT_EDITION_MODE = EDITION_MODE.NO_TOOL;
 
-    const { LABEL_PADDING, BORDER_WIDTH, LABEL_HEIGHT } = DETECTION_STYLE;
-    context.font = DETECTION_STYLE.FONT_DETAILS.get(ZOOM);
+    const { BORDER_WIDTH, FONT_DETAILS } = DETECTION_STYLE;
+    context.font = FONT_DETAILS.get(ZOOM);
     context.lineWidth = BORDER_WIDTH / ZOOM;
 
-    for (let j = 0; j < detections.length; j++) {
+    detections.forEach((detection) => {
       if (
-        !detections[j].visible ||
-        (detections[j].selected &&
-          CURRENT_EDITION_MODE !== EDITION_MODE.NO_TOOL)
-      )
-        continue;
-      let renderColor = detections[j].color;
-      if (detections[j].selected || detections[j].categorySelected) {
-        renderColor = DETECTION_STYLE.SELECTED_COLOR;
-      }
-      if (SELECTED_DETECTION !== null && SELECTED_CATEGORY === '') {
-        if (SELECTED_DETECTION.id !== detections[j].id) {
-          renderColor = hexToCssRgba(detections[j].color);
-        }
-      }
-      if (
-        SELECTED_CATEGORY !== '' &&
-        SELECTED_CATEGORY !== detections[j].categoryName
+        !detection.visible ||
+        (detection.selected && CURRENT_EDITION_MODE !== EDITION_MODE.NO_TOOL)
       ) {
-        renderColor = hexToCssRgba(detections[j].color);
+        return;
       }
+
+      const renderColor = this.getDetectionRenderColor(
+        detection,
+        SELECTED_DETECTION,
+        SELECTED_CATEGORY,
+      );
       context.strokeStyle = renderColor;
       context.fillStyle = renderColor;
 
-      const [x, y, w, h] = detections[j].boundingBox;
+      const [x, y, w, h] = detection.boundingBox;
 
       context.strokeRect(x, y, w, h);
 
       context.globalAlpha = 0.5;
-      // if (detections[j].segmentation.length > 0) {
-      //   if (detections[j].isCrowd === 0) {
-      //     detections[j].segmentation.forEach((segment) => {
+      // if (detection.segmentation.length > 0) {
+      //   if (detection.isCrowd === 0) {
+      //     detection.segmentation.forEach((segment) => {
       //       // Utils.renderPolygonMasks(context, segment);
       //     });
       //   }
-      // } else if (detections[j].isCrowd === 1) {
-      //   // Utils.renderRLEMask(context, detections[j].segmentation);
+      // } else if (detection.isCrowd === 1) {
+      //   // Utils.renderRLEMask(context, detection.segmentation);
       // }
 
       context.globalAlpha = 1.0;
 
-      // Label rendering
-      const labelText = limitCharCount(detections[j].categoryName);
-      const { width, height } = getTextLabelSize(
-        context,
-        labelText,
-        LABEL_PADDING.LEFT,
-        ZOOM,
-        LABEL_HEIGHT,
-      );
+      this.renderDetectionLabel(context, detection, ZOOM);
+    });
+  }
 
-      context.fillRect(x - context.lineWidth / 2, y - height, width, height);
-      context.fillStyle = DETECTION_STYLE.LABEL_TEXT_COLOR;
-      context.fillText(
-        labelText,
-        x + (LABEL_PADDING.LEFT - 1) / ZOOM,
-        y - LABEL_PADDING.BOTTOM / ZOOM,
-      );
+  /**
+   * Draws the detection label with the font size based on the zoom level
+   */
+  private renderDetectionLabel(
+    context: CanvasRenderingContext2D,
+    detection: Detection,
+    zoom: number,
+  ) {
+    const labelText = limitCharCount(detection.className);
+    const { LABEL_PADDING, LABEL_HEIGHT } = DETECTION_STYLE;
+    const { width, height } = getTextLabelSize(
+      context,
+      labelText,
+      LABEL_PADDING.LEFT,
+      zoom,
+      LABEL_HEIGHT,
+    );
+
+    const [x, y] = detection.boundingBox;
+    context.fillRect(x - context.lineWidth / 2, y - height, width, height);
+    context.fillStyle = DETECTION_STYLE.LABEL_TEXT_COLOR;
+    context.fillText(
+      labelText,
+      x + (LABEL_PADDING.LEFT - 1) / zoom,
+      y - LABEL_PADDING.BOTTOM / zoom,
+    );
+  }
+
+  /**
+   * Returns the detection color based on whether it's selected, or another detection is selected
+   */
+  private getDetectionRenderColor(
+    detection: Detection,
+    selectedDetection: Detection,
+    selectedCategory: string,
+  ): string {
+    let renderColor = detection.color;
+    if (detection.selected || detection.categorySelected) {
+      renderColor = DETECTION_STYLE.SELECTED_COLOR;
     }
+    if (selectedDetection !== null && selectedCategory === '') {
+      if (selectedDetection.id !== detection.id) {
+        renderColor = hexToCssRgba(detection.color);
+      }
+    }
+    if (
+      selectedCategory !== '' &&
+      selectedCategory !== detection.categoryName
+    ) {
+      renderColor = hexToCssRgba(detection.color);
+    }
+
+    return renderColor;
   }
 }
