@@ -9,6 +9,9 @@ const API = {
       listener(data);
     });
   },
+  invoke: (channel, arg, callback) => {
+    ipcRenderer.invoke(channel, arg).then(callback);
+  },
 };
 
 contextBridge.exposeInMainWorld("electronAPI", API);

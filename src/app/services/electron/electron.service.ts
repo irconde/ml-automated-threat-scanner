@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { getElectronAPI } from '../../get-electron-api';
 import { Channels } from '../../../../shared/constants/channels';
-import { FileAndDetectionSettings } from '../../../../electron/models/Settings';
 import { FilePayload } from '../../../../shared/models/file-models';
+import { AngularChannelPayloadMapper } from '../../../../shared/models/channels-payloads';
 
 @Injectable({
   providedIn: 'root',
@@ -10,21 +10,23 @@ import { FilePayload } from '../../../../shared/models/file-models';
 export class ElectronService {
   private electronAPI = getElectronAPI();
 
-  constructor() {
-    //
-  }
+  constructor() {}
 
   listenToFileUpdate(listener: (payload: FilePayload) => void) {
     this.electronAPI.on(Channels.CurrentFileUpdate, listener);
   }
 
-  listenToSettingsUpdate(
-    listener: (payload: FileAndDetectionSettings) => void,
+  requestNewFile(
+    payload: AngularChannelPayloadMapper[Channels.NewFileInvoke],
+    callback: (payload: FilePayload | null) => void,
   ) {
-    this.electronAPI.on(Channels.SettingsUpdate, listener);
+    this.electronAPI.invoke(Channels.NewFileInvoke, payload, callback);
   }
 
-  requestNewFile(next: boolean) {
-    this.electronAPI.send(Channels.NewFileRequest, next);
+  initFiles(
+    sentPayload: { selectedImagesDirPath: string },
+    callback: (electronPayload: FilePayload | null) => void,
+  ) {
+    this.electronAPI.invoke(Channels.InitFilesInvoke, sentPayload, callback);
   }
 }

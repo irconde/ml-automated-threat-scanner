@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
-import { FileFormat, Platforms, WorkingMode } from '../../../enums/platforms';
+import { Platforms, WorkingMode } from '../../../enums/platforms';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { ApplicationSettings, DEFAULT_SETTINGS } from './models/Settings';
+import { Preferences } from '@capacitor/preferences';
 import { ElectronService } from '../electron/electron.service';
-import { FileAndDetectionSettings } from '../../../../electron/models/Settings';
-import { Observable, Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -11,12 +12,9 @@ import { Observable, Subject } from 'rxjs';
 export class SettingsService {
   private readonly _platform: Platforms;
   private readonly _isMobile: boolean;
-  private _workingMode: WorkingMode = WorkingMode.RemoteServer;
-  private _fileFormat: FileFormat = FileFormat.OpenRaster;
-  private _remoteIp = '127.0.0.1';
-  private _remotePort = '4001';
-  private settings: Subject<FileAndDetectionSettings> =
-    new Subject<FileAndDetectionSettings>();
+  private readonly STORAGE_KEY = 'SETTINGS_KEY';
+  private settings: BehaviorSubject<ApplicationSettings | null> =
+    new BehaviorSubject<ApplicationSettings | null>(null);
 
   constructor(
     private platformService: Platform,
@@ -26,68 +24,67 @@ export class SettingsService {
     this._isMobile = [Platforms.iOS, Platforms.Android].includes(
       this._platform,
     );
-    this.init();
+    this.init().then();
   }
 
   public get isMobile(): boolean {
     return this._isMobile;
   }
 
-  private init() {
-    switch (this.platform) {
-      case Platforms.Electron:
-        this.electronService.listenToSettingsUpdate(
-          (settings: FileAndDetectionSettings) => {
-            this.settings.next(settings);
-          },
-        );
-        break;
-      default:
-        console.log(
-          'Settings service initialization failed! Platform not supported!',
-        );
-    }
-  }
-
-  public getSettings(): Observable<FileAndDetectionSettings> {
-    return this.settings.asObservable();
-  }
-
   public get platform(): Platforms {
     return this._platform;
   }
 
-  public get workingMode(): WorkingMode {
-    return this._workingMode;
+  /**
+   * Determine if the given settings are missing any required fields for the chosen file delivery method
+   * @param settings
+   */
+  public static isMissingRequiredInfo(settings: ApplicationSettings): boolean {
+    // returns true if application doesn't have basic settings for where to get the files from
+    return (
+      (settings.workingMode === WorkingMode.RemoteServer &&
+        (!settings.remoteIp || !settings.remotePort)) ||
+      (settings.workingMode === WorkingMode.LocalDirectory &&
+        !settings.selectedImagesDirPath)
+    );
   }
 
-  public set workingMode(newMode: WorkingMode) {
-    this._workingMode = newMode;
+  public getSettings(): Observable<ApplicationSettings | null> {
+    return this.settings.asObservable();
   }
 
-  public get fileFormat(): FileFormat {
-    return this._fileFormat;
+  public async update(
+    newSettings: ApplicationSettings,
+  ): Promise<ApplicationSettings> {
+    if (SettingsService.isMissingRequiredInfo(newSettings)) {
+      throw Error('Missing required settings information');
+    } else {
+      await this.setSettings(newSettings); // Save settings using Capacitor Preferences
+      this.settings.next(newSettings); // Notify subscribers about the updated settings
+      return newSettings;
+    }
   }
 
-  public set fileFormat(newFormat: FileFormat) {
-    this._fileFormat = newFormat;
+  private async init() {
+    const settings = await this.loadSettings(); // Load settings using Capacitor Preferences
+    this.settings.next(settings);
   }
 
-  public get remoteIp(): string {
-    return this._remoteIp;
-  }
+  private setSettings = async (settings: ApplicationSettings) => {
+    await Preferences.set({
+      key: this.STORAGE_KEY,
+      value: JSON.stringify(settings),
+    });
+  };
 
-  public set remoteIp(newIp: string) {
-    this._remoteIp = newIp;
-  }
-
-  public get remotePort(): string {
-    return this._remotePort;
-  }
-
-  public set remotePort(newPort: string) {
-    this._remotePort = newPort;
-  }
+  private loadSettings = async (): Promise<ApplicationSettings> => {
+    const { value } = await Preferences.get({ key: this.STORAGE_KEY });
+    if (value !== null) {
+      return JSON.parse(value) as ApplicationSettings;
+    }
+    await this.setSettings(DEFAULT_SETTINGS);
+    return DEFAULT_SETTINGS;
+  };
 
   private getSystemPlatform(): Platforms {
     if (this.platformService.is('electron')) {
