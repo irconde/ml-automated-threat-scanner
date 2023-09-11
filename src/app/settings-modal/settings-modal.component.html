@@ -67,7 +67,7 @@
         <p class="settings-text">File management</p>
         <p class="settings-subtext">Default file management options to streamline file input and output.</p>
       </div>
-      <div class="settings-section">
+      <div class="settings-section" *ngIf="shouldAllowImageDir">
         <div class="input-info-wrapper">
           <mat-icon aria-hidden="false" aria-label="Folder icon" fontIcon="folder"/>
 

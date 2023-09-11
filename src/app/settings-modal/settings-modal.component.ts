@@ -1,29 +1,21 @@
-import { Component, OnInit } from '@angular/core';
-import { SettingsService } from '../services/settings/settings.service';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import {
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatSelectModule } from '@angular/material/select';
-import { NgForOf } from '@angular/common';
-import { FileFormat, WorkingMode } from '../../enums/platforms';
-import { DetectionType } from '../../models/detection';
-import { getElectronAPI } from '../get-electron-api';
-import { Channels } from '../../../shared/constants/channels';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import {
-  ApplicationSettings,
-  DEFAULT_SETTINGS,
-} from '../services/settings/models/Settings';
+import {Component, OnInit} from '@angular/core';
+import {SettingsService} from '../services/settings/settings.service';
+import {MatCardModule} from '@angular/material/card';
+import {MatIconModule} from '@angular/material/icon';
+import {MatButtonModule} from '@angular/material/button';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {FormControl, FormGroup, FormsModule, ReactiveFormsModule,} from '@angular/forms';
+import {MatInputModule} from '@angular/material/input';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatSelectModule} from '@angular/material/select';
+import {NgForOf, NgIf} from '@angular/common';
+import {FileFormat, Platforms, WorkingMode} from '../../enums/platforms';
+import {DetectionType} from '../../models/detection';
+import {getElectronAPI} from '../get-electron-api';
+import {Channels} from '../../../shared/constants/channels';
+import {MatDialogModule, MatDialogRef} from '@angular/material/dialog';
+import {ApplicationSettings, DEFAULT_SETTINGS,} from '../services/settings/models/Settings';
 
 interface OutputOptions {
   value: string;
@@ -40,31 +32,34 @@ interface AnnotationOptions {
   templateUrl: './settings-modal.component.html',
   styleUrls: ['./settings-modal.component.scss'],
   standalone: true,
-  imports: [
-    MatCardModule,
-    MatIconModule,
-    MatButtonModule,
-    MatSlideToggleModule,
-    FormsModule,
-    MatInputModule,
-    MatCheckboxModule,
-    MatDividerModule,
-    MatSelectModule,
-    NgForOf,
-    ReactiveFormsModule,
-    MatDialogModule,
-  ],
+    imports: [
+        MatCardModule,
+        MatIconModule,
+        MatButtonModule,
+        MatSlideToggleModule,
+        FormsModule,
+        MatInputModule,
+        MatCheckboxModule,
+        MatDividerModule,
+        MatSelectModule,
+        NgForOf,
+        ReactiveFormsModule,
+        MatDialogModule,
+        NgIf,
+    ],
 })
 export class SettingsModalComponent implements OnInit {
   submitting: boolean = false;
   settings: ApplicationSettings | null = null;
   form: FormGroup<Record<keyof ApplicationSettings, FormControl>>;
+  public readonly shouldAllowImageDir: boolean;
 
   constructor(
     public dialogRef: MatDialogRef<SettingsModalComponent>,
     private settingsService: SettingsService,
   ) {
     this.form = this.getFormGroup();
+    this.shouldAllowImageDir = this.settingsService.platform === Platforms.Electron;
     settingsService.getSettings().subscribe((settings) => {
       this.settings = settings;
       if (settings) this.setFormValues(settings);
