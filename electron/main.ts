@@ -1,6 +1,6 @@
-import { CachedSettings } from './file-managers/cached-settings';
 import UserFilesManager from './file-managers/user-files-manager';
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain } from 'electron';
+import { Channels } from '../shared/constants/channels';
 
 import path from 'path';
 import isDev from 'electron-is-dev';
@@ -20,24 +20,13 @@ const createWindow = async (): Promise<BrowserWindow> => {
     ? 'http://localhost:8100'
     : `file://${path.join(__dirname, '..', 'www', 'index.html')}`;
 
-  try {
-    await mainWindow.loadURL(htmlPath);
-    return mainWindow;
-  } catch (e) {
-    throw e;
-  }
+  await mainWindow.loadURL(htmlPath);
+  return mainWindow;
 };
 
 app.whenReady().then(async () => {
   const mainWindow = await createWindow();
-  const settings = await CachedSettings.create(mainWindow);
-  console.log('SETTINGS', settings.get());
-  await settings.update({
-    selectedDetectionFile: '',
-    selectedImagesDirPath: 'G:\\EAC\\dna-atr-socket.io-server\\static\\img',
-  });
-  console.log(settings.get());
-  userFilesManager = new UserFilesManager(settings, mainWindow);
+  userFilesManager = new UserFilesManager(mainWindow);
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -50,4 +39,15 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
+});
+
+ipcMain.handle(Channels.FolderPickerInvoke, async () => {
+  const result = await dialog.showOpenDialog({
+    properties: ['openDirectory'],
+  });
+
+  // if the event is cancelled by the user
+  if (result.canceled) return { path: '' };
+
+  return { path: result.filePaths[0] };
 });

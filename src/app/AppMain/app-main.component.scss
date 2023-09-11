@@ -5,3 +5,10 @@
   color: white;
   outline: 1px solid red;
 }
+
+.topBarElement {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  float: right;
+}
