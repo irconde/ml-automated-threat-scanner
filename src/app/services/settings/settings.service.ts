@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
-import { Platforms } from '../../../enums/platforms';
+import { Platforms, WorkingMode } from '../../../enums/platforms';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ApplicationSettings, DEFAULT_SETTINGS } from './models/Settings';
 import { Preferences } from '@capacitor/preferences';
@@ -35,6 +35,20 @@ export class SettingsService {
     return this._platform;
   }
 
+  /**
+   * Determine if the given settings are missing any required fields for the chosen file delivery method
+   * @param settings
+   */
+  public static isMissingRequiredInfo(settings: ApplicationSettings): boolean {
+    // returns true if application doesn't have basic settings for where to get the files from
+    return (
+      (settings.workingMode === WorkingMode.RemoteServer &&
+        (!settings.remoteIp || !settings.remotePort)) ||
+      (settings.workingMode === WorkingMode.LocalDirectory &&
+        !settings.selectedImagesDirPath)
+    );
+  }
+
   public getSettings(): Observable<ApplicationSettings | null> {
     return this.settings.asObservable();
   }
@@ -42,9 +56,13 @@ export class SettingsService {
   public async update(
     newSettings: ApplicationSettings,
   ): Promise<ApplicationSettings> {
-    await this.setSettings(newSettings); // Save settings using Capacitor Preferences
-    this.settings.next(newSettings); // Notify subscribers about the updated settings
-    return newSettings;
+    if (SettingsService.isMissingRequiredInfo(newSettings)) {
+      throw Error('Missing required settings information');
+    } else {
+      await this.setSettings(newSettings); // Save settings using Capacitor Preferences
+      this.settings.next(newSettings); // Notify subscribers about the updated settings
+      return newSettings;
+    }
   }
 
   private async init() {

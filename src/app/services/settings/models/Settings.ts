@@ -17,8 +17,8 @@ export const DEFAULT_SETTINGS: ApplicationSettings = {
   detectionFormat: DetectionType.COCO,
   fileFormat: FileFormat.OpenRaster,
   fileNameSuffix: 'img_',
-  remoteIp: '127.0.0.1',
-  remotePort: '4001',
+  remoteIp: '',
+  remotePort: '',
   selectedImagesDirPath: '',
   workingMode: WorkingMode.RemoteServer,
 };

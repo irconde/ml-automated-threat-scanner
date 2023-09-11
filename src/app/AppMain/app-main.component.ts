@@ -47,6 +47,10 @@ export class AppMain {
       .getSettings()
       .subscribe((settings: ApplicationSettings | null) => {
         this.settings = settings;
+        // settings are null when they are first loading
+        if (settings && SettingsService.isMissingRequiredInfo(settings)) {
+          this.openSettingsModal();
+        }
       });
   }
 

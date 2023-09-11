@@ -6,7 +6,8 @@
         <mat-icon aria-hidden="false" aria-label="Settings cog icon" fontIcon="settings"/>
         <mat-card-title>Settings</mat-card-title>
       </div>
-      <button aria-label="Close icon" color="primary" mat-dialog-close mat-icon-button type="button">
+      <button [disabled]="disableClose" aria-label="Close icon" color="primary" mat-dialog-close mat-icon-button
+              type="button">
         <mat-icon>close</mat-icon>
       </button>
     </mat-card-header>
@@ -67,7 +68,7 @@
         <p class="settings-text">File management</p>
         <p class="settings-subtext">Default file management options to streamline file input and output.</p>
       </div>
-      <div class="settings-section" *ngIf="shouldAllowImageDir">
+      <div *ngIf="shouldAllowImageDir" class="settings-section">
         <div class="input-info-wrapper">
           <mat-icon aria-hidden="false" aria-label="Folder icon" fontIcon="folder"/>
 
