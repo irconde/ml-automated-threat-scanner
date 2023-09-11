@@ -2,7 +2,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { BrowserWindow } from 'electron';
 import { Channels } from '../../shared/constants/channels';
-import { CachedSettings } from './cached-settings';
 import { ChannelsManager } from './channels-manager';
 import { FilePayload, FileStatus } from '../../shared/models/file-models';
 
@@ -11,45 +10,10 @@ class UserFilesManager extends ChannelsManager {
   static IMAGE_FILE_EXTENSIONS = ['.ora', '.zip'];
   fileNames: string[] = [];
   currentFileIndex = 0;
-  #settings: CachedSettings;
 
-  constructor(cachedSettings: CachedSettings, browserWindow: BrowserWindow) {
+  constructor(browserWindow: BrowserWindow) {
     super(browserWindow);
-    this.#settings = cachedSettings;
-    this.#init().then();
-  }
-
-  async #init() {
-    const anyFiles = await this.#updateFileNames();
     this.#wireAngularChannels();
-    if (anyFiles) this.#sendCurrentFileUpdate().then();
-  }
-
-  #wireAngularChannels() {
-    this.onAngularRequest(Channels.NewFileRequest, (e, isNext) => {
-      if (isNext && this.currentFileIndex + 1 < this.fileNames.length) {
-        this.currentFileIndex++;
-        this.#sendCurrentFileUpdate().then();
-      } else if (!isNext && this.currentFileIndex > 0) {
-        this.currentFileIndex--;
-        this.#sendCurrentFileUpdate().then();
-      }
-    });
-  }
-
-  async #sendCurrentFileUpdate() {
-    const { selectedImagesDirPath } = this.#settings.get();
-    const file = await fs.promises.readFile(
-      path.join(selectedImagesDirPath!, this.fileNames[this.currentFileIndex]),
-      { encoding: 'base64' },
-    );
-    const payload: FilePayload = {
-      fileName: this.fileNames[this.currentFileIndex],
-      filesCount: this.fileNames.length,
-      file,
-      status: FileStatus.Ok,
-    };
-    this.sendAngularUpdate(Channels.CurrentFileUpdate, payload);
   }
 
   static #isFileTypeAllowed(fileName: string): boolean {
@@ -58,9 +22,52 @@ class UserFilesManager extends ChannelsManager {
     );
   }
 
-  // updates the list of file names
-  async #updateFileNames(): Promise<boolean> {
-    const { selectedImagesDirPath } = this.#settings.get();
+  #wireAngularChannels() {
+    this.handleAngularEvent(
+      Channels.NewFileInvoke,
+      async (
+        e,
+        { isNext, selectedImagesDirPath },
+      ): Promise<FilePayload | null> => {
+        if (isNext && this.currentFileIndex + 1 < this.fileNames.length) {
+          this.currentFileIndex++;
+          return this.#getCurrentFilePayload(selectedImagesDirPath);
+        } else if (!isNext && this.currentFileIndex > 0) {
+          this.currentFileIndex--;
+          return this.#getCurrentFilePayload(selectedImagesDirPath);
+        } else {
+          return null;
+        }
+      },
+    );
+    this.handleAngularEvent(
+      Channels.InitFilesInvoke,
+      async (e, { selectedImagesDirPath }) => {
+        const anyFiles = await this.#updateFileNames(selectedImagesDirPath);
+        return anyFiles
+          ? this.#getCurrentFilePayload(selectedImagesDirPath)
+          : null;
+      },
+    );
+  }
+
+  async #getCurrentFilePayload(
+    selectedImagesDirPath: string,
+  ): Promise<FilePayload | null> {
+    if (!selectedImagesDirPath) return null;
+    const file = await fs.promises.readFile(
+      path.join(selectedImagesDirPath, this.fileNames[this.currentFileIndex]),
+      { encoding: 'base64' },
+    );
+    return {
+      fileName: this.fileNames[this.currentFileIndex],
+      filesCount: this.fileNames.length,
+      file,
+      status: FileStatus.Ok,
+    };
+  }
+
+  async #updateFileNames(selectedImagesDirPath: string) {
     if (!selectedImagesDirPath) return false;
     const foundFiles: string[] = await fs.promises.readdir(
       selectedImagesDirPath,
