@@ -1,8 +1,9 @@
 import { Routes } from '@angular/router';
+import { AppMain } from './AppMain/app-main.component';
 
 export const routes: Routes = [
   {
     path: '',
-    loadChildren: () => import('./tabs/tabs.routes').then((m) => m.routes),
+    component: AppMain,
   },
 ];

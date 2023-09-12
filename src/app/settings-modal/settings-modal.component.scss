@@ -1,0 +1,159 @@
+.mat-mdc-card {
+  width: 45rem;
+  height: 45rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #1c1c1c;
+  color: white;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+// HEADER
+.mat-mdc-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  width: 100%;
+
+  .mdc-icon-button {
+    color: #ffffff;
+  }
+}
+
+.modal-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.mat-mdc-card-title {
+  font-size: 2rem;
+  font-weight: 500;
+}
+
+// CONTENT
+.mat-mdc-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  padding: 1rem 1.5rem;
+  overflow-y: auto;
+  gap: 1rem;
+
+  button {
+    background: #3880ff;
+  }
+}
+
+.settings-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.section-column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+}
+
+.settings-text {
+  font-size: 1.25rem;
+  color: #ffffff;
+}
+
+.settings-subtext {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #5d5d5d;
+}
+
+mat-slide-toggle {
+}
+
+#server-info-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.input-info-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.input-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+
+  span {
+    font-size: x-large;
+  }
+}
+
+#settings-checkbox-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+#server-info-bottom {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  padding: 0.5rem 0 1rem;
+}
+
+mat-divider {
+  width: 100%;
+  border-top-color: #5d5d5d;
+  opacity: 0.5;
+  margin-bottom: 1rem;
+}
+
+mat-form-field {
+  height: 4.5rem;
+
+  mat-label {
+    font-size: small;
+  }
+
+}
+
+mat-option {
+  font-size: small;
+}
+
+// FOOTER
+.settings-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+  padding: 1rem;
+
+  button {
+    font-size: large;
+    background: #3880ff;
+  }
+}
+
+.mat-mdc-unelevated-button {
+  padding: 1.25rem 1rem;
+}

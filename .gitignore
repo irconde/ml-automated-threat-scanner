@@ -1,5 +1,8 @@
 # Specifies intentionally untracked files to ignore when using Git
 # http://git-scm.com/docs/gitignore
+.vscode
+
+_settings.json
 
 *~
 *.sw[mnpcod]
@@ -20,17 +23,19 @@ log.txt
 # Ionic
 /.ionic
 /www
+/ios
+/android
 /platforms
 /plugins
 
 # Compiled output
-/dist
+dist/
 /tmp
 /out-tsc
 /bazel-out
 
 # Node
-/node_modules
+node_modules/
 npm-debug.log
 yarn-error.log
 

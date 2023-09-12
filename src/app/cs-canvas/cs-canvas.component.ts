@@ -1,100 +1,97 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  ViewChild
-} from '@angular/core';
-import {cornerstone, cornerstoneTools} from '../csSetup'
+import { Component, OnInit } from '@angular/core';
+import { cornerstone } from '../csSetup';
+import { CornerstoneDirective } from '../directives/cornerstone.directive';
+import { CornerstoneService } from '../services/cornerstone.service';
+import { FileService } from '../services/file/file.service';
+import { SettingsService } from '../services/settings/settings.service';
+import { FilePayload } from '../../../shared/models/file-models';
+import { FileParserService } from '../services/file-parser/file-parser.service';
+import { IonicModule } from '@ionic/angular';
+import { KeyValuePipe, NgForOf, NgIf, NgStyle } from '@angular/common';
+import { of } from 'rxjs';
 
-const IMAGE_IDS = [
-  "https://rawgit.com/cornerstonejs/cornerstoneWebImageLoader/master/examples/Renal_Cell_Carcinoma.jpg",
-  "https://images.unsplash.com/photo-1533450718592-29d45635f0a9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8anBnfGVufDB8fDB8fHww&w=1000&q=80",
-  "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Cat03.jpg/1025px-Cat03.jpg"
-]
+export interface Viewports {
+  top: cornerstone.Image | null;
+  side: cornerstone.Image | null;
+}
 
 @Component({
   selector: 'app-cs-canvas',
   templateUrl: './cs-canvas.component.html',
   styleUrls: ['./cs-canvas.component.scss'],
-  standalone: true
+  standalone: true,
+  imports: [
+    CornerstoneDirective,
+    IonicModule,
+    NgIf,
+    NgForOf,
+    KeyValuePipe,
+    NgStyle,
+  ],
 })
-export class CsCanvasComponent implements AfterViewInit {
-
-  // @ts-ignore
-  @ViewChild('viewport') viewport: ElementRef;
-
-  stack = {
-    imageIds: IMAGE_IDS,
-    currentImageIdIndex: 0,
+export class CsCanvasComponent implements OnInit {
+  imageData: Viewports = {
+    top: null,
+    side: null,
   };
+  protected readonly of = of;
+  protected readonly Object = Object;
 
-  constructor() {}
+  constructor(
+    private csService: CornerstoneService,
+    private fileService: FileService,
+    private fileParserService: FileParserService,
+    private settingsService: SettingsService,
+  ) {}
 
-  ngAfterViewInit() {
-    setTimeout(() => this.setUpCornerstone(), 0)
+  public getImageData(): (keyof Viewports)[] {
+    return Object.keys(this.imageData) as (keyof Viewports)[];
+  }
+
+  ngOnInit() {
+    this.fileService
+      .getCurrentFile()
+      .subscribe((currentFile: FilePayload | null) => {
+        console.log('-------------------Current File-------------------------');
+        console.log(currentFile);
+        console.log('--------------------------------------------------------');
+        if (currentFile === null) {
+          this.imageData.top = null;
+          this.imageData.side = null;
+          return;
+        }
+        this.fileParserService.loadData(currentFile.file).then((parsedFile) => {
+          console.log(
+            '-------------------Parsed File--------------------------',
+          );
+          console.log(parsedFile);
+          console.log(
+            '--------------------------------------------------------',
+          );
+
+          Object.keys(this.imageData).forEach((key, i): void => {
+            const pixelData = parsedFile.imageData[i];
+            if (!pixelData) {
+              this.imageData[key as keyof Viewports] = null;
+              return;
+            }
+            const isValidView = Object.keys(this.imageData).includes(
+              pixelData.viewpoint,
+            );
+            if (isValidView) {
+              this.csService.getImageData(pixelData).subscribe((image) => {
+                this.imageData[pixelData.viewpoint as keyof Viewports] = image;
+              });
+            } else
+              throw Error(
+                `${pixelData.viewpoint} is not a valid viewpoint name`,
+              );
+          });
+        });
+      });
   }
 
   handleChangeImage(next = true) {
-    if(next && this.stack.currentImageIdIndex + 1 < this.stack.imageIds.length) {
-      this.stack.currentImageIdIndex++;
-      this.setUpCornerstone()
-    } else if(!next && this.stack.currentImageIdIndex > 0) {
-      this.stack.currentImageIdIndex--;
-      this.setUpCornerstone()
-    }
+    this.fileService.requestNextFile(next);
   }
-
-  renderCurrentImage() {
-    // Load the first image in the stack
-    cornerstone.loadImage(this.stack.imageIds[this.stack.currentImageIdIndex])
-      .then(image => {
-      // Display the first image
-      cornerstone.displayImage(this.viewport.nativeElement, image);
-    })
-      .catch((e)=>{
-      console.log(e)
-    })
-  }
-
-  setUpCornerstone() {
-    const element : HTMLElement = this.viewport.nativeElement;
-    // Enable the DOM Element for use with Cornerstone
-    cornerstone.enable(element);
-    // Add the stack tool state to the enabled element
-    cornerstoneTools.addStackStateManager(element, ["stack"]);
-    cornerstoneTools.addToolState(element, "stack", this.stack);
-
-    cornerstoneTools.mouseInput.enable(element);
-    cornerstoneTools.mouseWheelInput.enable(element);
-    cornerstoneTools.wwwc.activate(element, 1); // ww/wc is the default tool for left mouse button
-    cornerstoneTools.pan.activate(element, 2); // pan is the default tool for middle mouse button
-    cornerstoneTools.zoom.activate(element, 4); // zoom is the default tool for right mouse button
-    cornerstoneTools.zoomWheel.activate(element); // zoom is the default tool for middle mouse wheel
-
-    cornerstoneTools.touchInput.enable(element);
-    cornerstoneTools.panTouchDrag.activate(element);
-    cornerstoneTools.zoomTouchPinch.activate(element);
-
-    element.addEventListener(
-      "cornerstoneimagerendered",
-      this.onImageRendered
-    );
-    element.addEventListener("cornerstonenewimage", this.onNewImage);
-    window.addEventListener("resize", this.onWindowResize);
-    this.renderCurrentImage()
-
-  }
-
-  onWindowResize() {
-    console.log("onWindowResize");
-  }
-
-  onImageRendered() {
-    console.log("onImageRendered")
-  }
-
-  onNewImage() {
-    console.log("onNewImage")
-  }
-
 }

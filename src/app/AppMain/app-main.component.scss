@@ -1,0 +1,14 @@
+.viewportElement {
+  width: 512px;
+  height: 512px;
+  position: relative;
+  color: white;
+  outline: 1px solid red;
+}
+
+.topBarElement {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  float: right;
+}
