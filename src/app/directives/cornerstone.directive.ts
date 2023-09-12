@@ -13,8 +13,8 @@ import {
   hexToCssRgba,
   limitCharCount,
 } from '../utilities/text.utilities';
-import {renderBinaryMasks} from "../utilities/detection.utilities";
-import {cornerstone, cornerstoneTools} from '../csSetup';
+import { renderBinaryMasks } from '../utilities/detection.utilities';
+import { cornerstone, cornerstoneTools } from '../csSetup';
 
 @Directive({
   selector: '[csDirective]',
@@ -23,6 +23,7 @@ import {cornerstone, cornerstoneTools} from '../csSetup';
 export class CornerstoneDirective implements AfterViewInit {
   element: HTMLElement;
   currentIndex = 0;
+  private renderListener: (() => void) | undefined = undefined;
   private readonly CS_EVENT = {
     RENDER: 'cornerstoneimagerendered',
   };
@@ -31,7 +32,6 @@ export class CornerstoneDirective implements AfterViewInit {
     this.element = elementRef.nativeElement;
   }
 
-
   @Input()
   set image({ imageData, detectionData }: ViewportData) {
     if (!imageData?.imageId) return;
@@ -39,18 +39,21 @@ export class CornerstoneDirective implements AfterViewInit {
     const enabledElement = cornerstone.getEnabledElement(this.element);
     const context = enabledElement.canvas?.getContext('2d');
     this.displayImage(imageData);
+
     if (context) {
-      const handleImageRender = (event: any) => {
+      const handleImageRender = () => {
         this.renderDetections(
           context,
           detectionData,
           enabledElement.viewport?.scale,
         );
+        this.renderListener = handleImageRender;
+      };
+      if (this.renderListener)
         this.element.removeEventListener(
           this.CS_EVENT.RENDER,
-          handleImageRender,
+          this.renderListener,
         );
-      };
       this.element.addEventListener(this.CS_EVENT.RENDER, handleImageRender);
     }
   }
@@ -122,16 +125,16 @@ export class CornerstoneDirective implements AfterViewInit {
 
       context.globalAlpha = 0.5;
       if (detection.binaryMask) {
-        renderBinaryMasks(detection.binaryMask, context, zoom)
+        renderBinaryMasks(detection.binaryMask, context, zoom);
       }
       // if (detection.segmentation.length > 0) {
       //   if (detection.iscrowd === 0) {
-          // detection.segmentation.forEach((segment) => {
-          //   Utils.renderPolygonMasks(context, segment);
-          // });
-        // }
+      // detection.segmentation.forEach((segment) => {
+      //   Utils.renderPolygonMasks(context, segment);
+      // });
+      // }
       // } else if (detection.iscrowd === 1) {
-        // Utils.renderRLEMask(context, detection.segmentation);
+      // Utils.renderRLEMask(context, detection.segmentation);
       // }
 
       context.globalAlpha = 1.0;

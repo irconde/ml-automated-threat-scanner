@@ -42,38 +42,45 @@ export class CsCanvasComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.fileService.getCurrentFile().subscribe((currentFile: FilePayload) => {
-      console.log('-------------------Current File-------------------------');
-      console.log(currentFile);
-      console.log('--------------------------------------------------------');
-      this.fileParserService.loadData(currentFile.file).then((parsedFile) => {
-        console.log('-------------------Parsed File--------------------------');
-        console.log(parsedFile);
+    this.fileService
+      .getCurrentFile()
+      .subscribe((currentFile: FilePayload | null) => {
+        console.log('-------------------Current File-------------------------');
+        console.log(currentFile);
         console.log('--------------------------------------------------------');
-
-        Object.keys(this.viewportsData).forEach((key): void => {
-          const viewpoint = key as keyof ViewportsMap;
-          const pixelData = parsedFile.imageData.find(
-            (img) => img.viewpoint === key,
+        if (!currentFile) return;
+        this.fileParserService.loadData(currentFile.file).then((parsedFile) => {
+          console.log(
+            '-------------------Parsed File--------------------------',
           );
-          if (!pixelData) {
-            this.viewportsData[viewpoint].imageData = null;
-            this.viewportsData[viewpoint].detectionData = [];
-            return;
-          }
+          console.log(parsedFile);
+          console.log(
+            '--------------------------------------------------------',
+          );
 
-          this.csService.getImageData(pixelData).subscribe((imageData) => {
-            const detectionData = parsedFile.detectionData
-              .filter((detect) => detect.viewpoint === viewpoint)
-              .map(this.getDetection);
-            this.viewportsData[viewpoint] = {
-              imageData,
-              detectionData,
-            };
+          Object.keys(this.viewportsData).forEach((key): void => {
+            const viewpoint = key as keyof ViewportsMap;
+            const pixelData = parsedFile.imageData.find(
+              (img) => img.viewpoint === key,
+            );
+            if (!pixelData) {
+              this.viewportsData[viewpoint].imageData = null;
+              this.viewportsData[viewpoint].detectionData = [];
+              return;
+            }
+
+            this.csService.getImageData(pixelData).subscribe((imageData) => {
+              const detectionData = parsedFile.detectionData
+                .filter((detect) => detect.viewpoint === viewpoint)
+                .map(this.getDetection);
+              this.viewportsData[viewpoint] = {
+                imageData,
+                detectionData,
+              };
+            });
           });
         });
       });
-    });
   }
 
   handleChangeImage(next = true) {
