@@ -91,7 +91,7 @@ export class CsCanvasComponent implements OnInit {
       categorySelected: false,
       visible: true,
       id: '',
-      isCrowd: 0,
+      iscrowd: 0,
       color: 'orange',
       categoryName: rawDetection.className,
     };

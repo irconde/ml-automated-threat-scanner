@@ -14,6 +14,7 @@ import {
   hexToCssRgba,
   limitCharCount,
 } from '../utilities/text.utilities';
+import {renderBinaryMasks} from "../utilities/detection.utilities";
 
 @Directive({
   selector: '[csDirective]',
@@ -124,14 +125,17 @@ export class CornerstoneDirective implements AfterViewInit {
       context.strokeRect(x, y, w, h);
 
       context.globalAlpha = 0.5;
+      if (detection.binaryMask) {
+        renderBinaryMasks(detection.binaryMask, context, zoom)
+      }
       // if (detection.segmentation.length > 0) {
-      //   if (detection.isCrowd === 0) {
-      //     detection.segmentation.forEach((segment) => {
-      //       // Utils.renderPolygonMasks(context, segment);
-      //     });
-      //   }
-      // } else if (detection.isCrowd === 1) {
-      //   // Utils.renderRLEMask(context, detection.segmentation);
+      //   if (detection.iscrowd === 0) {
+          // detection.segmentation.forEach((segment) => {
+          //   Utils.renderPolygonMasks(context, segment);
+          // });
+        // }
+      // } else if (detection.iscrowd === 1) {
+        // Utils.renderRLEMask(context, detection.segmentation);
       // }
 
       context.globalAlpha = 1.0;
