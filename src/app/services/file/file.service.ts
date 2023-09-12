@@ -8,13 +8,15 @@ import { ElectronService } from '../electron/electron.service';
 import { FileParserService } from '../file-parser/file-parser.service';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
 import { HttpClient } from '@angular/common/http';
+import { ApplicationSettings } from '../settings/models/Settings';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FileService {
-  private currentFileObservable: Subject<FilePayload> =
-    new Subject<FilePayload>();
+  private currentFileObservable: Subject<FilePayload | null> =
+    new Subject<FilePayload | null>();
+  private settings: ApplicationSettings | null = null;
 
   constructor(
     private settingsService: SettingsService,
@@ -22,16 +24,18 @@ export class FileService {
     private fileParserService: FileParserService,
     private httpClient: HttpClient,
   ) {
-    this.init();
+    this.settingsService
+      .getSettings()
+      .subscribe((newSettings) => this.handleSettingsChange(newSettings));
   }
 
   /**
    * Used by all platforms to show a file picker for an individual .ORA file
    */
-  async handleFileSelection() {
+  public async handleFileSelection() {
     try {
       const result = await FilePicker.pickFiles({ readData: true });
-      this.settingsService.workingMode = WorkingMode.IndividualFile;
+      this.settings!.workingMode = WorkingMode.IndividualFile;
       const file = result.files[0];
       const fileName = file.name;
       const base_64_string = file.data;
@@ -50,18 +54,28 @@ export class FileService {
     }
   }
 
-  public setCurrentFile(payload: FilePayload): void {
+  public setCurrentFile(payload: FilePayload | null): void {
     this.currentFileObservable.next(payload);
   }
 
-  getCurrentFile(): Observable<FilePayload> {
+  public getCurrentFile(): Observable<FilePayload | null> {
     return this.currentFileObservable.asObservable();
   }
 
-  requestNextFile(next: boolean) {
-    switch (this.settingsService.workingMode) {
+  public requestNextFile(next: boolean) {
+    switch (this.settings?.workingMode) {
       case WorkingMode.LocalDirectory:
-        this.electronService.requestNewFile(next);
+        if (!this.settings.selectedImagesDirPath) return;
+        this.electronService.requestNewFile(
+          {
+            isNext: next,
+            selectedImagesDirPath: this.settings.selectedImagesDirPath,
+          },
+          (filePayload: FilePayload | null) => {
+            // if no more files, don't update the current file
+            if (filePayload !== null) this.setCurrentFile(filePayload);
+          },
+        );
         break;
       case WorkingMode.RemoteServer:
         switch (this.settingsService.platform) {
@@ -84,36 +98,87 @@ export class FileService {
     }
   }
 
-  requestCurrentFile() {
-    switch (this.settingsService.workingMode) {
+  private handleSettingsChange(newSettings: ApplicationSettings | null) {
+    switch (newSettings?.workingMode) {
       case WorkingMode.LocalDirectory:
-        this.electronService.listenToFileUpdate((payload: FilePayload) => {
-          this.currentFileObservable.next(payload);
-        });
+        this.requestNewImageDirFromElectron(newSettings);
         break;
       case WorkingMode.RemoteServer:
-        this.httpClient
-          .post<FilePayload>(
-            `${API.protocol}${this.settingsService.remoteIp}:${this.settingsService.remotePort}${API.getCurrentFile}`,
-            {
-              fileFormat: this.settingsService.fileFormat,
-            },
-          )
-          .subscribe({
-            next: (result: FilePayload) =>
-              this.currentFileObservable.next(result),
-            error: (error) =>
-              console.log(`Error connection with server: ${error.message}`),
-          });
+        this.requestCurrentFileFromServer(newSettings);
         break;
       default:
-        console.log(
-          'You are not in a proper working mode of the application, please revisit your settings!',
-        );
+        break;
+    }
+
+    // update the settings
+    this.settings = newSettings;
+  }
+
+  /**
+   * If the selectedImagesDirPath changes in the new settings, a request is sent to electron
+   * to update the files and send the new current file
+   * @param newSettings - the new settings payload received from the modal
+   */
+  private requestNewImageDirFromElectron(
+    newSettings: ApplicationSettings,
+  ): void {
+    const skipUpdate =
+      this.shouldSkipUpdate(
+        newSettings,
+        'selectedImagesDirPath',
+        'workingMode',
+      ) || this.settingsService.platform !== Platforms.Electron;
+
+    if (!skipUpdate && newSettings?.selectedImagesDirPath) {
+      this.electronService.initFiles(
+        { selectedImagesDirPath: newSettings.selectedImagesDirPath },
+        (filePayload) => {
+          this.setCurrentFile(filePayload);
+        },
+      );
     }
   }
 
-  private init() {
-    this.requestCurrentFile();
+  /**
+   * Checks whether an update should be skipped based on the provided settings and keys.
+   * @param newSettings - new settings passed from the settings modal
+   * @param keys - the properties of the settings to track
+   * @private
+   */
+  private shouldSkipUpdate(
+    newSettings: ApplicationSettings,
+    ...keys: (keyof ApplicationSettings)[]
+  ): boolean {
+    return keys.every(
+      (key: keyof ApplicationSettings) =>
+        this.settings && newSettings[key] === this.settings[key],
+    );
+  }
+
+  private requestCurrentFileFromServer(newSettings: ApplicationSettings): void {
+    // only send a request to the server if one of the attributes have changed
+    const skipUpdate = this.shouldSkipUpdate(
+      newSettings,
+      'remoteIp',
+      'remotePort',
+      'fileFormat',
+      'workingMode',
+    );
+    if (skipUpdate) return;
+    else {
+      const { remoteIp, remotePort, fileFormat } = newSettings;
+      this.httpClient
+        .post<FilePayload>(
+          `${API.protocol}${remoteIp}:${remotePort}${API.getCurrentFile}`,
+          {
+            fileFormat,
+          },
+        )
+        .subscribe({
+          next: (filePayload) => this.setCurrentFile(filePayload),
+          error: (error) =>
+            console.log(`Error connection with server: ${error.message}`),
+        });
+    }
   }
 }

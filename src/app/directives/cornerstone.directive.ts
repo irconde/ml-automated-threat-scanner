@@ -5,7 +5,6 @@ import {
   HostListener,
   Input,
 } from '@angular/core';
-import { cornerstone } from '../csSetup';
 import { ViewportData } from '../../models/viewport';
 import { Detection } from '../../models/detection';
 import { DETECTION_STYLE, EDITION_MODE } from '../../enums/detection-styles';
@@ -15,6 +14,7 @@ import {
   limitCharCount,
 } from '../utilities/text.utilities';
 import {renderBinaryMasks} from "../utilities/detection.utilities";
+import {cornerstone, cornerstoneTools} from '../csSetup';
 
 @Directive({
   selector: '[csDirective]',
@@ -30,6 +30,7 @@ export class CornerstoneDirective implements AfterViewInit {
   constructor(public elementRef: ElementRef) {
     this.element = elementRef.nativeElement;
   }
+
 
   @Input()
   set image({ imageData, detectionData }: ViewportData) {
@@ -63,22 +64,17 @@ export class CornerstoneDirective implements AfterViewInit {
     // Enable the element with Cornerstone
     cornerstone.enable(this.element);
 
-    // // following code won't work on mobile. It's causing the buttons to stop working
+    const PanTool = cornerstoneTools.PanTool;
+    cornerstoneTools.addTool(PanTool);
+    cornerstoneTools.setToolActive('Pan', { mouseButtonMask: 1 });
 
-    // cornerstoneTools.mouseInput.enable(this.element);
-    // cornerstoneTools.mouseWheelInput.enable(this.element);
-    // cornerstoneTools.wwwc.activate(this.element, 1); // ww/wc is the default tool for left mouse button
-    // cornerstoneTools.pan.activate(this.element, 2); // pan is the default tool for middle mouse button
-    // cornerstoneTools.zoom.activate(this.element, 4); // zoom is the default tool for right mouse button
-    // cornerstoneTools.zoomWheel.activate(this.element); // zoom is the default tool for middle mouse wheel
-    //
-    // cornerstoneTools.touchInput.enable(this.element);
-    // cornerstoneTools.panTouchDrag.activate(this.element);
-    // cornerstoneTools.zoomTouchPinch.activate(this.element);
+    const ZoomMouseWheelTool = cornerstoneTools.ZoomMouseWheelTool;
+    cornerstoneTools.addTool(ZoomMouseWheelTool);
+    cornerstoneTools.setToolActive('ZoomMouseWheel', {});
 
-    // this.element.addEventListener('cornerstoneimagerendered', () => {});
-    // element.addEventListener("cornerstonenewimage", this.onNewImage);
-    // window.addEventListener("resize", this.onWindowResize);
+    const ZoomTouchPinchTool = cornerstoneTools.ZoomTouchPinchTool;
+    cornerstoneTools.addTool(ZoomTouchPinchTool);
+    cornerstoneTools.setToolActive('ZoomTouchPinch', { mouseButtonMask: 1 });
   }
 
   displayImage(image: cornerstone.Image) {
