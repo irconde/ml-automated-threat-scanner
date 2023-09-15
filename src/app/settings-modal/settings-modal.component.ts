@@ -24,6 +24,7 @@ import {
   ApplicationSettings,
   DEFAULT_SETTINGS,
 } from '../services/settings/models/Settings';
+import { IonicModule } from '@ionic/angular';
 
 interface OutputOptions {
   value: string;
@@ -54,6 +55,7 @@ interface AnnotationOptions {
     ReactiveFormsModule,
     MatDialogModule,
     NgIf,
+    IonicModule,
   ],
 })
 export class SettingsModalComponent implements OnInit {

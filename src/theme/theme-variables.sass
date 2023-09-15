@@ -59,7 +59,7 @@ $accent-palette: (50: $accent-50, 100: $accent-100, 200: $accent-200, 300: $acce
 $custom-primary: mat.define-palette($primary-palette)
 $custom-accent: mat.define-palette($accent-palette)
 
-$my-theme: mat.define-light-theme((color: (primary: $custom-primary, accent: $custom-accent), typography: mat.define-typography-config(), density: 0))
+$dark-theme: mat.define-dark-theme((color: (primary: $custom-primary, accent: $custom-accent), typography: mat.define-typography-config(), density: 0))
 
-@include mat.all-component-themes($my-theme)
+@include mat.all-component-themes($dark-theme)
 
