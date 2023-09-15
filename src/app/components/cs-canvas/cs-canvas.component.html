@@ -4,8 +4,9 @@
        [image]="imageData[viewpoint]" csDirective>
     <canvas class="cornerstone-canvas"></canvas>
   </div>
+  <app-detection-toolbox-fab/>
 </div>
-<app-detection-toolbox-fab/>
+
 <ion-item class="controlButtons">
   <button (click)="handleChangeImage(false)">Previous</button>
   <button (click)="handleChangeImage(true)">Next</button>
