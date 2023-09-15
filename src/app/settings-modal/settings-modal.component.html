@@ -6,7 +6,7 @@
         <mat-icon aria-hidden="false" aria-label="Settings cog icon" fontIcon="settings"/>
         <mat-card-title>Settings</mat-card-title>
       </div>
-      <button [disabled]="disableClose" aria-label="Close icon" color="primary" mat-dialog-close mat-icon-button
+      <button id="mat-close-button" [disabled]="disableClose" aria-label="Close icon" mat-dialog-close mat-icon-button
               type="button">
         <mat-icon>close</mat-icon>
       </button>
@@ -19,7 +19,7 @@
         <div>
           <p class="settings-text">Work Connected to a Remote Service</p>
           <p class="settings-subtext">Choose this option if you want to receive/send images from/to a
-            server.</p>
+                                      server.</p>
         </div>
         <mat-slide-toggle formControlName="workingMode"/>
       </div>
@@ -30,32 +30,30 @@
         <!--    SERVER INFO TOP    -->
         <div id="server-info-top">
           <div class="input-info-wrapper">
-            <mat-icon aria-hidden="false" aria-label="Cloud icon" fontIcon="cloud"/>
+            <mat-icon aria-hidden="false" aria-label="Cloud icon" fontSet="material-icons-outlined">cloud</mat-icon>
 
             <!--    INPUTS    -->
             <div class="input-info">
-              <mat-form-field>
+              <mat-form-field id="host-input">
                 <mat-label>Host</mat-label>
                 <input formControlName="remoteIp" matInput placeholder="Ex. 127.0.0.1" type="text">
               </mat-form-field>
-              <span>:</span>
-              <mat-form-field>
+              <span id="colon">:</span>
+              <mat-form-field id="port-input">
                 <mat-label>Port</mat-label>
                 <input formControlName="remotePort" matInput placeholder="Ex. 5500" type="text">
               </mat-form-field>
             </div>
           </div>
           <div id="settings-checkbox-wrapper">
-            <mat-checkbox formControlName="autoConnect">
-              Autoconnect
-            </mat-checkbox>
+            <mat-checkbox formControlName="autoConnect">Autoconnect</mat-checkbox>
           </div>
         </div>
 
         <!--    SERVER INFO BOTTOM    -->
         <div id="server-info-bottom">
           <button (click)="checkConnection()" color="primary" mat-flat-button type="button">Check
-            Connection
+                                                                                            Connection
           </button>
         </div>
       </div>
@@ -68,9 +66,9 @@
         <p class="settings-text">File management</p>
         <p class="settings-subtext">Default file management options to streamline file input and output.</p>
       </div>
-      <div *ngIf="shouldAllowImageDir" class="settings-section">
+      <div *ngIf="shouldAllowImageDir" class="settings-section local-dir-section">
         <div class="input-info-wrapper">
-          <mat-icon aria-hidden="false" aria-label="Folder icon" fontIcon="folder"/>
+          <mat-icon aria-hidden="false" aria-label="Folder icon" fontSet="material-icons-outlined">folder</mat-icon>
 
           <!--    INPUT    -->
           <div class="input-info">
@@ -86,10 +84,11 @@
       </div>
 
       <!--    FILE OUTPUT OPTIONS    -->
-      <div class="settings-section">
+      <div class="settings-section outputs-wrapper">
         <div class="input-info-wrapper">
-          <mat-icon aria-hidden="false" aria-label="File icon" fontIcon="insert_drive_file"/>
-          <div class="input-info">
+          <mat-icon aria-hidden="false" aria-label="File icon" fontSet="material-icons-outlined">insert_drive_file
+          </mat-icon>
+          <div class="input-info output">
             <mat-form-field>
               <mat-label>Output File Format</mat-label>
               <mat-select formControlName="fileFormat">
@@ -101,8 +100,9 @@
           </div>
         </div>
         <div class="input-info-wrapper">
-          <mat-icon aria-hidden="false" aria-label="Pencil icon" fontIcon="edit"/>
-          <div class="input-info">
+          <mat-icon aria-hidden="false" aria-label="Pencil icon" fontSet="material-icons-outlined">edit
+          </mat-icon>
+          <div class="input-info output">
             <mat-form-field>
               <mat-label>Annotations Format</mat-label>
               <mat-select formControlName="detectionFormat">
@@ -114,8 +114,8 @@
           </div>
         </div>
         <div class="input-info-wrapper">
-          <mat-icon aria-hidden="false" aria-label="Pencil icon" fontIcon="edit"/>
-          <div class="input-info">
+          <mat-icon aria-hidden="false" aria-label="Pencil icon" fontIcon="hdr_weak"/>
+          <div class="input-info output">
             <mat-form-field>
               <mat-label>Filename Suffix</mat-label>
               <input formControlName="fileNameSuffix" matInput placeholder="Filename Suffix"
