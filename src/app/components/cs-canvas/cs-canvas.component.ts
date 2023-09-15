@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { cornerstone } from '../csSetup';
-import { CornerstoneDirective } from '../directives/cornerstone.directive';
-import { CornerstoneService } from '../services/cornerstone.service';
-import { FileService } from '../services/file/file.service';
-import { SettingsService } from '../services/settings/settings.service';
-import { FilePayload } from '../../../shared/models/file-models';
-import { FileParserService } from '../services/file-parser/file-parser.service';
+import { cornerstone } from '../../csSetup';
+import { CornerstoneDirective } from '../../directives/cornerstone.directive';
+import { CornerstoneService } from '../../services/cornerstone.service';
+import { FileService } from '../../services/file/file.service';
+import { SettingsService } from '../../services/settings/settings.service';
+import { FilePayload } from '../../../../shared/models/file-models';
+import { FileParserService } from '../../services/file-parser/file-parser.service';
 import { IonicModule } from '@ionic/angular';
 import { KeyValuePipe, NgForOf, NgIf, NgStyle } from '@angular/common';
 import { of } from 'rxjs';
+import { DetectionToolboxFabComponent } from '../detection-toolbox-fab/detection-toolbox-fab.component';
 
 export interface Viewports {
   top: cornerstone.Image | null;
@@ -22,6 +23,7 @@ export interface Viewports {
   standalone: true,
   imports: [
     CornerstoneDirective,
+    DetectionToolboxFabComponent,
     IonicModule,
     NgIf,
     NgForOf,

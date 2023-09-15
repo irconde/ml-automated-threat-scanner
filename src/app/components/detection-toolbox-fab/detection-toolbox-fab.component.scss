@@ -1,0 +1,30 @@
+.detection-toolbox-fab {
+  margin: 0 auto;
+  width: fit-content;
+  transform: translateY(-100%);
+  display: flex;
+  align-items: center;
+  border-radius: 5rem;
+  background: #1c1c1d;
+
+  .toolbox-divider {
+    width: 1px;
+    height: 1.5rem;
+    background-color: grey;
+  }
+
+  button {
+    font-size: 1rem;
+    padding: 0.7rem 1.25rem;
+    background-color: transparent;
+  }
+
+  button:nth-child(1) {
+    padding-right: 1rem;
+  }
+
+  button:last-child {
+    padding-left: 1rem;
+
+  }
+}
