@@ -38,7 +38,7 @@
             ],
             "styles": [
               "src/theme/variables.scss",
-              "src/theme/theme-variables.sass",
+              "src/theme/theme.sass",
               "src/global.scss"
             ],
             "scripts": []
@@ -121,7 +121,7 @@
               }
             ],
             "styles": [
-              "src/theme/theme-variables.sass",
+              "src/theme/theme.sass",
               "src/theme/variables.scss",
               "src/global.scss"
             ],

@@ -25,3 +25,7 @@
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
+/* Enabled to remove button container in material angular form fields */
+.mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
