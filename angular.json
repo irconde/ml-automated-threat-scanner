@@ -37,8 +37,8 @@
               }
             ],
             "styles": [
-              "@angular/material/prebuilt-themes/pink-bluegrey.css",
               "src/theme/variables.scss",
+              "src/theme/theme-variables.sass",
               "src/global.scss"
             ],
             "scripts": []
@@ -121,7 +121,7 @@
               }
             ],
             "styles": [
-              "@angular/material/prebuilt-themes/pink-bluegrey.css",
+              "src/theme/theme-variables.sass",
               "src/theme/variables.scss",
               "src/global.scss"
             ],
@@ -137,7 +137,10 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
           }
         }
       }

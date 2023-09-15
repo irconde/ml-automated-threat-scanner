@@ -1,0 +1,65 @@
+@use '@angular/material' as mat
+
+@include mat.core()
+
+// Define custom color palettes as SASS maps
+
+$primary-50: #e3f2ff
+$primary-100: #bdddff
+$primary-200: #91c8ff
+$primary-300: #64b2ff
+$primary-400: #45a1ff
+$primary-500: #3290ff
+$primary-600: #3881ff
+$primary-700: #3a6eea
+$primary-800: #29379d
+$primary-900: #3939b7
+
+
+$primary-contrast-50: #000000
+$primary-contrast-100: #000000
+$primary-contrast-200: #000000
+$primary-contrast-300: #ffffff
+$primary-contrast-400: #ffffff
+$primary-contrast-500: #ffffff
+$primary-contrast-600: #ffffff
+$primary-contrast-700: #ffffff
+$primary-contrast-800: #ffffff
+$primary-contrast-900: #ffffff
+
+
+$accent-50: #e0f5ff
+$accent-100: #b0e4ff
+$accent-200: #7ad3ff
+$accent-300: #3dc2ff
+$accent-400: #00b4ff
+$accent-500: #00a6fd
+$accent-600: #0098ed
+$accent-700: #0085d9
+$accent-800: #0074c4
+$accent-900: #0054a1
+
+$accent-contrast-50: #000000
+$accent-contrast-100: #000000
+$accent-contrast-200: #000000
+$accent-contrast-300: #ffffff
+$accent-contrast-400: #ffffff
+$accent-contrast-500: #ffffff
+$accent-contrast-600: #ffffff
+$accent-contrast-700: #ffffff
+$accent-contrast-800: #ffffff
+$accent-contrast-900: #ffffff
+
+
+$primary-palette: (50: $primary-50, 100: $primary-100, 200: $primary-200, 300: $primary-300, 400: $primary-400, 500: $primary-500, 600: $primary-600, 700: $primary-700, 800: $primary-800, 900: $primary-900, contrast: (50: $primary-contrast-50, 100: $primary-contrast-100, 200: $primary-contrast-200, 300: $primary-contrast-300, 400: $primary-contrast-400, 500: $primary-contrast-500, 600: $primary-contrast-600, 700: $primary-contrast-700, 800: $primary-contrast-800, 900: $primary-contrast-900))
+
+$accent-palette: (50: $accent-50, 100: $accent-100, 200: $accent-200, 300: $accent-300, 400: $accent-400, 500: $accent-500, 600: $accent-600, 700: $accent-700, 800: $accent-800, 900: $accent-900, contrast: (50: $accent-contrast-50, 100: $accent-contrast-100, 200: $accent-contrast-200, 300: $accent-contrast-300, 400: $accent-contrast-400, 500: $accent-contrast-500, 600: $accent-contrast-600, 700: $accent-contrast-700, 800: $accent-contrast-800, 900: $accent-contrast-900))
+
+// Define custom themes using the palettes
+$custom-primary: mat.define-palette($primary-palette)
+$custom-accent: mat.define-palette($accent-palette)
+
+$my-theme: mat.define-light-theme((color: (primary: $custom-primary, accent: $custom-accent), typography: mat.define-typography-config(), density: 0))
+
+@include mat.all-component-themes($my-theme)
+

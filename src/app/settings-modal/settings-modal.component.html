@@ -6,7 +6,7 @@
         <mat-icon aria-hidden="false" aria-label="Settings cog icon" fontIcon="settings"/>
         <mat-card-title>Settings</mat-card-title>
       </div>
-      <button [disabled]="disableClose" aria-label="Close icon" color="primary" mat-dialog-close mat-icon-button
+      <button id="mat-close-button" [disabled]="disableClose" aria-label="Close icon" mat-dialog-close mat-icon-button
               type="button">
         <mat-icon>close</mat-icon>
       </button>
@@ -19,7 +19,7 @@
         <div>
           <p class="settings-text">Work Connected to a Remote Service</p>
           <p class="settings-subtext">Choose this option if you want to receive/send images from/to a
-            server.</p>
+                                      server.</p>
         </div>
         <mat-slide-toggle formControlName="workingMode"/>
       </div>
@@ -46,8 +46,8 @@
             </div>
           </div>
           <div id="settings-checkbox-wrapper">
-            <mat-checkbox formControlName="autoConnect">
-              Autoconnect
+            <mat-checkbox formControlName="autoConnect" color="primary">
+              <mat-label id="autoconnect">Autoconnect</mat-label>
             </mat-checkbox>
           </div>
         </div>
@@ -55,7 +55,7 @@
         <!--    SERVER INFO BOTTOM    -->
         <div id="server-info-bottom">
           <button (click)="checkConnection()" color="primary" mat-flat-button type="button">Check
-            Connection
+                                                                                            Connection
           </button>
         </div>
       </div>
