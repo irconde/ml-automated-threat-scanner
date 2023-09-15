@@ -2,13 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CornerstoneDirective } from '../directives/cornerstone.directive';
 import { CornerstoneService } from '../services/cornerstone.service';
 import { FileService } from '../services/file/file.service';
-import { SettingsService } from '../services/settings/settings.service';
 import { FilePayload } from '../../../shared/models/file-models';
 import { FileParserService } from '../services/file-parser/file-parser.service';
 import { IonicModule } from '@ionic/angular';
 import { KeyValuePipe, NgForOf, NgIf, NgStyle } from '@angular/common';
 import { ViewportsMap } from '../../models/viewport';
 import { Detection, RawDetection } from '../../models/detection';
+import { DetectionsService } from '../services/detections/detections.service';
 
 @Component({
   selector: 'app-cs-canvas',
@@ -34,7 +34,7 @@ export class CsCanvasComponent implements OnInit {
     private csService: CornerstoneService,
     private fileService: FileService,
     private fileParserService: FileParserService,
-    private settingsService: SettingsService,
+    private detectionsService: DetectionsService,
   ) {}
 
   public getImageData(): (keyof ViewportsMap)[] {
@@ -42,6 +42,10 @@ export class CsCanvasComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.detectionsService.getDetectionData().subscribe((detectionsMap) => {
+      this.viewportsData.top.detectionData = detectionsMap.top;
+      this.viewportsData.side.detectionData = detectionsMap.side;
+    });
     this.fileService
       .getCurrentFile()
       .subscribe((currentFile: FilePayload | null) => {
@@ -75,8 +79,11 @@ export class CsCanvasComponent implements OnInit {
                 .map(this.getDetection);
               this.viewportsData[viewpoint] = {
                 imageData,
-                detectionData,
+                detectionData: [],
               };
+              this.detectionsService.setDetectionData({
+                [viewpoint]: detectionData,
+              });
             });
           });
         });
