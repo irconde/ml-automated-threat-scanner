@@ -29,6 +29,7 @@ export class TopBarComponent implements OnInit {
   connectionTextContent: string = '';
   cloudIconType: 'cloud' | 'cloud_off' = 'cloud_off';
   fileQueueAmount: number = 0;
+  isSideMenuOpen: boolean = false;
 
   constructor(
     public fileService: FileService,
@@ -89,23 +90,29 @@ export class TopBarComponent implements OnInit {
         : 'cloud_off';
   }
 
-  // updateTraffic(){
-  //   // TODO: update traffic icon based on current traffic
-  //   switch () {
-  //       case 'downloadAndUpload':
-  //           return 'assets/traffic icons/traffic-download-upload.icon.svg';
-  //       case 'noTransmission':
-  //           return 'assets/traffic icons/traffic-no-transmission.icon.svg';
-  //       case 'downloading':
-  //           return 'assets/traffic icons/traffic-download.icon.svg';
-  //       case 'uploading':
-  //           return 'assets/traffic icons/traffic-upload.icon.svg';
-  //       default:
-  //           return null;
-  //   }
-  // }
+  updateTraffic() {
+    // TODO: update traffic icon based on current traffic
+    const tempTraffic: string = 'noTransmission';
 
-  toggleSideMenu() {}
+    switch (tempTraffic) {
+      case 'downloadAndUpload':
+        return 'assets/traffic icons/traffic-download-upload.icon.svg';
+      case 'noTransmission':
+        return 'assets/traffic icons/traffic-no-transmission.icon.svg';
+      case 'downloading':
+        return 'assets/traffic icons/traffic-download.icon.svg';
+      case 'uploading':
+        return 'assets/traffic icons/traffic-upload.icon.svg';
+      default:
+        return null;
+    }
+  }
+
+  toggleSideMenu() {
+    // TODO: toggle side menu
+    this.isSideMenuOpen = !this.isSideMenuOpen;
+    console.log({ isSideMenuOpen: this.isSideMenuOpen });
+  }
 
   protected readonly WorkingMode = WorkingMode;
 }
