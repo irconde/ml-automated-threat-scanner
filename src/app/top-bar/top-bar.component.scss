@@ -29,9 +29,8 @@
       max-height: 32px;
     }
 
-    #file-queue-icon::before {
-      content: "0";
-      color: red;
+    #file-queue-text {
+      color: var(--ion-background-color);
       position: relative;
       left: 21px;
       width: 18px;

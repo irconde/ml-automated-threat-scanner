@@ -8,6 +8,7 @@ import { FilePayload } from '../../../shared/models/file-models';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { WorkingMode } from '../../enums/platforms';
+import { NgStyle } from '@angular/common';
 
 @Component({
   selector: 'app-top-bar',
@@ -19,12 +20,14 @@ import { WorkingMode } from '../../enums/platforms';
     MatDialogModule,
     MatIconModule,
     MatButtonModule,
+    NgStyle,
   ],
 })
 export class TopBarComponent implements OnInit {
   currentFile: FilePayload | null = null;
   settings: ApplicationSettings | null = null;
   cloudIconType: 'cloud' | 'cloud_off' = 'cloud_off';
+  fileQueueAmount: number = 0;
 
   constructor(
     public fileService: FileService,
@@ -35,6 +38,7 @@ export class TopBarComponent implements OnInit {
   ngOnInit() {
     this.fileService.getCurrentFile().subscribe((currentFile) => {
       this.currentFile = currentFile;
+      this.updateFileQueue();
     });
 
     this.settingsService
@@ -56,6 +60,15 @@ export class TopBarComponent implements OnInit {
   }
 
   // TODO: make file queue icon update number based on the currentFile.filesCount
+  updateFileQueue() {
+    if (this.currentFile?.filesCount) {
+      this.fileQueueAmount = this.currentFile?.filesCount;
+      console.log({ fileQueueAmount: this.fileQueueAmount });
+      if (this.fileQueueAmount >= 99) this.fileQueueAmount = 99;
+    } else {
+      this.fileQueueAmount = 0;
+    }
+  }
 
   updateConnectionStatus() {
     this.cloudIconType =
