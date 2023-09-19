@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { CornerstoneDirective } from '../directives/cornerstone.directive';
-import { CornerstoneService } from '../services/cornerstone.service';
-import { FileService } from '../services/file/file.service';
-import { FilePayload } from '../../../shared/models/file-models';
-import { FileParserService } from '../services/file-parser/file-parser.service';
+import { CornerstoneDirective } from '../../directives/cornerstone.directive';
+import { CornerstoneService } from '../../services/cornerstone.service';
+import { FileService } from '../../services/file/file.service';
+import { FilePayload } from '../../../../shared/models/file-models';
+import { FileParserService } from '../../services/file-parser/file-parser.service';
 import { IonicModule } from '@ionic/angular';
 import { KeyValuePipe, NgForOf, NgIf, NgStyle } from '@angular/common';
-import { ViewportsMap } from '../../models/viewport';
-import { Detection, RawDetection } from '../../models/detection';
-import { DetectionsService } from '../services/detections/detections.service';
+import { DetectionToolboxFabComponent } from '../detection-toolbox-fab/detection-toolbox-fab.component';
+import { ViewportsMap } from '../../../models/viewport';
+import { DetectionsService } from '../../services/detections/detections.service';
+import { Detection, RawDetection } from '../../../models/detection';
 
 @Component({
   selector: 'app-cs-canvas',
@@ -17,6 +18,7 @@ import { DetectionsService } from '../services/detections/detections.service';
   standalone: true,
   imports: [
     CornerstoneDirective,
+    DetectionToolboxFabComponent,
     IonicModule,
     NgIf,
     NgForOf,
