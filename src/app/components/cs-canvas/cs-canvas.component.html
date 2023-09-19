@@ -1,12 +1,11 @@
 <div class="viewports">
   <div *ngFor="let viewpoint of getImageData();"
-       class="viewportElement {{viewpoint}} {{imageData[viewpoint] ? '' : 'hidden'}}"
-       [image]="imageData[viewpoint]" csDirective>
+       [image]="viewportsData[viewpoint]"
+       class="viewportElement {{viewpoint}} {{viewportsData[viewpoint].imageData ? '' : 'hidden'}}" csDirective>
     <canvas class="cornerstone-canvas"></canvas>
   </div>
   <app-detection-toolbox-fab/>
 </div>
-
 <ion-item class="controlButtons">
   <button (click)="handleChangeImage(false)">Previous</button>
   <button (click)="handleChangeImage(true)">Next</button>
