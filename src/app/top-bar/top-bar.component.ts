@@ -24,7 +24,7 @@ import { WorkingMode } from '../../enums/platforms';
 export class TopBarComponent implements OnInit {
   currentFile: FilePayload | null = null;
   settings: ApplicationSettings | null = null;
-  connectionStatus: string = '';
+  cloudIconType: 'cloud' | 'cloud_off' = 'cloud_off';
 
   constructor(
     public fileService: FileService,
@@ -41,12 +41,12 @@ export class TopBarComponent implements OnInit {
       .getSettings()
       .subscribe((settings: ApplicationSettings | null) => {
         this.settings = settings;
+        this.updateConnectionStatus();
         // settings are null when they are first loading
         if (settings && SettingsService.isMissingRequiredInfo(settings)) {
           this.openSettingsModal();
         }
       });
-    this.updateConnectionStatus();
   }
 
   openSettingsModal() {
@@ -58,8 +58,7 @@ export class TopBarComponent implements OnInit {
   // TODO: make file queue icon update number based on the currentFile.filesCount
 
   updateConnectionStatus() {
-    // REFACTOR: this is not showing the proper status
-    this.connectionStatus =
+    this.cloudIconType =
       this.settings?.workingMode === WorkingMode.RemoteServer
         ? 'cloud'
         : 'cloud_off';

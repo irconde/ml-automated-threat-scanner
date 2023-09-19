@@ -1,26 +1,35 @@
 <div id="topBarContent">
-	<div id="connection-info">
-		<div class="connection">
-			<span>// Connected to https://{{settings?.remoteIp}}:{{settings?.remotePort}}</span>
-		</div>
-		<div class="connection">
-			&nbsp; &nbsp;
-			<span>Processing {{currentFile?.fileName}}</span>
-		</div>
-	</div>
-	<div>
-		<img alt="file queue icon" src="assets/file-queue.icon.svg"/>
-		<img alt="traffic icon" src="assets/traffic icons/traffic-no-transmission.icon.svg"/>
-		<mat-icon aria-hidden="false" aria-label="Cloud icon"
-		          fontSet="material-icons-outlined">{{this.connectionStatus}}</mat-icon>
-		<span>|</span>
-		<button (click)="openSettingsModal()" aria-label="Settings cog icon" color="white" mat-icon-button
-		        type="button">
-			<mat-icon>settings</mat-icon>
-		</button>
-		<button (click)="toggleSideMenu()" aria-label="Side menu toggle icon" color="white" mat-icon-button
-		        type="button">
-			<img alt="side menu toggle" src="assets/menu-toggle.icon.svg"/>
-		</button>
-	</div>
+  <button id="open-file" mat-fab extended color="primary" (click)="fileService.handleFileSelection()">
+    <mat-icon>open_in_browser</mat-icon>
+    OPEN FILE
+  </button>
+  <div id="connection-info">
+    <div class="connection">
+      <span>// <strong>Connected to</strong> https://{{settings?.remoteIp}}:{{settings?.remotePort}}</span>
+    </div>
+    <div class="connection">
+      &nbsp; &nbsp;
+      <span>Processing {{currentFile?.fileName}}</span>
+    </div>
+  </div>
+  <div id="top-bar-icon-group">
+    <div id="file-icons-info">
+      <div id="file-queue-icon">
+        <img alt="file queue icon" src="assets/file-queue.icon.svg"/>
+      </div>
+      <img alt="traffic icon" src="assets/traffic icons/traffic-no-transmission.icon.svg"/>
+      <mat-icon aria-hidden="false" aria-label="Cloud icon"
+                fontSet="material-icons-outlined">{{this.cloudIconType}}</mat-icon>
+    </div>
+    <span id="top-bar-divider"></span>
+    <button (click)="openSettingsModal()" aria-label="Settings cog icon" color="white" mat-icon-button
+            type="button">
+      <mat-icon>settings</mat-icon>
+    </button>
+    <button id="hamburger-btn" (click)="toggleSideMenu()" aria-label="Side menu toggle icon" color="white"
+            mat-icon-button
+            type="button">
+      <img alt="side menu toggle" src="assets/menu-toggle.icon.svg" style="width: 32px;"/>
+    </button>
+  </div>
 </div>

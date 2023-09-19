@@ -22,16 +22,4 @@
         fill="#FFFFFF"/>
     </g>
   </g>
-  <text
-    x="35%"
-    y="53%"
-    font-size="10pt"
-    fill="black"
-    dominant-baseline="middle"
-    text-anchor="middle"
-    font-weight="600"
-    id="file-queue-text"
-  >
-    0
-  </text>
 </svg>
