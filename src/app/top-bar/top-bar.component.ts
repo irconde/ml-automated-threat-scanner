@@ -26,6 +26,7 @@ import { NgStyle } from '@angular/common';
 export class TopBarComponent implements OnInit {
   currentFile: FilePayload | null = null;
   settings: ApplicationSettings | null = null;
+  connectionTextContent: string = '';
   cloudIconType: 'cloud' | 'cloud_off' = 'cloud_off';
   fileQueueAmount: number = 0;
 
@@ -46,6 +47,7 @@ export class TopBarComponent implements OnInit {
       .subscribe((settings: ApplicationSettings | null) => {
         this.settings = settings;
         this.updateConnectionStatus();
+        this.setConnectionText();
         // settings are null when they are first loading
         if (settings && SettingsService.isMissingRequiredInfo(settings)) {
           this.openSettingsModal();
@@ -59,7 +61,17 @@ export class TopBarComponent implements OnInit {
     });
   }
 
-  // TODO: make file queue icon update number based on the currentFile.filesCount
+  setConnectionText() {
+    // Set connection text based on working mode
+    if (this.settings?.workingMode === WorkingMode.RemoteServer) {
+      this.connectionTextContent = `https://${this.settings?.remoteIp}:${this.settings?.remotePort}`;
+    } else if (this.settings?.workingMode === WorkingMode.LocalDirectory) {
+      this.connectionTextContent = `${this.settings?.selectedImagesDirPath}`;
+    } else {
+      this.connectionTextContent = '';
+    }
+  }
+
   updateFileQueue() {
     if (this.currentFile?.filesCount) {
       this.fileQueueAmount = this.currentFile?.filesCount;
@@ -94,4 +106,6 @@ export class TopBarComponent implements OnInit {
   // }
 
   toggleSideMenu() {}
+
+  protected readonly WorkingMode = WorkingMode;
 }

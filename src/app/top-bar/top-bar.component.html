@@ -1,22 +1,26 @@
 <div id="topBarContent">
-  <button id="open-file" mat-fab extended color="primary" (click)="fileService.handleFileSelection()">
+  <button
+    id="open-file"
+    mat-fab extended
+    color="primary" (click)="fileService.handleFileSelection()">
     <mat-icon>open_in_browser</mat-icon>
     OPEN FILE
   </button>
   <div id="connection-info">
-    <div class="connection">
-      <span>// <strong>Connected to</strong> https://{{settings?.remoteIp}}:{{settings?.remotePort}}</span>
+    <div
+      class="connection">
+      <div>// <span>Connected to</span></div>
+      &nbsp;
+      {{connectionTextContent}}
     </div>
     <div class="connection">
       &nbsp; &nbsp;
-      <span>Processing {{currentFile?.fileName}}</span>
+      <span>Processing</span> &nbsp;
+      {{currentFile?.fileName}}
     </div>
   </div>
   <div id="top-bar-icon-group">
     <div id="file-icons-info">
-
-
-      <!--      WORKING HERE ------------------------------------------------------>
       <div id="file-queue-icon">
         <div id="file-queue-text">{{fileQueueAmount}}</div>
         <img alt="file queue icon" src="assets/file-queue.icon.svg"/>
