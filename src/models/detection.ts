@@ -1,4 +1,4 @@
-export type BoundingBox = [number, number, number, number];
+export type BoundingBox = number[];
 export type Coordinate2D = { x: number; y: number };
 export type PolygonData = { [key: number]: Coordinate2D };
 
@@ -14,7 +14,7 @@ export interface Point {
   anchor: { top: number; bottom: number; left: number; right: number };
 }
 
-interface GeneralDetection {
+interface RawGeneralDetection {
   algorithm: string;
   className: string;
   confidence: number;
@@ -22,16 +22,26 @@ interface GeneralDetection {
   binaryMask?: number[][];
   uuid: string;
   detectionFromFile: boolean;
-}
-
-export interface DicosDetection extends GeneralDetection {
-  boundingBox: number[];
-}
-
-export interface CocoDetection extends GeneralDetection {
-  polygonMask: Point[];
   boundingBox: BoundingBox;
+}
+
+export interface RawDicosDetection extends RawGeneralDetection {}
+
+export interface RawCocoDetection extends RawGeneralDetection {
+  polygonMask: Point[];
   imageId: string;
 }
 
-export type Detection = CocoDetection | DicosDetection;
+export type RawDetection = RawCocoDetection | RawDicosDetection;
+
+interface DetectionStateProps {
+  selected: boolean;
+  visible: boolean;
+  color: string;
+  categorySelected: boolean;
+  id: string;
+  iscrowd: 1 | 0;
+  categoryName: string;
+}
+
+export type Detection = RawDetection & DetectionStateProps;

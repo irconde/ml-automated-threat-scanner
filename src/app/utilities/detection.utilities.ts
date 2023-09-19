@@ -1,9 +1,4 @@
-import {
-  BoundingBox,
-  Coordinate2D,
-  Point,
-  PolygonData,
-} from '../../models/detection';
+import {BoundingBox, Coordinate2D, Point, PolygonData,} from '../../models/detection';
 
 /**
  * Converts COCO bbox to a bounding box
@@ -26,7 +21,7 @@ export const cocoBoxToBoundingBox = (bbox: BoundingBox): BoundingBox => {
  */
 export const getMasks = (
   boundingBox: BoundingBox,
-  segmentation: number[][]
+  segmentation: number[][],
 ): { polygonMask: Point[]; binaryMask: number[][] | undefined } => {
   let binaryMask: number[][] | undefined;
   let polygonMask: Point[] = [];
@@ -73,7 +68,7 @@ const coordinatesToPolygonData = (coordinates: number[]): PolygonData => {
  */
 const polygonDataToXYArray = (
   polygonData: PolygonData,
-  boundingBox: BoundingBox
+  boundingBox: BoundingBox,
 ): Point[] => {
   const xDist = boundingBox[2] - boundingBox[0];
   const yDist = boundingBox[3] - boundingBox[1];
@@ -101,7 +96,7 @@ const polygonDataToXYArray = (
  *
  */
 const polygonToBinaryMask = (
-  coords: Coordinate2D[]
+  coords: Coordinate2D[],
 ): number[][] | undefined => {
   if (coords === undefined || coords === null || coords.length === 0) {
     return;
@@ -163,7 +158,7 @@ const polygonToBinaryMask = (
 const isInside = (
   polygon: PolygonData,
   verticesNum: number,
-  point: Coordinate2D
+  point: Coordinate2D,
 ): boolean => {
   // There must be at least 3 vertices in polygon[]
   if (verticesNum < 3) {
@@ -208,7 +203,7 @@ const isInside = (
 const orientation = (
   p: Coordinate2D,
   q: Coordinate2D,
-  r: Coordinate2D
+  r: Coordinate2D,
 ): number => {
   const val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
 
@@ -231,7 +226,7 @@ const doIntersect = (
   p1: Coordinate2D,
   q1: Coordinate2D,
   p2: Coordinate2D,
-  q2: Coordinate2D
+  q2: Coordinate2D,
 ): boolean => {
   // Find the four orientations needed for general and special cases
 
@@ -281,7 +276,7 @@ const doIntersect = (
 const onSegment = (
   p: Coordinate2D,
   q: Coordinate2D,
-  r: Coordinate2D
+  r: Coordinate2D,
 ): boolean => {
   return (
     q.x <= Math.max(p.x, r.x) &&
@@ -290,3 +285,47 @@ const onSegment = (
     q.y >= Math.min(p.y, r.y)
   );
 };
+
+/**
+ * Renders a polygon mask on a given context
+ */
+export const renderPolygonMasks = (
+  context: CanvasRenderingContext2D,
+  polygonCoords: Coordinate2D[],
+) => {
+  try {
+    const index = 0;
+    context.beginPath();
+    context.moveTo(polygonCoords[index].x, polygonCoords[index].y);
+    for (let i = index; i < polygonCoords.length; i++) {
+      context.lineTo(polygonCoords[i].x, polygonCoords[i].y);
+    }
+    context.closePath();
+    context.fill();
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+/**
+ * Renders the binary mask associated with a detection
+ *
+ */
+export const renderBinaryMasks = (binaryMask: number[][], context: CanvasRenderingContext2D, zoom : number) => {
+  if (!binaryMask?.length) return;
+  else if (binaryMask[0].length === 0) return;
+
+  const baseX = binaryMask[1][0];
+  const baseY = binaryMask[1][1];
+  const maskWidth = binaryMask[2][0];
+  const maskHeight = binaryMask[2][1];
+  const pixelData = binaryMask[0];
+  context.imageSmoothingEnabled = true;
+  for (let y = 0; y < maskHeight; y++)
+    for (let x = 0; x < maskWidth; x++) {
+      if (pixelData[x + y * maskWidth] === 1) {
+        context.fillRect(baseX + x * zoom, baseY + y * zoom, 1, 1);
+      }
+    }
+  context.imageSmoothingEnabled = false;
+}
