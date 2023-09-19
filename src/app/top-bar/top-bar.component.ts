@@ -30,6 +30,8 @@ export class TopBarComponent implements OnInit {
   cloudIconType: 'cloud' | 'cloud_off' = 'cloud_off';
   fileQueueAmount: number = 0;
   isSideMenuOpen: boolean = false;
+  fileButtonVisibility: string = '';
+  connectionDisplay: string = 'flex';
 
   constructor(
     public fileService: FileService,
@@ -49,6 +51,7 @@ export class TopBarComponent implements OnInit {
         this.settings = settings;
         this.updateConnectionStatus();
         this.setConnectionText();
+        this.handleFileButtonVisibility();
         // settings are null when they are first loading
         if (settings && SettingsService.isMissingRequiredInfo(settings)) {
           this.openSettingsModal();
@@ -108,11 +111,22 @@ export class TopBarComponent implements OnInit {
     }
   }
 
+  handleFileButtonVisibility() {
+    if (
+      this.settings?.workingMode !== WorkingMode.RemoteServer &&
+      this.settings?.selectedImagesDirPath === ''
+    ) {
+      this.fileButtonVisibility = 'visibility: visible';
+      this.connectionDisplay = 'display: none';
+    } else {
+      this.fileButtonVisibility = 'visibility: hidden';
+      this.connectionDisplay = 'display: flex';
+    }
+  }
+
   toggleSideMenu() {
     // TODO: toggle side menu
     this.isSideMenuOpen = !this.isSideMenuOpen;
     console.log({ isSideMenuOpen: this.isSideMenuOpen });
   }
-
-  protected readonly WorkingMode = WorkingMode;
 }

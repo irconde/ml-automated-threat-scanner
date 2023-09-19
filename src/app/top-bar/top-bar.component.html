@@ -1,14 +1,15 @@
 <div id="topBarContent">
   <button
     id="open-file"
-    mat-fab extended
+    [style]="fileButtonVisibility"
+    mat-flat-button
     color="primary" (click)="fileService.handleFileSelection()">
     <mat-icon>open_in_browser</mat-icon>
     OPEN FILE
   </button>
   <div id="connection-info">
     <div
-      class="connection">
+      class="connection" [style]="connectionDisplay">
       <div>// <span>Connected to</span></div>
       &nbsp;
       {{connectionTextContent}}
