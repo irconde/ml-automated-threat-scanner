@@ -1,0 +1,13 @@
+#topBarContent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+#connection-info {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  margin-right: 2rem;
+}

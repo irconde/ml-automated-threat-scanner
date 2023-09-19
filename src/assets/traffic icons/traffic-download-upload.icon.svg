@@ -1,0 +1,31 @@
+<svg
+        width="32px"
+        height="32px"
+        viewBox="0 0 32 32"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg">
+    <g
+            id="ic_traffic_download_upload"
+            stroke="none"
+            stroke-width="1"
+            fill="none"
+            fill-rule="evenodd">
+        <g
+                id="import_export-24px">
+            <polygon
+                    id="Path"
+                    points="0 0 32 0 32 32 0 32"/>
+            <polygon
+                    id="Path"
+                    stroke="#FFFFFF" fill="#FFFFFF"
+                    fill-rule="nonzero"
+                    points="12 4 6.66666667 9.32 10.6666667 9.32 10.6666667 18.6666667 13.3333333 18.6666667 13.3333333 9.32 17.3333333 9.32"/>
+            <polygon
+                    id="Path"
+                    stroke="#FFFFFF"
+                    fill="#FFFFFF"
+                    fill-rule="nonzero"
+                    points="21.3333333 22.68 21.3333333 13.3333333 18.6666667 13.3333333 18.6666667 22.68 14.6666667 22.68 20 28 25.3333333 22.68"/>
+        </g>
+    </g>
+</svg>

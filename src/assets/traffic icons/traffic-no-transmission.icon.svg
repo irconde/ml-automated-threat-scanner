@@ -1,0 +1,32 @@
+<svg
+        width="32px"
+        height="32px"
+        viewBox="0 0 32 32"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg">
+    <g
+            id="ic_traffic_no_transmission"
+            stroke="none"
+            stroke-width="1"
+            fill="none"
+            fill-rule="evenodd">
+        <g
+                id="file_exchange_icon">
+            <polygon
+                    id="Path"
+                    points="0 0 32 0 32 32 0 32"/>
+            <path
+                    d="M12,3.29377655 L18.5425799,9.82 L13.8333333,9.82 L13.8333333,19.1666667 L10.1666667,19.1666667 L10.1666667,9.82 L5.4574201,9.82 L12,3.29377655 Z"
+                    id="Path"
+                    stroke="#878787"
+                    fill="#878787"
+                    fill-rule="nonzero"/>
+            <path
+                    d="M21.8333333,12.8333333 L21.8333333,22.18 L26.5425799,22.18 L20,28.7062235 L13.4574201,22.18 L18.1666667,22.18 L18.1666667,12.8333333 L21.8333333,12.8333333 Z"
+                    id="Path"
+                    stroke="#878787"
+                    fill="#878787"
+                    fill-rule="nonzero"/>
+        </g>
+    </g>
+</svg>
