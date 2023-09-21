@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { SettingsService } from '../services/settings/settings.service';
+import { SettingsService } from '../../services/settings/settings.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -15,15 +15,15 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSelectModule } from '@angular/material/select';
 import { NgForOf, NgIf } from '@angular/common';
-import { FileFormat, Platforms, WorkingMode } from '../../enums/platforms';
-import { DetectionType } from '../../models/detection';
-import { getElectronAPI } from '../get-electron-api';
-import { Channels } from '../../../shared/constants/channels';
+import { FileFormat, Platforms, WorkingMode } from '../../../enums/platforms';
+import { DetectionType } from '../../../models/detection';
+import { getElectronAPI } from '../../get-electron-api';
+import { Channels } from '../../../../shared/constants/channels';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import {
   ApplicationSettings,
   DEFAULT_SETTINGS,
-} from '../services/settings/models/Settings';
+} from '../../services/settings/models/Settings';
 import { IonicModule } from '@ionic/angular';
 
 interface OutputOptions {

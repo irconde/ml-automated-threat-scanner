@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { FileService } from '../services/file/file.service';
-import { SettingsService } from '../services/settings/settings.service';
+import { FileService } from '../../services/file/file.service';
+import { SettingsService } from '../../services/settings/settings.service';
 import { SettingsModalComponent } from '../settings-modal/settings-modal.component';
-import { ApplicationSettings } from '../services/settings/models/Settings';
-import { FilePayload } from '../../../shared/models/file-models';
+import { ApplicationSettings } from '../../services/settings/models/Settings';
+import { FilePayload } from '../../../../shared/models/file-models';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
-import { WorkingMode } from '../../enums/platforms';
+import { WorkingMode } from '../../../enums/platforms';
 import { NgStyle } from '@angular/common';
 
 @Component({
