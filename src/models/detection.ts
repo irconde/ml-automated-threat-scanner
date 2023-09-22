@@ -1,5 +1,6 @@
 export type BoundingBox = number[];
 export type Coordinate2D = { x: number; y: number };
+export type Dimension2D = { width: number; height: number };
 export type PolygonData = { [key: number]: Coordinate2D };
 
 export enum DetectionType {

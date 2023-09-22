@@ -6,6 +6,7 @@ import {
   CornerstoneMode,
   ToolNames,
 } from '../../../enums/cornerstone';
+import { CornerstoneService } from '../../services/cornerstone/cornerstone.service';
 
 @Component({
   selector: 'app-detection-toolbox-fab',
@@ -15,9 +16,22 @@ import {
   imports: [MatIconModule],
 })
 export class DetectionToolboxFabComponent implements OnInit {
-  constructor() {}
+  private annotationMode = AnnotationMode.NoTool;
 
-  ngOnInit() {}
+  constructor(private cornerstoneService: CornerstoneService) {}
+
+  ngOnInit() {
+    this.cornerstoneService.getCsConfiguration().subscribe((config) => {
+      this.annotationMode = config.annotationMode;
+    });
+  }
+
+  get disabled() {
+    return (
+      this.annotationMode === AnnotationMode.Bounding ||
+      this.annotationMode === AnnotationMode.Polygon
+    );
+  }
 
   handlePolygonBtnClick() {}
 
@@ -32,6 +46,10 @@ export class DetectionToolboxFabComponent implements OnInit {
     });
 
     this.updateCornerstoneViewports();
+    this.cornerstoneService.setCsConfiguration({
+      annotationMode: AnnotationMode.Bounding,
+      cornerstoneMode: CornerstoneMode.Annotation,
+    });
   }
 
   updateCornerstoneViewports() {

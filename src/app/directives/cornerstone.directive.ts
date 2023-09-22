@@ -1,15 +1,17 @@
 import {AfterViewInit, Directive, ElementRef, HostListener, Input,} from '@angular/core';
 import {ViewportData} from '../../models/viewport';
-import {Detection} from '../../models/detection';
+import {Coordinate2D, Detection, Dimension2D} from '../../models/detection';
 import {DETECTION_STYLE} from '../../enums/detection-styles';
 import {getTextLabelSize, hexToCssRgba, limitCharCount,} from '../utilities/text.utilities';
 import {renderBinaryMasks, renderPolygonMasks,} from '../utilities/detection.utilities';
 import {cornerstone, cornerstoneTools} from '../csSetup';
 import BoundingBoxDrawingTool from '../utilities/cornerstone-tools/BoundingBoxDrawingTool';
 import {EditionMode} from '../../enums/cornerstone';
+import {renderBboxCrosshair} from '../utilities/drawing.utilities';
+import {CornerstoneService} from '../services/cornerstone/cornerstone.service';
+import {CS_DEFAULT_CONFIGURATION} from '../../models/cornerstone';
 // import SegmentationDrawingTool from '../utilities/cornerstone-tools/SegmentationDrawingTool';
 // import AnnotationMovementTool from '../utilities/cornerstone-tools/AnnotationMovementTool';
-console.log(BoundingBoxDrawingTool);
 
 @Directive({
   selector: '[csDirective]',
@@ -17,14 +19,25 @@ console.log(BoundingBoxDrawingTool);
 })
 export class CornerstoneDirective implements AfterViewInit {
   element: HTMLElement;
-  currentIndex = 0;
-  private renderListener: (() => void) | undefined = undefined;
-  private readonly CS_EVENT = {
-    RENDER: 'cornerstoneimagerendered',
-  };
+  private renderListener: ((e: Event) => void) | undefined = undefined;
+  private cornerstoneConfig = CS_DEFAULT_CONFIGURATION;
+  private mousePosition: Coordinate2D = { x: 0, y: 0 };
+  private imageDimensions: Dimension2D = { width: 0, height: 0 };
+  private context: CanvasRenderingContext2D | null | undefined = undefined;
 
-  constructor(public elementRef: ElementRef) {
+  constructor(
+    public elementRef: ElementRef,
+    private cornerstoneService: CornerstoneService,
+  ) {
     this.element = elementRef.nativeElement;
+    // track the position of the mouse
+    document.body.addEventListener('mousemove', (e) => {
+      this.mousePosition.x = e.clientX;
+      this.mousePosition.y = e.clientY;
+    });
+    this.cornerstoneService.getCsConfiguration().subscribe((config) => {
+      this.cornerstoneConfig = config;
+    });
   }
 
   @Input()
@@ -32,24 +45,38 @@ export class CornerstoneDirective implements AfterViewInit {
     if (!imageData?.imageId) return;
     cornerstone.enable(this.element);
     const enabledElement = cornerstone.getEnabledElement(this.element);
-    const context = enabledElement.canvas?.getContext('2d');
+    this.context = enabledElement.canvas?.getContext('2d');
     this.displayImage(imageData);
+    this.imageDimensions.height = imageData.height;
+    this.imageDimensions.width = imageData.width;
 
-    if (context) {
-      const handleImageRender = () => {
+    if (this.context) {
+      const handleImageRender = (event: Event) => {
+        if (!this.context) {
+          throw Error('Context is not set in image render handler');
+        }
         this.renderDetections(
-          context,
+          this.context,
           detectionData,
           enabledElement.viewport?.scale,
+        );
+        renderBboxCrosshair(
+          this.context,
+          this.element,
+          this.mousePosition,
+          this.imageDimensions,
         );
         this.renderListener = handleImageRender;
       };
       if (this.renderListener)
         this.element.removeEventListener(
-          this.CS_EVENT.RENDER,
+          cornerstone.EVENTS.IMAGE_RENDERED,
           this.renderListener,
         );
-      this.element.addEventListener(this.CS_EVENT.RENDER, handleImageRender);
+      this.element.addEventListener(
+        cornerstone.EVENTS.IMAGE_RENDERED,
+        handleImageRender,
+      );
     }
   }
 
