@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CornerstoneDirective } from '../../directives/cornerstone.directive';
-import { CornerstoneService } from '../../services/cornerstone.service';
+import { CornerstoneService } from '../../services/cornerstone/cornerstone.service';
 import { FileService } from '../../services/file/file.service';
 import { FilePayload } from '../../../../shared/models/file-models';
 import { FileParserService } from '../../services/file-parser/file-parser.service';

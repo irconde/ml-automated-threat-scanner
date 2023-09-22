@@ -1,23 +1,15 @@
-import {
-  AfterViewInit,
-  Directive,
-  ElementRef,
-  HostListener,
-  Input,
-} from '@angular/core';
-import { ViewportData } from '../../models/viewport';
-import { Detection } from '../../models/detection';
-import { DETECTION_STYLE, EDITION_MODE } from '../../enums/detection-styles';
-import {
-  getTextLabelSize,
-  hexToCssRgba,
-  limitCharCount,
-} from '../utilities/text.utilities';
-import {
-  renderBinaryMasks,
-  renderPolygonMasks,
-} from '../utilities/detection.utilities';
-import { cornerstone, cornerstoneTools } from '../csSetup';
+import {AfterViewInit, Directive, ElementRef, HostListener, Input,} from '@angular/core';
+import {ViewportData} from '../../models/viewport';
+import {Detection} from '../../models/detection';
+import {DETECTION_STYLE} from '../../enums/detection-styles';
+import {getTextLabelSize, hexToCssRgba, limitCharCount,} from '../utilities/text.utilities';
+import {renderBinaryMasks, renderPolygonMasks,} from '../utilities/detection.utilities';
+import {cornerstone, cornerstoneTools} from '../csSetup';
+import BoundingBoxDrawingTool from '../utilities/cornerstone-tools/BoundingBoxDrawingTool';
+import {EditionMode} from '../../enums/cornerstone';
+// import SegmentationDrawingTool from '../utilities/cornerstone-tools/SegmentationDrawingTool';
+// import AnnotationMovementTool from '../utilities/cornerstone-tools/AnnotationMovementTool';
+console.log(BoundingBoxDrawingTool);
 
 @Directive({
   selector: '[csDirective]',
@@ -81,6 +73,8 @@ export class CornerstoneDirective implements AfterViewInit {
     const ZoomTouchPinchTool = cornerstoneTools.ZoomTouchPinchTool;
     cornerstoneTools.addTool(ZoomTouchPinchTool);
     cornerstoneTools.setToolActive('ZoomTouchPinch', { mouseButtonMask: 1 });
+
+    cornerstoneTools.addTool(BoundingBoxDrawingTool);
   }
 
   displayImage(image: cornerstone.Image) {
@@ -100,7 +94,7 @@ export class CornerstoneDirective implements AfterViewInit {
     // TODO: get the actual selected category
     const SELECTED_CATEGORY = '';
     // TODO: get the actual edition mode
-    const CURRENT_EDITION_MODE = EDITION_MODE.NO_TOOL;
+    const CURRENT_EDITION_MODE = EditionMode.NoTool;
 
     const { BORDER_WIDTH, FONT_DETAILS } = DETECTION_STYLE;
     context.font = FONT_DETAILS.get(zoom);
@@ -109,7 +103,7 @@ export class CornerstoneDirective implements AfterViewInit {
     detections.forEach((detection) => {
       if (
         !detection.visible ||
-        (detection.selected && CURRENT_EDITION_MODE !== EDITION_MODE.NO_TOOL)
+        (detection.selected && CURRENT_EDITION_MODE !== EditionMode.NoTool)
       ) {
         return;
       }

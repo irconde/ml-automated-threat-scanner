@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { fromPromise } from 'rxjs/internal/observable/innerFrom';
-import { cornerstone, cornerstoneWADOImageLoader } from '../csSetup';
+import { cornerstone, cornerstoneWADOImageLoader } from '../../csSetup';
 // @ts-ignore
 import { arrayBufferToImage, createImage } from 'cornerstone-web-image-loader';
-import { PixelData } from '../../models/file-parser';
-import { DetectionType } from '../../models/detection';
+import { PixelData } from '../../../models/file-parser';
+import { DetectionType } from '../../../models/detection';
 
 @Injectable({
   providedIn: 'root',

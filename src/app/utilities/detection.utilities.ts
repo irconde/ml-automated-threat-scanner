@@ -311,7 +311,11 @@ export const renderPolygonMasks = (
  * Renders the binary mask associated with a detection
  *
  */
-export const renderBinaryMasks = (binaryMask: number[][], context: CanvasRenderingContext2D, zoom : number) => {
+export const renderBinaryMasks = (
+  binaryMask: number[][],
+  context: CanvasRenderingContext2D,
+  zoom: number,
+) => {
   if (!binaryMask?.length) return;
   else if (binaryMask[0].length === 0) return;
 
@@ -328,4 +332,132 @@ export const renderBinaryMasks = (binaryMask: number[][], context: CanvasRenderi
       }
     }
   context.imageSmoothingEnabled = false;
+};
+
+/**
+ * Recalculates the anchor points of a polygon mask
+ *
+ * @param boundingBox - Bounding box data formatted as [x_start, y_start, x_end, y_end]
+ * @param polygonCoords - List of handles, i.e., the vertices, of a polygon
+ * @returns Array<Point>
+ */
+const calculateMaskAnchorPoints = (
+  boundingBox: BoundingBox,
+  polygonCoords: Array<Point>,
+): Array<Point> => {
+  const xDist = boundingBox[2] - boundingBox[0];
+  const yDist = boundingBox[3] - boundingBox[1];
+  polygonCoords.forEach((point) => {
+    point.anchor.top = ((boundingBox[3] - point.y) / yDist) * 100;
+    point.anchor.bottom = ((point.y - boundingBox[1]) / yDist) * 100;
+    point.anchor.left = ((point.x - boundingBox[0]) / xDist) * 100;
+    point.anchor.right = ((boundingBox[2] - point.x) / xDist) * 100;
+  });
+  return polygonCoords;
+};
+
+/**
+ * Calculates the coordinates of the bounding box for a given polygon
+ *
+ * @param boundingBox - Bounding box data formatted as [x_start, y_start, x_end, y_end]
+ * @param polygonData - List of handles, i.e., the vertices, of a polygon
+ * @returns newPolygonData with updated points based on anchor points
+ */
+export const calculatePolygonMask = (
+  boundingBox: BoundingBox,
+  polygonData: Array<Point>,
+): Array<Point> => {
+  let newPolygonData = JSON.parse(JSON.stringify(polygonData)) as Array<Point>;
+  const xDist = boundingBox[2] - boundingBox[0];
+  const yDist = boundingBox[3] - boundingBox[1];
+  newPolygonData.forEach((point) => {
+    if (point.anchor.left !== 0 && point.anchor.right !== 0) {
+      point.x = boundingBox[0] + (xDist * point.anchor.left) / 100;
+    } else if (point.anchor.right === 0) {
+      point.x = boundingBox[2];
+    } else if (point.anchor.left === 0) {
+      point.x = boundingBox[0];
+    }
+    if (point.anchor.top !== 0 && point.anchor.bottom !== 0) {
+      point.y = boundingBox[1] + (yDist * point.anchor.bottom) / 100;
+    } else if (point.anchor.bottom === 0) {
+      point.y = boundingBox[1];
+    } else if (point.anchor.top === 0) {
+      point.y = boundingBox[3];
+    }
+  });
+  newPolygonData = calculateMaskAnchorPoints(boundingBox, newPolygonData);
+  return newPolygonData;
+};
+
+export interface CornerstoneHandle {
+  start: number;
+  end: number;
+  start_prima: number;
+  end_prima: number;
+  hasMoved: boolean;
+  x: number;
+  y: number;
 }
+
+/**
+ * Recalculates the four corners of a rectangle based on the coordinates of the corner being moved
+ *
+ * @param  cornerList - Rectangle corners' coordinates
+ * @returns - Recalculated coordinates
+ */
+export const recalculateRectangle = (
+  cornerList: Record<string, CornerstoneHandle>,
+) => {
+  const cornerKeys = Object.keys(cornerList);
+  let movingCornerKey;
+  let movingCornerKeyIndex;
+  for (let i = 0; i < cornerKeys.length; i++) {
+    if (cornerList[cornerKeys[i]].hasMoved === true) {
+      movingCornerKeyIndex = i;
+      movingCornerKey = cornerKeys[i];
+      break;
+    }
+  }
+  if (movingCornerKey === undefined) {
+    return cornerList;
+  }
+
+  if (movingCornerKeyIndex === undefined) return;
+
+  const newRectDiagonal = movingCornerKey.includes('start')
+    ? [movingCornerKey, cornerKeys[movingCornerKeyIndex + 1]]
+    : [cornerKeys[movingCornerKeyIndex - 1], movingCornerKey];
+
+  const secondDiagonalFirstIndex = movingCornerKey.includes('prima') ? 0 : 2;
+  cornerList[cornerKeys[secondDiagonalFirstIndex]].x =
+    cornerList[newRectDiagonal[0]].x;
+  cornerList[cornerKeys[secondDiagonalFirstIndex]].y =
+    cornerList[newRectDiagonal[1]].y;
+  cornerList[cornerKeys[secondDiagonalFirstIndex + 1]].x =
+    cornerList[newRectDiagonal[1]].x;
+  cornerList[cornerKeys[secondDiagonalFirstIndex + 1]].y =
+    cornerList[newRectDiagonal[0]].y;
+
+  return cornerList;
+};
+
+/**
+ * Indicates whether a given point is inside a rectangle or not
+ *
+ * @static
+ * @param {Array<number>} point - 2D point defined as a pair of coordinates (x,y)
+ * @param {Array<number>} rect - Array that hold four float values representing the two end-points of a rectangle's
+ *     diagonal
+ * @returns {boolean} - True if the point is inside the rectangle; false otherwise
+ */
+export const pointInRect = (point: Coordinate2D, rect: number[]) => {
+  // [x0, y0, width, height]
+  // [0, 1, 2, 3]
+  return (
+    point.x >= rect[0] &&
+    point.x <= rect[0] + rect[2] &&
+    point.y >= rect[1] &&
+    point.y <= rect[1] + rect[3]
+  );
+};
