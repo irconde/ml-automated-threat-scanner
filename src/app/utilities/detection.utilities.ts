@@ -311,7 +311,11 @@ export const renderPolygonMasks = (
  * Renders the binary mask associated with a detection
  *
  */
-export const renderBinaryMasks = (binaryMask: number[][], context: CanvasRenderingContext2D, zoom : number) => {
+export const renderBinaryMasks = (
+  binaryMask: number[][],
+  context: CanvasRenderingContext2D,
+  zoom: number,
+) => {
   if (!binaryMask?.length) return;
   else if (binaryMask[0].length === 0) return;
 
@@ -328,4 +332,16 @@ export const renderBinaryMasks = (binaryMask: number[][], context: CanvasRenderi
       }
     }
   context.imageSmoothingEnabled = false;
-}
+};
+
+export const pointInRect = (
+  point: { x: number; y: number },
+  rect: number[],
+) => {
+  return (
+    point.x >= rect[0] &&
+    point.x <= rect[0] + rect[2] &&
+    point.y >= rect[1] &&
+    point.y <= rect[1] + rect[3]
+  );
+};

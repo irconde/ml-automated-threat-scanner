@@ -14,6 +14,7 @@ import {
   limitCharCount,
 } from '../utilities/text.utilities';
 import {
+  pointInRect,
   renderBinaryMasks,
   renderPolygonMasks,
 } from '../utilities/detection.utilities';
@@ -29,6 +30,7 @@ export class CornerstoneDirective implements AfterViewInit {
   private renderListener: (() => void) | undefined = undefined;
   private readonly CS_EVENT = {
     RENDER: 'cornerstoneimagerendered',
+    CLICK: 'cornerstonetoolsmouseclick',
   };
 
   constructor(public elementRef: ElementRef) {
@@ -52,12 +54,39 @@ export class CornerstoneDirective implements AfterViewInit {
         );
         this.renderListener = handleImageRender;
       };
+      const onMouseClicked = (event: Event): void => {
+        console.log(detectionData);
+        // @ts-ignore
+        if ('detail' in event && 'currentPoints' in event.detail) {
+          // @ts-ignore
+          if ('canvas' in event.detail.currentPoints) {
+            // @ts-ignore
+            if (
+              // @ts-ignore
+              'x' in event.detail.currentPoints.canvas &&
+              'y' in event.detail.currentPoints.canvas
+            ) {
+              const mousePos = cornerstone.canvasToPixel(this.element, {
+                _canvasCoordinateBrand: '',
+                x: <number>event.detail.currentPoints.canvas.x,
+                y: <number>event.detail.currentPoints.canvas.y,
+              });
+              detectionData.forEach((detection) => {
+                if (pointInRect(mousePos, detection.boundingBox)) {
+                  console.log(detection);
+                }
+              });
+            }
+          }
+        }
+      };
       if (this.renderListener)
         this.element.removeEventListener(
           this.CS_EVENT.RENDER,
           this.renderListener,
         );
       this.element.addEventListener(this.CS_EVENT.RENDER, handleImageRender);
+      this.element.addEventListener(this.CS_EVENT.CLICK, onMouseClicked);
     }
   }
 
