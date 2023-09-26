@@ -68,14 +68,20 @@ export class CornerstoneDirective implements AfterViewInit {
             x: x,
             y: y,
           });
-          detectionData.forEach((detection) => {
-            if (pointInRect(mousePos, detection.boundingBox)) {
+          let detClicked = false;
+          for (let i = 0; i < detectionData.length; i++) {
+            if (pointInRect(mousePos, detectionData[i].boundingBox)) {
               this.detectionsService.selectDetection(
-                detection.uuid,
-                detection.viewpoint,
+                detectionData[i].uuid,
+                detectionData[i].viewpoint,
               );
+              detClicked = true;
+              break;
             }
-          });
+          }
+          if (!detClicked) {
+            this.detectionsService.clearSelectedDetection();
+          }
           updateCornerstoneViewport();
         }
       };

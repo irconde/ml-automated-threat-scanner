@@ -58,5 +58,12 @@ export class DetectionsService {
 
   clearSelectedDetection(): void {
     this.selectedDetection = null;
+    this.detectionData.value.top.forEach((det) => {
+      det.selected = false;
+    });
+
+    this.detectionData.value.side.forEach((det) => {
+      det.selected = false;
+    });
   }
 }
