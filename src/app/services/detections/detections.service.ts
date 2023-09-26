@@ -35,6 +35,21 @@ export class DetectionsService {
 
     this.selectedDetection =
       allDetections.find((detection) => detection.uuid === detectionID) || null;
+
+    if (this.selectedDetection !== null) {
+      this.selectedDetection.selected = true;
+      this.detectionData.value.top.forEach((det) => {
+        if (det.uuid !== this.selectedDetection?.uuid) {
+          det.selected = false;
+        }
+      });
+
+      this.detectionData.value.side.forEach((det) => {
+        if (det.uuid !== this.selectedDetection?.uuid) {
+          det.selected = false;
+        }
+      });
+    }
   }
 
   getSelectedDetection(): Detection | null {

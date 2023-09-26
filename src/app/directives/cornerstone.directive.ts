@@ -125,7 +125,7 @@ export class CornerstoneDirective implements AfterViewInit {
     zoom = 1,
   ): void {
     // TODO: get the actual selected detection
-    const SELECTED_DETECTION = detections[0];
+    const SELECTED_DETECTION = this.detectionsService.getSelectedDetection();
     // TODO: get the actual selected category
     const SELECTED_CATEGORY = '';
     // TODO: get the actual edition mode
@@ -145,8 +145,8 @@ export class CornerstoneDirective implements AfterViewInit {
 
       const renderColor = this.getDetectionRenderColor(
         detection,
-        SELECTED_DETECTION,
         SELECTED_CATEGORY,
+        SELECTED_DETECTION,
       );
       context.strokeStyle = renderColor;
       context.fillStyle = renderColor;
@@ -201,15 +201,15 @@ export class CornerstoneDirective implements AfterViewInit {
    */
   private getDetectionRenderColor(
     detection: Detection,
-    selectedDetection: Detection,
     selectedCategory: string,
+    selectedDetection: Detection | null,
   ): string {
     let renderColor = detection.color;
     if (detection.selected || detection.categorySelected) {
       renderColor = DETECTION_STYLE.SELECTED_COLOR;
     }
     if (selectedDetection !== null && selectedCategory === '') {
-      if (selectedDetection.id !== detection.id) {
+      if (selectedDetection?.uuid !== detection.uuid) {
         renderColor = hexToCssRgba(detection.color);
       }
     }
