@@ -6,7 +6,7 @@ import {
   Input,
 } from '@angular/core';
 import { ViewportData } from '../../models/viewport';
-import { Detection } from '../../models/detection';
+import { CornerstoneClickEvent, Detection } from '../../models/detection';
 import { DETECTION_STYLE, EDITION_MODE } from '../../enums/detection-styles';
 import {
   getTextLabelSize,
@@ -19,6 +19,7 @@ import {
   renderPolygonMasks,
 } from '../utilities/detection.utilities';
 import { cornerstone, cornerstoneTools } from '../csSetup';
+import { DetectionsService } from '../services/detections/detections.service';
 
 @Directive({
   selector: '[csDirective]',
@@ -33,7 +34,10 @@ export class CornerstoneDirective implements AfterViewInit {
     CLICK: 'cornerstonetoolsmouseclick',
   };
 
-  constructor(public elementRef: ElementRef) {
+  constructor(
+    public elementRef: ElementRef,
+    private detectionsService: DetectionsService,
+  ) {
     this.element = elementRef.nativeElement;
   }
 
@@ -54,30 +58,26 @@ export class CornerstoneDirective implements AfterViewInit {
         );
         this.renderListener = handleImageRender;
       };
-      const onMouseClicked = (event: Event): void => {
-        console.log(detectionData);
-        // @ts-ignore
-        if ('detail' in event && 'currentPoints' in event.detail) {
-          // @ts-ignore
-          if ('canvas' in event.detail.currentPoints) {
-            // @ts-ignore
-            if (
-              // @ts-ignore
-              'x' in event.detail.currentPoints.canvas &&
-              'y' in event.detail.currentPoints.canvas
-            ) {
-              const mousePos = cornerstone.canvasToPixel(this.element, {
-                _canvasCoordinateBrand: '',
-                x: <number>event.detail.currentPoints.canvas.x,
-                y: <number>event.detail.currentPoints.canvas.y,
-              });
-              detectionData.forEach((detection) => {
-                if (pointInRect(mousePos, detection.boundingBox)) {
-                  console.log(detection);
-                }
-              });
+      const onMouseClicked = (event: CornerstoneClickEvent): void => {
+        if (
+          event.detail &&
+          event.detail.currentPoints &&
+          event.detail.currentPoints.canvas
+        ) {
+          const { x, y } = event.detail.currentPoints.canvas;
+          const mousePos = cornerstone.canvasToPixel(this.element, {
+            _canvasCoordinateBrand: '',
+            x: x,
+            y: y,
+          });
+          detectionData.forEach((detection) => {
+            if (pointInRect(mousePos, detection.boundingBox)) {
+              this.detectionsService.selectDetection(
+                detection.uuid,
+                detection.viewpoint,
+              );
             }
-          }
+          });
         }
       };
       if (this.renderListener)
