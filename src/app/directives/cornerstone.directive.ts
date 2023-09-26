@@ -20,6 +20,7 @@ import {
 } from '../utilities/detection.utilities';
 import { cornerstone, cornerstoneTools } from '../csSetup';
 import { DetectionsService } from '../services/detections/detections.service';
+import { updateCornerstoneViewport } from '../utilities/cornerstone.utilities';
 
 @Directive({
   selector: '[csDirective]',
@@ -59,12 +60,9 @@ export class CornerstoneDirective implements AfterViewInit {
         this.renderListener = handleImageRender;
       };
       const onMouseClicked = (event: CornerstoneClickEvent): void => {
-        if (
-          event.detail &&
-          event.detail.currentPoints &&
-          event.detail.currentPoints.canvas
-        ) {
-          const { x, y } = event.detail.currentPoints.canvas;
+        const canvas = event.detail?.currentPoints?.canvas;
+        if (canvas) {
+          const { x, y } = canvas;
           const mousePos = cornerstone.canvasToPixel(this.element, {
             _canvasCoordinateBrand: '',
             x: x,
@@ -78,6 +76,7 @@ export class CornerstoneDirective implements AfterViewInit {
               );
             }
           });
+          updateCornerstoneViewport();
         }
       };
       if (this.renderListener)
