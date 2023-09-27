@@ -30,6 +30,8 @@ export class CornerstoneDirective implements AfterViewInit {
   element: HTMLElement;
   currentIndex = 0;
   private renderListener: (() => void) | undefined = undefined;
+  private clickListener: ((event: CornerstoneClickEvent) => void) | undefined =
+    undefined;
   private readonly CS_EVENT = {
     RENDER: 'cornerstoneimagerendered',
     CLICK: 'cornerstonetoolsmouseclick',
@@ -52,6 +54,7 @@ export class CornerstoneDirective implements AfterViewInit {
 
     if (context) {
       const handleImageRender = () => {
+        console.log('render');
         this.renderDetections(
           context,
           detectionData,
@@ -84,12 +87,19 @@ export class CornerstoneDirective implements AfterViewInit {
           }
           updateCornerstoneViewport();
         }
+
+        this.clickListener = onMouseClicked;
       };
-      if (this.renderListener)
+      if (this.renderListener) {
         this.element.removeEventListener(
           this.CS_EVENT.RENDER,
           this.renderListener,
         );
+      }
+
+      if (this.clickListener) {
+        this.element.removeEventListener(this.CS_EVENT.CLICK, onMouseClicked);
+      }
       this.element.addEventListener(this.CS_EVENT.RENDER, handleImageRender);
       this.element.addEventListener(this.CS_EVENT.CLICK, onMouseClicked);
     }
