@@ -50,6 +50,7 @@ export class CornerstoneDirective implements AfterViewInit {
     cornerstone.enable(this.element);
     const enabledElement = cornerstone.getEnabledElement(this.element);
     const context = enabledElement.canvas?.getContext('2d');
+    this.detectionsService.clearSelectedDetection();
     this.displayImage(imageData);
 
     if (context) {
