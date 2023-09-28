@@ -6,7 +6,7 @@ import {
   Input,
 } from '@angular/core';
 import { ViewportData } from '../../models/viewport';
-import { Detection } from '../../models/detection';
+import { CornerstoneClickEvent, Detection } from '../../models/detection';
 import { DETECTION_STYLE, EDITION_MODE } from '../../enums/detection-styles';
 import {
   getTextLabelSize,
@@ -14,10 +14,13 @@ import {
   limitCharCount,
 } from '../utilities/text.utilities';
 import {
+  pointInRect,
   renderBinaryMasks,
   renderPolygonMasks,
 } from '../utilities/detection.utilities';
 import { cornerstone, cornerstoneTools } from '../csSetup';
+import { DetectionsService } from '../services/detections/detections.service';
+import { updateCornerstoneViewport } from '../utilities/cornerstone.utilities';
 
 @Directive({
   selector: '[csDirective]',
@@ -27,11 +30,17 @@ export class CornerstoneDirective implements AfterViewInit {
   element: HTMLElement;
   currentIndex = 0;
   private renderListener: (() => void) | undefined = undefined;
+  private clickListener: ((event: CornerstoneClickEvent) => void) | undefined =
+    undefined;
   private readonly CS_EVENT = {
     RENDER: 'cornerstoneimagerendered',
+    CLICK: 'cornerstonetoolsmouseclick',
   };
 
-  constructor(public elementRef: ElementRef) {
+  constructor(
+    public elementRef: ElementRef,
+    private detectionsService: DetectionsService,
+  ) {
     this.element = elementRef.nativeElement;
   }
 
@@ -41,10 +50,12 @@ export class CornerstoneDirective implements AfterViewInit {
     cornerstone.enable(this.element);
     const enabledElement = cornerstone.getEnabledElement(this.element);
     const context = enabledElement.canvas?.getContext('2d');
+    this.detectionsService.clearSelectedDetection();
     this.displayImage(imageData);
 
     if (context) {
       const handleImageRender = () => {
+        console.log('render');
         this.renderDetections(
           context,
           detectionData,
@@ -52,12 +63,46 @@ export class CornerstoneDirective implements AfterViewInit {
         );
         this.renderListener = handleImageRender;
       };
-      if (this.renderListener)
+      const onMouseClicked = (event: CornerstoneClickEvent): void => {
+        const canvas = event.detail?.currentPoints?.canvas;
+        if (canvas) {
+          const { x, y } = canvas;
+          const mousePos = cornerstone.canvasToPixel(this.element, {
+            _canvasCoordinateBrand: '',
+            x: x,
+            y: y,
+          });
+          let detClicked = false;
+          for (let i = 0; i < detectionData.length; i++) {
+            if (pointInRect(mousePos, detectionData[i].boundingBox)) {
+              this.detectionsService.selectDetection(
+                detectionData[i].uuid,
+                detectionData[i].viewpoint,
+              );
+              detClicked = true;
+              break;
+            }
+          }
+          if (!detClicked) {
+            this.detectionsService.clearSelectedDetection();
+          }
+          updateCornerstoneViewport();
+        }
+
+        this.clickListener = onMouseClicked;
+      };
+      if (this.renderListener) {
         this.element.removeEventListener(
           this.CS_EVENT.RENDER,
           this.renderListener,
         );
+      }
+
+      if (this.clickListener) {
+        this.element.removeEventListener(this.CS_EVENT.CLICK, onMouseClicked);
+      }
       this.element.addEventListener(this.CS_EVENT.RENDER, handleImageRender);
+      this.element.addEventListener(this.CS_EVENT.CLICK, onMouseClicked);
     }
   }
 
@@ -96,7 +141,7 @@ export class CornerstoneDirective implements AfterViewInit {
     zoom = 1,
   ): void {
     // TODO: get the actual selected detection
-    const SELECTED_DETECTION = detections[0];
+    const SELECTED_DETECTION = this.detectionsService.getSelectedDetection();
     // TODO: get the actual selected category
     const SELECTED_CATEGORY = '';
     // TODO: get the actual edition mode
@@ -116,8 +161,8 @@ export class CornerstoneDirective implements AfterViewInit {
 
       const renderColor = this.getDetectionRenderColor(
         detection,
-        SELECTED_DETECTION,
         SELECTED_CATEGORY,
+        SELECTED_DETECTION,
       );
       context.strokeStyle = renderColor;
       context.fillStyle = renderColor;
@@ -172,15 +217,15 @@ export class CornerstoneDirective implements AfterViewInit {
    */
   private getDetectionRenderColor(
     detection: Detection,
-    selectedDetection: Detection,
     selectedCategory: string,
+    selectedDetection: Detection | null,
   ): string {
     let renderColor = detection.color;
     if (detection.selected || detection.categorySelected) {
       renderColor = DETECTION_STYLE.SELECTED_COLOR;
     }
     if (selectedDetection !== null && selectedCategory === '') {
-      if (selectedDetection.id !== detection.id) {
+      if (selectedDetection?.uuid !== detection.uuid) {
         renderColor = hexToCssRgba(detection.color);
       }
     }
