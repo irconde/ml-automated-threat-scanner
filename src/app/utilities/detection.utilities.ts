@@ -37,7 +37,7 @@ export const getMasks = (
     ];
   }
 
-  return { binaryMask, polygonMask };
+  return {binaryMask, polygonMask};
 };
 
 /**
@@ -50,7 +50,7 @@ const coordinatesToPolygonData = (coordinates: number[]): PolygonData => {
   const data: PolygonData = {};
   let count = 0;
   for (let i = 0; i < coordinates.length; i += 2) {
-    data[count] = { x: coordinates[i], y: coordinates[i + 1] };
+    data[count] = {x: coordinates[i], y: coordinates[i + 1]};
     count++;
   }
   return data;
@@ -461,3 +461,4 @@ export const pointInRect = (point: Coordinate2D, rect: number[]) => {
     point.y <= rect[1] + rect[3]
   );
 };
+

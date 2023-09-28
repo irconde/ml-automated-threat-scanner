@@ -1,10 +1,12 @@
 import {AfterViewInit, Directive, ElementRef, HostListener, Input,} from '@angular/core';
 import {ViewportData} from '../../models/viewport';
-import {Coordinate2D, Detection, Dimension2D} from '../../models/detection';
+import {Coordinate2D, CornerstoneClickEvent, Detection, Dimension2D,} from '../../models/detection';
 import {DETECTION_STYLE} from '../../enums/detection-styles';
 import {getTextLabelSize, hexToCssRgba, limitCharCount,} from '../utilities/text.utilities';
-import {renderBinaryMasks, renderPolygonMasks,} from '../utilities/detection.utilities';
+import {pointInRect, renderBinaryMasks, renderPolygonMasks,} from '../utilities/detection.utilities';
 import {cornerstone, cornerstoneTools} from '../csSetup';
+import {DetectionsService} from '../services/detections/detections.service';
+import {updateCornerstoneViewport} from '../utilities/cornerstone.utilities';
 import BoundingBoxDrawingTool from '../utilities/cornerstone-tools/BoundingBoxDrawingTool';
 import {EditionMode} from '../../enums/cornerstone';
 import {renderBboxCrosshair} from '../utilities/drawing.utilities';
@@ -24,10 +26,17 @@ export class CornerstoneDirective implements AfterViewInit {
   private mousePosition: Coordinate2D = { x: 0, y: 0 };
   private imageDimensions: Dimension2D = { width: 0, height: 0 };
   private context: CanvasRenderingContext2D | null | undefined = undefined;
+  private clickListener: ((event: CornerstoneClickEvent) => void) | undefined =
+    undefined;
+  private readonly CS_EVENT = {
+    RENDER: 'cornerstoneimagerendered',
+    CLICK: 'cornerstonetoolsmouseclick',
+  };
 
   constructor(
     public elementRef: ElementRef,
     private cornerstoneService: CornerstoneService,
+    private detectionsService: DetectionsService,
   ) {
     this.element = elementRef.nativeElement;
     // track the position of the mouse
@@ -46,6 +55,7 @@ export class CornerstoneDirective implements AfterViewInit {
     cornerstone.enable(this.element);
     const enabledElement = cornerstone.getEnabledElement(this.element);
     this.context = enabledElement.canvas?.getContext('2d');
+    this.detectionsService.clearSelectedDetection();
     this.displayImage(imageData);
     this.imageDimensions.height = imageData.height;
     this.imageDimensions.width = imageData.width;
@@ -68,15 +78,50 @@ export class CornerstoneDirective implements AfterViewInit {
         );
         this.renderListener = handleImageRender;
       };
-      if (this.renderListener)
+      const onMouseClicked = (event: CornerstoneClickEvent): void => {
+        const canvas = event.detail?.currentPoints?.canvas;
+        if (canvas) {
+          const { x, y } = canvas;
+          const mousePos = cornerstone.canvasToPixel(this.element, {
+            _canvasCoordinateBrand: '',
+            x: x,
+            y: y,
+          });
+          let detClicked = false;
+          for (let i = 0; i < detectionData.length; i++) {
+            if (pointInRect(mousePos, detectionData[i].boundingBox)) {
+              this.detectionsService.selectDetection(
+                detectionData[i].uuid,
+                detectionData[i].viewpoint,
+              );
+              detClicked = true;
+              break;
+            }
+          }
+          if (!detClicked) {
+            this.detectionsService.clearSelectedDetection();
+          }
+          updateCornerstoneViewport();
+        }
+
+        this.clickListener = onMouseClicked;
+      };
+      if (this.renderListener) {
         this.element.removeEventListener(
           cornerstone.EVENTS.IMAGE_RENDERED,
           this.renderListener,
         );
-      this.element.addEventListener(
-        cornerstone.EVENTS.IMAGE_RENDERED,
-        handleImageRender,
-      );
+        this.element.addEventListener(
+          cornerstone.EVENTS.IMAGE_RENDERED,
+          handleImageRender,
+        );
+      }
+
+      if (this.clickListener) {
+        this.element.removeEventListener(this.CS_EVENT.CLICK, onMouseClicked);
+      }
+      this.element.addEventListener(this.CS_EVENT.RENDER, handleImageRender);
+      this.element.addEventListener(this.CS_EVENT.CLICK, onMouseClicked);
     }
   }
 
@@ -117,7 +162,7 @@ export class CornerstoneDirective implements AfterViewInit {
     zoom = 1,
   ): void {
     // TODO: get the actual selected detection
-    const SELECTED_DETECTION = detections[0];
+    const SELECTED_DETECTION = this.detectionsService.getSelectedDetection();
     // TODO: get the actual selected category
     const SELECTED_CATEGORY = '';
     // TODO: get the actual edition mode
@@ -137,8 +182,8 @@ export class CornerstoneDirective implements AfterViewInit {
 
       const renderColor = this.getDetectionRenderColor(
         detection,
-        SELECTED_DETECTION,
         SELECTED_CATEGORY,
+        SELECTED_DETECTION,
       );
       context.strokeStyle = renderColor;
       context.fillStyle = renderColor;
@@ -193,15 +238,15 @@ export class CornerstoneDirective implements AfterViewInit {
    */
   private getDetectionRenderColor(
     detection: Detection,
-    selectedDetection: Detection,
     selectedCategory: string,
+    selectedDetection: Detection | null,
   ): string {
     let renderColor = detection.color;
     if (detection.selected || detection.categorySelected) {
       renderColor = DETECTION_STYLE.SELECTED_COLOR;
     }
     if (selectedDetection !== null && selectedCategory === '') {
-      if (selectedDetection.id !== detection.id) {
+      if (selectedDetection?.uuid !== detection.uuid) {
         renderColor = hexToCssRgba(detection.color);
       }
     }

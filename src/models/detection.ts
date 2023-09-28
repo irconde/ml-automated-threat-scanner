@@ -46,3 +46,14 @@ interface DetectionStateProps {
 }
 
 export type Detection = RawDetection & DetectionStateProps;
+
+export interface CornerstoneClickEvent extends Event {
+  detail?: {
+    currentPoints?: {
+      canvas?: {
+        x: number;
+        y: number;
+      };
+    };
+  };
+}
