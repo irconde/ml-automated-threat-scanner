@@ -60,7 +60,7 @@ export class DetectionsService {
     bbox: BoundingBox,
     area: number,
     viewportName: keyof DetectionsMap,
-  ) {
+  ): Detection {
     const newDetection: Detection = {
       selected: false,
       categorySelected: false,
@@ -83,6 +83,8 @@ export class DetectionsService {
       ...this.detectionData.value,
       [viewportName]: [...this.detectionData.value[viewportName], newDetection],
     });
+
+    return newDetection;
   }
 
   clearSelectedDetection(): void {

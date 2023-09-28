@@ -14,15 +14,10 @@ import {
 } from '../../models/detection';
 import { DETECTION_STYLE } from '../../enums/detection-styles';
 import {
-  getTextLabelSize,
-  hexToCssRgba,
-  limitCharCount,
-} from '../utilities/text.utilities';
-import {
+  displayDetection,
   getBboxFromHandles,
+  getBoundingBoxArea,
   pointInRect,
-  renderBinaryMasks,
-  renderPolygonMasks,
 } from '../utilities/detection.utilities';
 import { cornerstone, cornerstoneTools } from '../csSetup';
 import { DetectionsService } from '../services/detections/detections.service';
@@ -43,6 +38,10 @@ import { CS_DEFAULT_CONFIGURATION } from '../../models/cornerstone';
 import { renderBboxCrosshair } from '../utilities/drawing.utilities';
 // import SegmentationDrawingTool from '../utilities/cornerstone-tools/SegmentationDrawingTool';
 // import AnnotationMovementTool from '../utilities/cornerstone-tools/AnnotationMovementTool';
+// TODO: get the actual selected category
+const SELECTED_CATEGORY = '';
+// TODO: get the actual edition mode
+const CURRENT_EDITION_MODE = EditionMode.NoTool;
 
 @Directive({
   selector: '[csDirective]',
@@ -62,6 +61,7 @@ export class CornerstoneDirective implements AfterViewInit {
     RENDER: 'cornerstoneimagerendered',
     CLICK: 'cornerstonetoolsmouseclick',
   };
+  private detections: Detection[] = [];
 
   constructor(
     public elementRef: ElementRef,
@@ -82,11 +82,12 @@ export class CornerstoneDirective implements AfterViewInit {
     });
     this.detectionsService.getDetectionData().subscribe((detections) => {
       console.log(detections);
+      this.detections = detections[this.viewportName!];
     });
   }
 
   @Input()
-  set image({ imageData, detectionData }: ViewportData) {
+  set image({ imageData }: ViewportData) {
     if (!imageData?.imageId) return;
     cornerstone.enable(this.element);
     const enabledElement = cornerstone.getEnabledElement(this.element);
@@ -101,11 +102,7 @@ export class CornerstoneDirective implements AfterViewInit {
         if (!this.context) {
           throw Error('Context is not set in image render handler');
         }
-        this.renderDetections(
-          this.context,
-          detectionData,
-          enabledElement.viewport?.scale,
-        );
+        this.renderDetections(this.context, enabledElement.viewport?.scale);
         if (this.isAnnotating()) {
           renderBboxCrosshair(
             this.context,
@@ -126,11 +123,11 @@ export class CornerstoneDirective implements AfterViewInit {
             y: y,
           });
           let detClicked = false;
-          for (let i = 0; i < detectionData.length; i++) {
-            if (pointInRect(mousePos, detectionData[i].boundingBox)) {
+          for (let i = 0; i < this.detections.length; i++) {
+            if (pointInRect(mousePos, this.detections[i].boundingBox)) {
               this.detectionsService.selectDetection(
-                detectionData[i].uuid,
-                detectionData[i].viewpoint,
+                this.detections[i].uuid,
+                this.detections[i].viewpoint,
               );
               detClicked = true;
               break;
@@ -200,70 +197,20 @@ export class CornerstoneDirective implements AfterViewInit {
   private handleBoundingBoxDetectionCreation() {
     const createdBoundingBox = getCreatedBoundingBox(this.element);
     if (createdBoundingBox === undefined) return;
-    console.log(createdBoundingBox);
+
     const bbox = getBboxFromHandles(createdBoundingBox.handles);
-    // this.detectionsService
-    console.log(bbox);
-    const area = Math.abs((bbox[0] - bbox[2]) * (bbox[1] - bbox[3]));
-    // // Converting from
-    // // [x_0, y_0, x_f, y_f]
-    // // to
-    // // [x_0, y_0, width, height]
-    bbox[2] = bbox[2] - bbox[0];
-    bbox[3] = bbox[3] - bbox[1];
+    const area = getBoundingBoxArea(bbox);
+
     this.cornerstoneService.setCsConfiguration({
       cornerstoneMode: CornerstoneMode.Selection,
       annotationMode: AnnotationMode.NoTool,
     });
-    resetCornerstoneTool(ToolNames.BoundingBox, this.element);
 
-    this.detectionsService.addDetection(bbox, area, this.viewportName!);
-    cornerstone.updateImage(this.element, true);
-    // let bbox = Utils.getBboxFromHandles(
-    //   handles.start,
-    //   handles.end
-    // );
-    // const area = Math.abs(
-    //   (bbox[0] - bbox[2]) * (bbox[1] - bbox[3])
-    // );
-    // // Converting from
-    // // [x_0, y_0, x_f, y_f]
-    // // to
-    // // [x_0, y_0, width, height]
-    // bbox[2] = bbox[2] - bbox[0];
-    // bbox[3] = bbox[3] - bbox[1];
-    // dispatch(
-    //   updateAnnotationMode(
-    //     constants.annotationMode.NO_TOOL
-    //   )
-    // );
-    // dispatch(
-    //   updateCornerstoneMode(
-    //     constants.cornerstoneMode.SELECTION
-    //   )
-    // );
-    // if (area > 0) {
-    //   if (annotationRef.current.length === 0) {
-    //     dispatch(setSideMenu(false));
-    //   }
-    //   Utils.dispatchAndUpdateImage(
-    //     dispatch,
-    //     addAnnotation,
-    //     {
-    //       bbox,
-    //       area,
-    //       segmentation: [],
-    //     }
-    //   );
-    //   // show edit label when annotation is added
-    //   event.stopPropagation();
-    //   dispatch(updateAnnotationContextVisibility(true));
-    //   setTimeout(
-    //     () => dispatch(updateEditLabelVisibility(true)),
-    //     0
-    //   );
-    // }
-    // Utils.resetCornerstoneTools(viewportRef.current);
+    if (area > 0) {
+      this.detectionsService.addDetection(bbox, area, this.viewportName!);
+      cornerstone.updateImage(this.element, false);
+    }
+    resetCornerstoneTool(ToolNames.BoundingBox, this.element);
   }
 
   /**
@@ -279,107 +226,22 @@ export class CornerstoneDirective implements AfterViewInit {
   /**
    * Draws the detections on the given rendering context
    */
-  private renderDetections(
-    context: CanvasRenderingContext2D,
-    detections: Detection[],
-    zoom = 1,
-  ): void {
-    // TODO: get the actual selected detection
-    const SELECTED_DETECTION = this.detectionsService.getSelectedDetection();
-    // TODO: get the actual selected category
-    const SELECTED_CATEGORY = '';
-    // TODO: get the actual edition mode
-    const CURRENT_EDITION_MODE = EditionMode.NoTool;
+  private renderDetections(context: CanvasRenderingContext2D, zoom = 1): void {
+    const selectedDetection = this.detectionsService.getSelectedDetection();
 
     const { BORDER_WIDTH, FONT_DETAILS } = DETECTION_STYLE;
     context.font = FONT_DETAILS.get(zoom);
     context.lineWidth = BORDER_WIDTH / zoom;
 
-    detections.forEach((detection) => {
-      if (
-        !detection.visible ||
-        (detection.selected && CURRENT_EDITION_MODE !== EditionMode.NoTool)
-      ) {
-        return;
-      }
-
-      const renderColor = this.getDetectionRenderColor(
-        detection,
+    this.detections.forEach((det) =>
+      displayDetection(
+        context,
+        det,
+        selectedDetection,
         SELECTED_CATEGORY,
-        SELECTED_DETECTION,
-      );
-      context.strokeStyle = renderColor;
-      context.fillStyle = renderColor;
-
-      const [x, y, w, h] = detection.boundingBox;
-
-      context.strokeRect(x, y, w, h);
-
-      context.globalAlpha = 0.5;
-      if ('polygonMask' in detection && detection.polygonMask.length) {
-        renderPolygonMasks(context, detection.polygonMask);
-      } else if (detection.binaryMask) {
-        renderBinaryMasks(detection.binaryMask, context, zoom);
-      }
-
-      context.globalAlpha = 1.0;
-
-      this.renderDetectionLabel(context, detection, zoom);
-    });
-  }
-
-  /**
-   * Draws the detection label with the font size based on the zoom level
-   */
-  private renderDetectionLabel(
-    context: CanvasRenderingContext2D,
-    detection: Detection,
-    zoom: number,
-  ) {
-    const labelText = limitCharCount(detection.className);
-    const { LABEL_PADDING, LABEL_HEIGHT } = DETECTION_STYLE;
-    const { width, height } = getTextLabelSize(
-      context,
-      labelText,
-      LABEL_PADDING.LEFT,
-      zoom,
-      LABEL_HEIGHT,
+        CURRENT_EDITION_MODE,
+        zoom,
+      ),
     );
-
-    const [x, y] = detection.boundingBox;
-    context.fillRect(x - context.lineWidth / 2, y - height, width, height);
-    context.fillStyle = DETECTION_STYLE.LABEL_TEXT_COLOR;
-    context.fillText(
-      labelText,
-      x + (LABEL_PADDING.LEFT - 1) / zoom,
-      y - LABEL_PADDING.BOTTOM / zoom,
-    );
-  }
-
-  /**
-   * Returns the detection color based on whether it's selected, or another detection is selected
-   */
-  private getDetectionRenderColor(
-    detection: Detection,
-    selectedCategory: string,
-    selectedDetection: Detection | null,
-  ): string {
-    let renderColor = detection.color;
-    if (detection.selected || detection.categorySelected) {
-      renderColor = DETECTION_STYLE.SELECTED_COLOR;
-    }
-    if (selectedDetection !== null && selectedCategory === '') {
-      if (selectedDetection?.uuid !== detection.uuid) {
-        renderColor = hexToCssRgba(detection.color);
-      }
-    }
-    if (
-      selectedCategory !== '' &&
-      selectedCategory !== detection.categoryName
-    ) {
-      renderColor = hexToCssRgba(detection.color);
-    }
-
-    return renderColor;
   }
 }

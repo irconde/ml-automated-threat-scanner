@@ -1,10 +1,18 @@
 import {
   BoundingBox,
   Coordinate2D,
+  Detection,
   Point,
   PolygonData,
 } from '../../models/detection';
 import { CornerstoneHandles } from '../../models/cornerstone';
+import { EditionMode } from '../../enums/cornerstone';
+import {
+  getTextLabelSize,
+  hexToCssRgba,
+  limitCharCount,
+} from './text.utilities';
+import { DETECTION_STYLE } from '../../enums/detection-styles';
 
 /**
  * Converts COCO bbox to a bounding box
@@ -15,6 +23,16 @@ import { CornerstoneHandles } from '../../models/cornerstone';
 export const cocoBoxToBoundingBox = (bbox: BoundingBox): BoundingBox => {
   bbox[2] = bbox[0] + bbox[2];
   bbox[3] = bbox[1] + bbox[3];
+  return bbox;
+};
+
+/**
+ * Converts [x, y, x_f, y_f] to [x, y, width, height]
+ * @param bbox
+ */
+export const pointsBoxToDimensionsBox = (bbox: BoundingBox): BoundingBox => {
+  bbox[2] = bbox[2] - bbox[0];
+  bbox[3] = bbox[3] - bbox[1];
   return bbox;
 };
 
@@ -472,16 +490,118 @@ export const pointInRect = (point: Coordinate2D, rect: number[]) => {
  * Given a cornerstone detection handles object, it returns the bounding box
  * @param start
  * @param end
+ * @returns bbox - [x, y, width, height]
  */
-export const getBboxFromHandles = ({ start, end }: CornerstoneHandles) => {
+export const getBboxFromHandles = ({
+  start,
+  end,
+}: CornerstoneHandles): BoundingBox => {
   // Fix flipped rectangle issues
+  let bbox: BoundingBox;
   if (start.x > end.x && start.y > end.y) {
-    return [end.x, end.y, start.x, start.y];
+    bbox = [end.x, end.y, start.x, start.y];
   } else if (start.x > end.x) {
-    return [end.x, start.y, start.x, end.y];
+    bbox = [end.x, start.y, start.x, end.y];
   } else if (start.y > end.y) {
-    return [start.x, end.y, end.x, start.y];
+    bbox = [start.x, end.y, end.x, start.y];
   } else {
-    return [start.x, start.y, end.x, end.y];
+    bbox = [start.x, start.y, end.x, end.y];
   }
+
+  return pointsBoxToDimensionsBox(bbox);
+};
+
+export const getBoundingBoxArea = (bbox: BoundingBox): number => {
+  return Math.abs((bbox[0] - bbox[2]) * (bbox[1] - bbox[3]));
+};
+
+export const displayDetection = (
+  context: CanvasRenderingContext2D,
+  detection: Detection,
+  selectedDetection: Detection | null,
+  selectedCategory: string,
+  editionMode: EditionMode,
+  zoom: number,
+) => {
+  if (
+    !detection.visible ||
+    (detection.selected && editionMode !== EditionMode.NoTool)
+  ) {
+    return;
+  }
+
+  const renderColor = getDetectionRenderColor(
+    detection,
+    selectedCategory,
+    selectedDetection,
+  );
+  context.strokeStyle = renderColor;
+  context.fillStyle = renderColor;
+
+  const [x, y, w, h] = detection.boundingBox;
+
+  context.strokeRect(x, y, w, h);
+
+  context.globalAlpha = 0.5;
+  if ('polygonMask' in detection && detection.polygonMask.length) {
+    renderPolygonMasks(context, detection.polygonMask);
+  } else if (detection.binaryMask) {
+    renderBinaryMasks(detection.binaryMask, context, zoom);
+  }
+
+  context.globalAlpha = 1.0;
+
+  renderDetectionLabel(context, detection, zoom);
+};
+
+/**
+ * Draws the detection label with the font size based on the zoom level
+ */
+export const renderDetectionLabel = (
+  context: CanvasRenderingContext2D,
+  detection: Detection,
+  zoom: number,
+) => {
+  const labelText = limitCharCount(detection.className);
+  const { LABEL_PADDING, LABEL_HEIGHT } = DETECTION_STYLE;
+  const { width, height } = getTextLabelSize(
+    context,
+    labelText,
+    LABEL_PADDING.LEFT,
+    zoom,
+    LABEL_HEIGHT,
+  );
+
+  const [x, y] = detection.boundingBox;
+  context.fillRect(x - context.lineWidth / 2, y - height, width, height);
+  context.fillStyle = DETECTION_STYLE.LABEL_TEXT_COLOR;
+  context.fillText(
+    labelText,
+    x + (LABEL_PADDING.LEFT - 1) / zoom,
+    y - LABEL_PADDING.BOTTOM / zoom,
+  );
+};
+
+/**
+ * Returns the detection color based on whether it's selected, or another detection is selected
+ */
+export const getDetectionRenderColor = (
+  detection: Detection,
+  selectedCategory: string,
+  selectedDetection: Detection | null,
+): string => {
+  let renderColor = detection.color;
+  if (detection.selected || detection.categorySelected) {
+    renderColor = DETECTION_STYLE.SELECTED_COLOR;
+  }
+  if (selectedDetection !== null && selectedCategory === '') {
+    if (selectedDetection?.uuid !== detection.uuid) {
+      renderColor = hexToCssRgba(detection.color);
+    }
+  }
+  if (selectedCategory !== '' && selectedCategory !== detection.categoryName) {
+    renderColor = hexToCssRgba(detection.color);
+  }
+
+  return renderColor;
 };
