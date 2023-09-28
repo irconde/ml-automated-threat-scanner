@@ -24,12 +24,13 @@ import { DetectionsService } from '../services/detections/detections.service';
 import {
   getCreatedBoundingBox,
   resetCornerstoneTool,
-  updateCornerstoneViewport,
+  updateCornerstoneViewports,
 } from '../utilities/cornerstone.utilities';
 import BoundingBoxDrawingTool from '../utilities/cornerstone-tools/BoundingBoxDrawingTool';
 import {
   AnnotationMode,
   CornerstoneMode,
+  CS_EVENTS,
   EditionMode,
   ToolNames,
 } from '../../enums/cornerstone';
@@ -50,17 +51,10 @@ const CURRENT_EDITION_MODE = EditionMode.NoTool;
 export class CornerstoneDirective implements AfterViewInit {
   element: HTMLElement;
   @Input() viewportName: keyof ViewportsMap | null = null;
-  private renderListener: ((e: Event) => void) | undefined = undefined;
   private cornerstoneConfig = CS_DEFAULT_CONFIGURATION;
   private mousePosition: Coordinate2D = { x: 0, y: 0 };
   private imageDimensions: Dimension2D = { width: 0, height: 0 };
   private context: CanvasRenderingContext2D | null | undefined = undefined;
-  private clickListener: ((event: CornerstoneClickEvent) => void) | undefined =
-    undefined;
-  private readonly CS_EVENT = {
-    RENDER: 'cornerstoneimagerendered',
-    CLICK: 'cornerstonetoolsmouseclick',
-  };
   private detections: Detection[] = [];
 
   constructor(
@@ -81,7 +75,6 @@ export class CornerstoneDirective implements AfterViewInit {
       this.cornerstoneConfig = config;
     });
     this.detectionsService.getDetectionData().subscribe((detections) => {
-      console.log(detections);
       this.detections = detections[this.viewportName!];
     });
   }
@@ -96,68 +89,6 @@ export class CornerstoneDirective implements AfterViewInit {
     this.displayImage(imageData);
     this.imageDimensions.height = imageData.height;
     this.imageDimensions.width = imageData.width;
-
-    if (this.context) {
-      const handleImageRender = (event: Event) => {
-        if (!this.context) {
-          throw Error('Context is not set in image render handler');
-        }
-        this.renderDetections(this.context, enabledElement.viewport?.scale);
-        if (this.isAnnotating()) {
-          renderBboxCrosshair(
-            this.context,
-            this.element,
-            this.mousePosition,
-            this.imageDimensions,
-          );
-        }
-        this.renderListener = handleImageRender;
-      };
-      const onMouseClicked = (event: CornerstoneClickEvent): void => {
-        const canvas = event.detail?.currentPoints?.canvas;
-        if (canvas) {
-          const { x, y } = canvas;
-          const mousePos = cornerstone.canvasToPixel(this.element, {
-            _canvasCoordinateBrand: '',
-            x: x,
-            y: y,
-          });
-          let detClicked = false;
-          for (let i = 0; i < this.detections.length; i++) {
-            if (pointInRect(mousePos, this.detections[i].boundingBox)) {
-              this.detectionsService.selectDetection(
-                this.detections[i].uuid,
-                this.detections[i].viewpoint,
-              );
-              detClicked = true;
-              break;
-            }
-          }
-          if (!detClicked) {
-            this.detectionsService.clearSelectedDetection();
-          }
-          updateCornerstoneViewport();
-        }
-
-        this.clickListener = onMouseClicked;
-      };
-      if (this.renderListener) {
-        this.element.removeEventListener(
-          cornerstone.EVENTS.IMAGE_RENDERED,
-          this.renderListener,
-        );
-        this.element.addEventListener(
-          cornerstone.EVENTS.IMAGE_RENDERED,
-          handleImageRender,
-        );
-      }
-
-      if (this.clickListener) {
-        this.element.removeEventListener(this.CS_EVENT.CLICK, onMouseClicked);
-      }
-      this.element.addEventListener(this.CS_EVENT.RENDER, handleImageRender);
-      this.element.addEventListener(this.CS_EVENT.CLICK, onMouseClicked);
-    }
   }
 
   @HostListener('mousewheel', ['$event'])
@@ -165,10 +96,54 @@ export class CornerstoneDirective implements AfterViewInit {
     console.log('mouseWheel');
   }
 
+  @HostListener(CS_EVENTS.CLICK, ['$event'])
+  onMouseClick(event: CornerstoneClickEvent) {
+    const canvas = event.detail?.currentPoints?.canvas;
+    if (canvas) {
+      const { x, y } = canvas;
+      const mousePos = cornerstone.canvasToPixel(this.element, {
+        _canvasCoordinateBrand: '',
+        x: x,
+        y: y,
+      });
+      let detClicked = false;
+      for (let i = 0; i < this.detections.length; i++) {
+        if (pointInRect(mousePos, this.detections[i].boundingBox)) {
+          this.detectionsService.selectDetection(
+            this.detections[i].uuid,
+            this.detections[i].viewpoint,
+          );
+          detClicked = true;
+          break;
+        }
+      }
+      if (!detClicked) {
+        this.detectionsService.clearSelectedDetection();
+      }
+      updateCornerstoneViewports();
+    }
+  }
+
   @HostListener('mouseup', ['$event'])
-  onDragEnd(event: any) {
-    console.log('drag end');
+  onDragEnd() {
     this.handleBoundingBoxDetectionCreation();
+  }
+
+  @HostListener(CS_EVENTS.RENDER, ['$event'])
+  onImageRender() {
+    if (!this.context) {
+      throw Error('Context is not set in image render handler');
+    }
+    const enabledElement = cornerstone.getEnabledElement(this.element);
+    this.renderDetections(this.context, enabledElement.viewport?.scale || 1);
+    if (this.isAnnotating()) {
+      renderBboxCrosshair(
+        this.context,
+        this.element,
+        this.mousePosition,
+        this.imageDimensions,
+      );
+    }
   }
 
   ngAfterViewInit() {
@@ -226,7 +201,10 @@ export class CornerstoneDirective implements AfterViewInit {
   /**
    * Draws the detections on the given rendering context
    */
-  private renderDetections(context: CanvasRenderingContext2D, zoom = 1): void {
+  private renderDetections(
+    context: CanvasRenderingContext2D,
+    zoom: number,
+  ): void {
     const selectedDetection = this.detectionsService.getSelectedDetection();
 
     const { BORDER_WIDTH, FONT_DETAILS } = DETECTION_STYLE;

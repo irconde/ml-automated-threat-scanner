@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { cornerstone, cornerstoneTools } from '../../csSetup';
+import { cornerstoneTools } from '../../csSetup';
 import {
   AnnotationMode,
   CornerstoneMode,
   ToolNames,
 } from '../../../enums/cornerstone';
 import { CornerstoneService } from '../../services/cornerstone/cornerstone.service';
+import { DetectionsService } from '../../services/detections/detections.service';
 
 @Component({
   selector: 'app-detection-toolbox-fab',
@@ -18,19 +19,22 @@ import { CornerstoneService } from '../../services/cornerstone/cornerstone.servi
 export class DetectionToolboxFabComponent implements OnInit {
   private annotationMode = AnnotationMode.NoTool;
 
-  constructor(private cornerstoneService: CornerstoneService) {}
-
-  ngOnInit() {
-    this.cornerstoneService.getCsConfiguration().subscribe((config) => {
-      this.annotationMode = config.annotationMode;
-    });
-  }
+  constructor(
+    private cornerstoneService: CornerstoneService,
+    private detectionsService: DetectionsService,
+  ) {}
 
   get disabled() {
     return (
       this.annotationMode === AnnotationMode.Bounding ||
       this.annotationMode === AnnotationMode.Polygon
     );
+  }
+
+  ngOnInit() {
+    this.cornerstoneService.getCsConfiguration().subscribe((config) => {
+      this.annotationMode = config.annotationMode;
+    });
   }
 
   handlePolygonBtnClick() {}
@@ -45,20 +49,10 @@ export class DetectionToolboxFabComponent implements OnInit {
       mouseButtonMask: 1,
     });
 
-    this.updateCornerstoneViewports();
     this.cornerstoneService.setCsConfiguration({
       annotationMode: AnnotationMode.Bounding,
       cornerstoneMode: CornerstoneMode.Annotation,
     });
-  }
-
-  updateCornerstoneViewports() {
-    const viewports = document.getElementsByClassName(
-      'viewportElement',
-    ) as HTMLCollectionOf<HTMLElement>;
-
-    for (let i = 0; i < viewports.length; i++) {
-      cornerstone.updateImage(viewports[i], true);
-    }
+    this.detectionsService.clearSelectedDetection();
   }
 }

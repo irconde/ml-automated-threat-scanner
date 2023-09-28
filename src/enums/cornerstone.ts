@@ -36,3 +36,8 @@ export enum EditionMode {
 export enum CommonDetections {
   Unknown = 'Unknown',
 }
+
+export const CS_EVENTS = {
+  RENDER: 'cornerstoneimagerendered',
+  CLICK: 'cornerstonetoolsmouseclick',
+} as const;

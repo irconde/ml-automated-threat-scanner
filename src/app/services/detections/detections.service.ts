@@ -62,7 +62,7 @@ export class DetectionsService {
     viewportName: keyof DetectionsMap,
   ): Detection {
     const newDetection: Detection = {
-      selected: false,
+      selected: true,
       categorySelected: false,
       viewpoint: viewportName,
       visible: true,
