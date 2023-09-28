@@ -8,10 +8,10 @@ import {cornerstone, cornerstoneTools} from '../csSetup';
 import {DetectionsService} from '../services/detections/detections.service';
 import {updateCornerstoneViewport} from '../utilities/cornerstone.utilities';
 import BoundingBoxDrawingTool from '../utilities/cornerstone-tools/BoundingBoxDrawingTool';
-import {EditionMode} from '../../enums/cornerstone';
-import {renderBboxCrosshair} from '../utilities/drawing.utilities';
+import {CornerstoneMode, EditionMode} from '../../enums/cornerstone';
 import {CornerstoneService} from '../services/cornerstone/cornerstone.service';
 import {CS_DEFAULT_CONFIGURATION} from '../../models/cornerstone';
+import {renderBboxCrosshair} from '../utilities/drawing.utilities';
 // import SegmentationDrawingTool from '../utilities/cornerstone-tools/SegmentationDrawingTool';
 // import AnnotationMovementTool from '../utilities/cornerstone-tools/AnnotationMovementTool';
 
@@ -43,10 +43,23 @@ export class CornerstoneDirective implements AfterViewInit {
     document.body.addEventListener('mousemove', (e) => {
       this.mousePosition.x = e.clientX;
       this.mousePosition.y = e.clientY;
+      if (this.isAnnotating()) {
+        cornerstone.updateImage(this.element, false);
+      }
     });
     this.cornerstoneService.getCsConfiguration().subscribe((config) => {
       this.cornerstoneConfig = config;
     });
+  }
+
+  /**
+   * Returns true if the cornerstone mode is annotation
+   * @private
+   */
+  private isAnnotating(): boolean {
+    return (
+      this.cornerstoneConfig.cornerstoneMode === CornerstoneMode.Annotation
+    );
   }
 
   @Input()
@@ -70,12 +83,14 @@ export class CornerstoneDirective implements AfterViewInit {
           detectionData,
           enabledElement.viewport?.scale,
         );
-        renderBboxCrosshair(
-          this.context,
-          this.element,
-          this.mousePosition,
-          this.imageDimensions,
-        );
+        if (this.isAnnotating()) {
+          renderBboxCrosshair(
+            this.context,
+            this.element,
+            this.mousePosition,
+            this.imageDimensions,
+          );
+        }
         this.renderListener = handleImageRender;
       };
       const onMouseClicked = (event: CornerstoneClickEvent): void => {
