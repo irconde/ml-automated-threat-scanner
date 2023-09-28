@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Detection } from '../../../models/detection';
+import { BoundingBox, Detection } from '../../../models/detection';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 interface DetectionsMap {
@@ -54,6 +54,35 @@ export class DetectionsService {
 
   getSelectedDetection(): Detection | null {
     return this.selectedDetection;
+  }
+
+  addDetection(
+    bbox: BoundingBox,
+    area: number,
+    viewportName: keyof DetectionsMap,
+  ) {
+    const newDetection: Detection = {
+      selected: false,
+      categorySelected: false,
+      viewpoint: viewportName,
+      visible: true,
+      boundingBox: bbox,
+      iscrowd: 0,
+      color: 'orange',
+      detectionFromFile: false,
+      confidence: 0,
+      imageId: '',
+      id: '',
+      algorithm: '',
+      className: '',
+      categoryName: '',
+      uuid: '',
+      polygonMask: [],
+    };
+    this.setDetectionData({
+      ...this.detectionData.value,
+      [viewportName]: [...this.detectionData.value[viewportName], newDetection],
+    });
   }
 
   clearSelectedDetection(): void {

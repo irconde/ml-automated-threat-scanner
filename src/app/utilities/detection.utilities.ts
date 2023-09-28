@@ -1,4 +1,10 @@
-import {BoundingBox, Coordinate2D, Point, PolygonData,} from '../../models/detection';
+import {
+  BoundingBox,
+  Coordinate2D,
+  Point,
+  PolygonData,
+} from '../../models/detection';
+import { CornerstoneHandles } from '../../models/cornerstone';
 
 /**
  * Converts COCO bbox to a bounding box
@@ -37,7 +43,7 @@ export const getMasks = (
     ];
   }
 
-  return {binaryMask, polygonMask};
+  return { binaryMask, polygonMask };
 };
 
 /**
@@ -50,7 +56,7 @@ const coordinatesToPolygonData = (coordinates: number[]): PolygonData => {
   const data: PolygonData = {};
   let count = 0;
   for (let i = 0; i < coordinates.length; i += 2) {
-    data[count] = {x: coordinates[i], y: coordinates[i + 1]};
+    data[count] = { x: coordinates[i], y: coordinates[i + 1] };
     count++;
   }
   return data;
@@ -462,3 +468,20 @@ export const pointInRect = (point: Coordinate2D, rect: number[]) => {
   );
 };
 
+/**
+ * Given a cornerstone detection handles object, it returns the bounding box
+ * @param start
+ * @param end
+ */
+export const getBboxFromHandles = ({ start, end }: CornerstoneHandles) => {
+  // Fix flipped rectangle issues
+  if (start.x > end.x && start.y > end.y) {
+    return [end.x, end.y, start.x, start.y];
+  } else if (start.x > end.x) {
+    return [end.x, start.y, start.x, end.y];
+  } else if (start.y > end.y) {
+    return [start.x, end.y, end.x, start.y];
+  } else {
+    return [start.x, start.y, end.x, end.y];
+  }
+};

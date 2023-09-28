@@ -1,17 +1,46 @@
-import {AfterViewInit, Directive, ElementRef, HostListener, Input,} from '@angular/core';
-import {ViewportData} from '../../models/viewport';
-import {Coordinate2D, CornerstoneClickEvent, Detection, Dimension2D,} from '../../models/detection';
-import {DETECTION_STYLE} from '../../enums/detection-styles';
-import {getTextLabelSize, hexToCssRgba, limitCharCount,} from '../utilities/text.utilities';
-import {pointInRect, renderBinaryMasks, renderPolygonMasks,} from '../utilities/detection.utilities';
-import {cornerstone, cornerstoneTools} from '../csSetup';
-import {DetectionsService} from '../services/detections/detections.service';
-import {updateCornerstoneViewport} from '../utilities/cornerstone.utilities';
+import {
+  AfterViewInit,
+  Directive,
+  ElementRef,
+  HostListener,
+  Input,
+} from '@angular/core';
+import { ViewportData, ViewportsMap } from '../../models/viewport';
+import {
+  Coordinate2D,
+  CornerstoneClickEvent,
+  Detection,
+  Dimension2D,
+} from '../../models/detection';
+import { DETECTION_STYLE } from '../../enums/detection-styles';
+import {
+  getTextLabelSize,
+  hexToCssRgba,
+  limitCharCount,
+} from '../utilities/text.utilities';
+import {
+  getBboxFromHandles,
+  pointInRect,
+  renderBinaryMasks,
+  renderPolygonMasks,
+} from '../utilities/detection.utilities';
+import { cornerstone, cornerstoneTools } from '../csSetup';
+import { DetectionsService } from '../services/detections/detections.service';
+import {
+  getCreatedBoundingBox,
+  resetCornerstoneTool,
+  updateCornerstoneViewport,
+} from '../utilities/cornerstone.utilities';
 import BoundingBoxDrawingTool from '../utilities/cornerstone-tools/BoundingBoxDrawingTool';
-import {CornerstoneMode, EditionMode} from '../../enums/cornerstone';
-import {CornerstoneService} from '../services/cornerstone/cornerstone.service';
-import {CS_DEFAULT_CONFIGURATION} from '../../models/cornerstone';
-import {renderBboxCrosshair} from '../utilities/drawing.utilities';
+import {
+  AnnotationMode,
+  CornerstoneMode,
+  EditionMode,
+  ToolNames,
+} from '../../enums/cornerstone';
+import { CornerstoneService } from '../services/cornerstone/cornerstone.service';
+import { CS_DEFAULT_CONFIGURATION } from '../../models/cornerstone';
+import { renderBboxCrosshair } from '../utilities/drawing.utilities';
 // import SegmentationDrawingTool from '../utilities/cornerstone-tools/SegmentationDrawingTool';
 // import AnnotationMovementTool from '../utilities/cornerstone-tools/AnnotationMovementTool';
 
@@ -21,6 +50,7 @@ import {renderBboxCrosshair} from '../utilities/drawing.utilities';
 })
 export class CornerstoneDirective implements AfterViewInit {
   element: HTMLElement;
+  @Input() viewportName: keyof ViewportsMap | null = null;
   private renderListener: ((e: Event) => void) | undefined = undefined;
   private cornerstoneConfig = CS_DEFAULT_CONFIGURATION;
   private mousePosition: Coordinate2D = { x: 0, y: 0 };
@@ -50,16 +80,9 @@ export class CornerstoneDirective implements AfterViewInit {
     this.cornerstoneService.getCsConfiguration().subscribe((config) => {
       this.cornerstoneConfig = config;
     });
-  }
-
-  /**
-   * Returns true if the cornerstone mode is annotation
-   * @private
-   */
-  private isAnnotating(): boolean {
-    return (
-      this.cornerstoneConfig.cornerstoneMode === CornerstoneMode.Annotation
-    );
+    this.detectionsService.getDetectionData().subscribe((detections) => {
+      console.log(detections);
+    });
   }
 
   @Input()
@@ -145,6 +168,12 @@ export class CornerstoneDirective implements AfterViewInit {
     console.log('mouseWheel');
   }
 
+  @HostListener('mouseup', ['$event'])
+  onDragEnd(event: any) {
+    console.log('drag end');
+    this.handleBoundingBoxDetectionCreation();
+  }
+
   ngAfterViewInit() {
     // Enable the element with Cornerstone
     cornerstone.enable(this.element);
@@ -166,6 +195,85 @@ export class CornerstoneDirective implements AfterViewInit {
 
   displayImage(image: cornerstone.Image) {
     cornerstone.displayImage(this.element, image);
+  }
+
+  private handleBoundingBoxDetectionCreation() {
+    const createdBoundingBox = getCreatedBoundingBox(this.element);
+    if (createdBoundingBox === undefined) return;
+    console.log(createdBoundingBox);
+    const bbox = getBboxFromHandles(createdBoundingBox.handles);
+    // this.detectionsService
+    console.log(bbox);
+    const area = Math.abs((bbox[0] - bbox[2]) * (bbox[1] - bbox[3]));
+    // // Converting from
+    // // [x_0, y_0, x_f, y_f]
+    // // to
+    // // [x_0, y_0, width, height]
+    bbox[2] = bbox[2] - bbox[0];
+    bbox[3] = bbox[3] - bbox[1];
+    this.cornerstoneService.setCsConfiguration({
+      cornerstoneMode: CornerstoneMode.Selection,
+      annotationMode: AnnotationMode.NoTool,
+    });
+    resetCornerstoneTool(ToolNames.BoundingBox, this.element);
+
+    this.detectionsService.addDetection(bbox, area, this.viewportName!);
+    cornerstone.updateImage(this.element, true);
+    // let bbox = Utils.getBboxFromHandles(
+    //   handles.start,
+    //   handles.end
+    // );
+    // const area = Math.abs(
+    //   (bbox[0] - bbox[2]) * (bbox[1] - bbox[3])
+    // );
+    // // Converting from
+    // // [x_0, y_0, x_f, y_f]
+    // // to
+    // // [x_0, y_0, width, height]
+    // bbox[2] = bbox[2] - bbox[0];
+    // bbox[3] = bbox[3] - bbox[1];
+    // dispatch(
+    //   updateAnnotationMode(
+    //     constants.annotationMode.NO_TOOL
+    //   )
+    // );
+    // dispatch(
+    //   updateCornerstoneMode(
+    //     constants.cornerstoneMode.SELECTION
+    //   )
+    // );
+    // if (area > 0) {
+    //   if (annotationRef.current.length === 0) {
+    //     dispatch(setSideMenu(false));
+    //   }
+    //   Utils.dispatchAndUpdateImage(
+    //     dispatch,
+    //     addAnnotation,
+    //     {
+    //       bbox,
+    //       area,
+    //       segmentation: [],
+    //     }
+    //   );
+    //   // show edit label when annotation is added
+    //   event.stopPropagation();
+    //   dispatch(updateAnnotationContextVisibility(true));
+    //   setTimeout(
+    //     () => dispatch(updateEditLabelVisibility(true)),
+    //     0
+    //   );
+    // }
+    // Utils.resetCornerstoneTools(viewportRef.current);
+  }
+
+  /**
+   * Returns true if the cornerstone mode is annotation
+   * @private
+   */
+  private isAnnotating(): boolean {
+    return (
+      this.cornerstoneConfig.cornerstoneMode === CornerstoneMode.Annotation
+    );
   }
 
   /**

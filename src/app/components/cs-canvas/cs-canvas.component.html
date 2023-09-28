@@ -1,6 +1,7 @@
 <div class="viewports">
   <div *ngFor="let viewpoint of getImageData();"
        [image]="viewportsData[viewpoint]"
+       [viewportName]="viewpoint"
        class="viewportElement {{viewpoint}} {{viewportsData[viewpoint].imageData ? '' : 'hidden'}}" csDirective>
     <canvas class="cornerstone-canvas"></canvas>
   </div>
