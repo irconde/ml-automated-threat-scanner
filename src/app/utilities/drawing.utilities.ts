@@ -7,15 +7,17 @@ export const renderBboxCrosshair = (
   target: HTMLElement,
   mousePosition: Coordinate2D,
   imgDimensions: { width: number; height: number },
+  zoom: number,
 ) => {
-  const crosshairLength = 8;
+  const crosshairLength = 8 / zoom;
   const mousePos = cornerstone.pageToPixel(
     target,
     mousePosition.x,
     mousePosition.y,
   );
   const { width, height } = imgDimensions;
-  context.lineWidth = 2;
+  const LINE_WIDTH = 2 / zoom;
+  context.lineWidth = LINE_WIDTH;
   if (
     mousePos.x >= 0 &&
     mousePos.x <= width &&
@@ -23,7 +25,7 @@ export const renderBboxCrosshair = (
     mousePos.y <= height
   ) {
     context.beginPath();
-    context.setLineDash([2, 2]);
+    context.setLineDash([LINE_WIDTH, LINE_WIDTH]);
     context.strokeStyle = 'grey';
     context.moveTo(mousePos.x, 0);
     context.lineTo(mousePos.x, height);

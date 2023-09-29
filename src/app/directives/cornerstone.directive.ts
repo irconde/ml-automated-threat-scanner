@@ -135,13 +135,15 @@ export class CornerstoneDirective implements AfterViewInit {
       throw Error('Context is not set in image render handler');
     }
     const enabledElement = cornerstone.getEnabledElement(this.element);
-    this.renderDetections(this.context, enabledElement.viewport?.scale || 1);
+    const zoom = enabledElement.viewport?.scale || 1;
+    this.renderDetections(this.context, zoom);
     if (this.isAnnotating()) {
       renderBboxCrosshair(
         this.context,
         this.element,
         this.mousePosition,
         this.imageDimensions,
+        zoom,
       );
     }
   }
