@@ -71,6 +71,10 @@ export class CornerstoneDirective implements AfterViewInit {
         cornerstone.updateImage(this.element, false);
       }
     });
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      this.handleExitingAnnotationMode();
+    });
     this.cornerstoneService.getCsConfiguration().subscribe((config) => {
       this.cornerstoneConfig = config;
     });
@@ -228,5 +232,19 @@ export class CornerstoneDirective implements AfterViewInit {
         zoom,
       ),
     );
+  }
+
+  /**
+   * Runs when the escape key is pressed. If the mode is annotation then we reset the tool's state
+   * @private
+   */
+  private handleExitingAnnotationMode() {
+    if (!this.isAnnotating()) return;
+    this.cornerstoneService.setCsConfiguration({
+      cornerstoneMode: CornerstoneMode.Selection,
+      annotationMode: AnnotationMode.NoTool,
+    });
+    resetCornerstoneTool(ToolNames.BoundingBox, this.element);
+    cornerstone.updateImage(this.element, false);
   }
 }
