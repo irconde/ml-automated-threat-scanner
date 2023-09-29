@@ -184,7 +184,12 @@ export class CornerstoneDirective implements AfterViewInit {
     });
 
     if (area > 0) {
-      this.detectionsService.addDetection(bbox, area, this.viewportName!);
+      this.detectionsService.addDetection(
+        bbox,
+        area,
+        this.viewportName!,
+        createdBoundingBox.uuid,
+      );
       cornerstone.updateImage(this.element, false);
     }
     resetCornerstoneTool(ToolNames.BoundingBox, this.element);

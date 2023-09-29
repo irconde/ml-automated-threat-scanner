@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BoundingBox, Detection } from '../../../models/detection';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { CommonDetections } from '../../../enums/cornerstone';
 
 interface DetectionsMap {
   top: Detection[];
@@ -60,7 +61,9 @@ export class DetectionsService {
     bbox: BoundingBox,
     area: number,
     viewportName: keyof DetectionsMap,
+    uuid: string,
   ): Detection {
+    if (!uuid) throw Error('Missing uuid for newly created detection');
     const newDetection: Detection = {
       selected: true,
       categorySelected: false,
@@ -68,15 +71,16 @@ export class DetectionsService {
       visible: true,
       boundingBox: bbox,
       iscrowd: 0,
-      color: 'orange',
       detectionFromFile: false,
+      className: CommonDetections.Unknown,
+      color: 'orange',
+      uuid,
+      // TODO: update below properties to the default
       confidence: 0,
       imageId: '',
       id: '',
       algorithm: '',
-      className: '',
       categoryName: '',
-      uuid: '',
       polygonMask: [],
     };
     this.setDetectionData({

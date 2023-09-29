@@ -511,8 +511,12 @@ export const getBboxFromHandles = ({
   return pointsBoxToDimensionsBox(bbox);
 };
 
+/**
+ * Determines the area of a given bounding box
+ * @param bbox - [x, y, width, height]
+ */
 export const getBoundingBoxArea = (bbox: BoundingBox): number => {
-  return Math.abs((bbox[0] - bbox[2]) * (bbox[1] - bbox[3]));
+  return bbox[2] * bbox[3];
 };
 
 export const displayDetection = (
