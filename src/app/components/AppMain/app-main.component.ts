@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ApplicationSettings } from '../../services/settings/models/Settings';
+import { TopBarComponent } from '../top-bar/top-bar.component';
 
 @Component({
   selector: 'app-main',
@@ -27,6 +28,7 @@ import { ApplicationSettings } from '../../services/settings/models/Settings';
     MatIconModule,
     MatButtonModule,
     MatDialogModule,
+    TopBarComponent,
   ],
 })
 export class AppMain {
