@@ -5,11 +5,12 @@ import { FileService } from '../../services/file/file.service';
 import { FilePayload } from '../../../../shared/models/file-models';
 import { FileParserService } from '../../services/file-parser/file-parser.service';
 import { IonicModule } from '@ionic/angular';
-import { KeyValuePipe, NgForOf, NgIf, NgStyle } from '@angular/common';
+import { KeyValuePipe, NgClass, NgForOf, NgIf, NgStyle } from '@angular/common';
 import { DetectionToolboxFabComponent } from '../detection-toolbox-fab/detection-toolbox-fab.component';
 import { ViewportsMap } from '../../../models/viewport';
 import { DetectionsService } from '../../services/detections/detections.service';
 import { Detection, RawDetection } from '../../../models/detection';
+import { CornerstoneMode } from '../../../enums/cornerstone';
 
 @Component({
   selector: 'app-cs-canvas',
@@ -24,6 +25,7 @@ import { Detection, RawDetection } from '../../../models/detection';
     NgForOf,
     KeyValuePipe,
     NgStyle,
+    NgClass,
   ],
 })
 export class CsCanvasComponent implements OnInit {
@@ -31,13 +33,19 @@ export class CsCanvasComponent implements OnInit {
     top: { imageData: null, detectionData: [] },
     side: { imageData: null, detectionData: [] },
   };
+  isAnnotating: boolean = false;
 
   constructor(
     private csService: CornerstoneService,
     private fileService: FileService,
     private fileParserService: FileParserService,
     private detectionsService: DetectionsService,
-  ) {}
+  ) {
+    this.csService.getCsConfiguration().subscribe((csConfig) => {
+      this.isAnnotating =
+        csConfig.cornerstoneMode === CornerstoneMode.Annotation;
+    });
+  }
 
   public getImageData(): (keyof ViewportsMap)[] {
     return Object.keys(this.viewportsData) as (keyof ViewportsMap)[];

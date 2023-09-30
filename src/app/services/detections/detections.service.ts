@@ -72,7 +72,7 @@ export class DetectionsService {
       boundingBox: bbox,
       iscrowd: 0,
       detectionFromFile: false,
-      className: CommonDetections.Unknown,
+      className: CommonDetections.Operator,
       color: 'orange',
       uuid,
       // TODO: update below properties to the default

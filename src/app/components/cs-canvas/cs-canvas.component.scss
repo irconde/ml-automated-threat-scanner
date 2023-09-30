@@ -7,19 +7,25 @@
   position: relative;
 }
 
+
 .viewportElement {
   width: 50%;
   height: 100%;
+
+  &.annotation {
+    cursor: none;
+  }
+
+  &.hidden {
+    display: none;
+  }
+
+  canvas {
+    width: 100%;
+    height: 100%;
+  }
 }
 
-.viewportElement canvas {
-  width: 100%;
-  height: 100%;
-}
-
-.viewportElement.hidden {
-  display: none;
-}
 
 .controlButtons {
   display: flex;

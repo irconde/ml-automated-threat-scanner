@@ -1,8 +1,12 @@
 <div class="viewports">
   <div *ngFor="let viewpoint of getImageData();"
+       csDirective
        [image]="viewportsData[viewpoint]"
        [viewportName]="viewpoint"
-       class="viewportElement {{viewpoint}} {{viewportsData[viewpoint].imageData ? '' : 'hidden'}}" csDirective>
+       class="viewportElement {{viewpoint}}"
+       [class.hidden]="!viewportsData[viewpoint].imageData"
+       [class.annotation]="isAnnotating"
+  >
     <canvas class="cornerstone-canvas"></canvas>
   </div>
   <app-detection-toolbox-fab/>

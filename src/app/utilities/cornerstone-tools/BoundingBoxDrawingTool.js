@@ -334,7 +334,7 @@ export default class BoundingBoxDrawingTool extends BaseAnnotationTool {
           hasBoundingBox: true,
         },
       },
-      categoryName: CommonDetections.Unknown,
+      categoryName: CommonDetections.Operator,
       updatingAnnotation: false,
     };
   }
