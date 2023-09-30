@@ -1,4 +1,18 @@
-import {BoundingBox, Coordinate2D, Point, PolygonData,} from '../../models/detection';
+import {
+  BoundingBox,
+  Coordinate2D,
+  Detection,
+  Point,
+  PolygonData,
+} from '../../models/detection';
+import { CornerstoneHandles } from '../../models/cornerstone';
+import { EditionMode } from '../../enums/cornerstone';
+import {
+  getTextLabelSize,
+  hexToCssRgba,
+  limitCharCount,
+} from './text.utilities';
+import { DETECTION_STYLE } from '../../enums/detection-styles';
 
 /**
  * Converts COCO bbox to a bounding box
@@ -9,6 +23,16 @@ import {BoundingBox, Coordinate2D, Point, PolygonData,} from '../../models/detec
 export const cocoBoxToBoundingBox = (bbox: BoundingBox): BoundingBox => {
   bbox[2] = bbox[0] + bbox[2];
   bbox[3] = bbox[1] + bbox[3];
+  return bbox;
+};
+
+/**
+ * Converts [x, y, x_f, y_f] to [x, y, width, height]
+ * @param bbox
+ */
+export const pointsBoxToDimensionsBox = (bbox: BoundingBox): BoundingBox => {
+  bbox[2] = bbox[2] - bbox[0];
+  bbox[3] = bbox[3] - bbox[1];
   return bbox;
 };
 
@@ -334,14 +358,254 @@ export const renderBinaryMasks = (
   context.imageSmoothingEnabled = false;
 };
 
-export const pointInRect = (
-  point: { x: number; y: number },
-  rect: number[],
+/**
+ * Recalculates the anchor points of a polygon mask
+ *
+ * @param boundingBox - Bounding box data formatted as [x_start, y_start, x_end, y_end]
+ * @param polygonCoords - List of handles, i.e., the vertices, of a polygon
+ * @returns Array<Point>
+ */
+const calculateMaskAnchorPoints = (
+  boundingBox: BoundingBox,
+  polygonCoords: Array<Point>,
+): Array<Point> => {
+  const xDist = boundingBox[2] - boundingBox[0];
+  const yDist = boundingBox[3] - boundingBox[1];
+  polygonCoords.forEach((point) => {
+    point.anchor.top = ((boundingBox[3] - point.y) / yDist) * 100;
+    point.anchor.bottom = ((point.y - boundingBox[1]) / yDist) * 100;
+    point.anchor.left = ((point.x - boundingBox[0]) / xDist) * 100;
+    point.anchor.right = ((boundingBox[2] - point.x) / xDist) * 100;
+  });
+  return polygonCoords;
+};
+
+/**
+ * Calculates the coordinates of the bounding box for a given polygon
+ *
+ * @param boundingBox - Bounding box data formatted as [x_start, y_start, x_end, y_end]
+ * @param polygonData - List of handles, i.e., the vertices, of a polygon
+ * @returns newPolygonData with updated points based on anchor points
+ */
+export const calculatePolygonMask = (
+  boundingBox: BoundingBox,
+  polygonData: Array<Point>,
+): Array<Point> => {
+  let newPolygonData = JSON.parse(JSON.stringify(polygonData)) as Array<Point>;
+  const xDist = boundingBox[2] - boundingBox[0];
+  const yDist = boundingBox[3] - boundingBox[1];
+  newPolygonData.forEach((point) => {
+    if (point.anchor.left !== 0 && point.anchor.right !== 0) {
+      point.x = boundingBox[0] + (xDist * point.anchor.left) / 100;
+    } else if (point.anchor.right === 0) {
+      point.x = boundingBox[2];
+    } else if (point.anchor.left === 0) {
+      point.x = boundingBox[0];
+    }
+    if (point.anchor.top !== 0 && point.anchor.bottom !== 0) {
+      point.y = boundingBox[1] + (yDist * point.anchor.bottom) / 100;
+    } else if (point.anchor.bottom === 0) {
+      point.y = boundingBox[1];
+    } else if (point.anchor.top === 0) {
+      point.y = boundingBox[3];
+    }
+  });
+  newPolygonData = calculateMaskAnchorPoints(boundingBox, newPolygonData);
+  return newPolygonData;
+};
+
+export interface CornerstoneHandle {
+  start: number;
+  end: number;
+  start_prima: number;
+  end_prima: number;
+  hasMoved: boolean;
+  x: number;
+  y: number;
+}
+
+/**
+ * Recalculates the four corners of a rectangle based on the coordinates of the corner being moved
+ *
+ * @param  cornerList - Rectangle corners' coordinates
+ * @returns - Recalculated coordinates
+ */
+export const recalculateRectangle = (
+  cornerList: Record<string, CornerstoneHandle>,
 ) => {
+  const cornerKeys = Object.keys(cornerList);
+  let movingCornerKey;
+  let movingCornerKeyIndex;
+  for (let i = 0; i < cornerKeys.length; i++) {
+    if (cornerList[cornerKeys[i]].hasMoved === true) {
+      movingCornerKeyIndex = i;
+      movingCornerKey = cornerKeys[i];
+      break;
+    }
+  }
+  if (movingCornerKey === undefined) {
+    return cornerList;
+  }
+
+  if (movingCornerKeyIndex === undefined) return;
+
+  const newRectDiagonal = movingCornerKey.includes('start')
+    ? [movingCornerKey, cornerKeys[movingCornerKeyIndex + 1]]
+    : [cornerKeys[movingCornerKeyIndex - 1], movingCornerKey];
+
+  const secondDiagonalFirstIndex = movingCornerKey.includes('prima') ? 0 : 2;
+  cornerList[cornerKeys[secondDiagonalFirstIndex]].x =
+    cornerList[newRectDiagonal[0]].x;
+  cornerList[cornerKeys[secondDiagonalFirstIndex]].y =
+    cornerList[newRectDiagonal[1]].y;
+  cornerList[cornerKeys[secondDiagonalFirstIndex + 1]].x =
+    cornerList[newRectDiagonal[1]].x;
+  cornerList[cornerKeys[secondDiagonalFirstIndex + 1]].y =
+    cornerList[newRectDiagonal[0]].y;
+
+  return cornerList;
+};
+
+/**
+ * Indicates whether a given point is inside a rectangle or not
+ *
+ * @static
+ * @param {Array<number>} point - 2D point defined as a pair of coordinates (x,y)
+ * @param {Array<number>} rect - Array that hold four float values representing the two end-points of a rectangle's
+ *     diagonal
+ * @returns {boolean} - True if the point is inside the rectangle; false otherwise
+ */
+export const pointInRect = (point: Coordinate2D, rect: number[]) => {
+  // [x0, y0, width, height]
+  // [0, 1, 2, 3]
   return (
     point.x >= rect[0] &&
     point.x <= rect[0] + rect[2] &&
     point.y >= rect[1] &&
     point.y <= rect[1] + rect[3]
   );
+};
+
+/**
+ * Given a cornerstone detection handles object, it returns the bounding box
+ * @param start
+ * @param end
+ * @returns bbox - [x, y, width, height]
+ */
+export const getBboxFromHandles = ({
+  start,
+  end,
+}: CornerstoneHandles): BoundingBox => {
+  // Fix flipped rectangle issues
+  let bbox: BoundingBox;
+  if (start.x > end.x && start.y > end.y) {
+    bbox = [end.x, end.y, start.x, start.y];
+  } else if (start.x > end.x) {
+    bbox = [end.x, start.y, start.x, end.y];
+  } else if (start.y > end.y) {
+    bbox = [start.x, end.y, end.x, start.y];
+  } else {
+    bbox = [start.x, start.y, end.x, end.y];
+  }
+
+  return pointsBoxToDimensionsBox(bbox);
+};
+
+/**
+ * Determines the area of a given bounding box
+ * @param bbox - [x, y, width, height]
+ */
+export const getBoundingBoxArea = (bbox: BoundingBox): number => {
+  return bbox[2] * bbox[3];
+};
+
+export const displayDetection = (
+  context: CanvasRenderingContext2D,
+  detection: Detection,
+  selectedDetection: Detection | null,
+  selectedCategory: string,
+  editionMode: EditionMode,
+  zoom: number,
+) => {
+  if (
+    !detection.visible ||
+    (detection.selected && editionMode !== EditionMode.NoTool)
+  ) {
+    return;
+  }
+
+  const renderColor = getDetectionRenderColor(
+    detection,
+    selectedCategory,
+    selectedDetection,
+  );
+  context.strokeStyle = renderColor;
+  context.fillStyle = renderColor;
+
+  const [x, y, w, h] = detection.boundingBox;
+
+  context.strokeRect(x, y, w, h);
+
+  context.globalAlpha = 0.5;
+  if ('polygonMask' in detection && detection.polygonMask.length) {
+    renderPolygonMasks(context, detection.polygonMask);
+  } else if (detection.binaryMask) {
+    renderBinaryMasks(detection.binaryMask, context, zoom);
+  }
+
+  context.globalAlpha = 1.0;
+
+  renderDetectionLabel(context, detection, zoom);
+};
+
+/**
+ * Draws the detection label with the font size based on the zoom level
+ */
+export const renderDetectionLabel = (
+  context: CanvasRenderingContext2D,
+  detection: Detection,
+  zoom: number,
+) => {
+  const labelText = limitCharCount(detection.className);
+  const { LABEL_PADDING, LABEL_HEIGHT } = DETECTION_STYLE;
+  const { width, height } = getTextLabelSize(
+    context,
+    labelText,
+    LABEL_PADDING.LEFT,
+    zoom,
+    LABEL_HEIGHT,
+  );
+
+  const [x, y] = detection.boundingBox;
+  context.fillRect(x - context.lineWidth / 2, y - height, width, height);
+  context.fillStyle = DETECTION_STYLE.LABEL_TEXT_COLOR;
+  context.fillText(
+    labelText,
+    x + (LABEL_PADDING.LEFT - 1) / zoom,
+    y - LABEL_PADDING.BOTTOM / zoom,
+  );
+};
+
+/**
+ * Returns the detection color based on whether it's selected, or another detection is selected
+ */
+export const getDetectionRenderColor = (
+  detection: Detection,
+  selectedCategory: string,
+  selectedDetection: Detection | null,
+): string => {
+  let renderColor = detection.color;
+  if (detection.selected || detection.categorySelected) {
+    renderColor = DETECTION_STYLE.SELECTED_COLOR;
+  }
+  if (selectedDetection !== null && selectedCategory === '') {
+    if (selectedDetection?.uuid !== detection.uuid) {
+      renderColor = hexToCssRgba(detection.color);
+    }
+  }
+  if (selectedCategory !== '' && selectedCategory !== detection.categoryName) {
+    renderColor = hexToCssRgba(detection.color);
+  }
+
+  return renderColor;
 };

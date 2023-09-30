@@ -1,16 +1,23 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { fromPromise } from 'rxjs/internal/observable/innerFrom';
-import { cornerstone, cornerstoneWADOImageLoader } from '../csSetup';
+import { cornerstone, cornerstoneWADOImageLoader } from '../../csSetup';
 // @ts-ignore
 import { arrayBufferToImage, createImage } from 'cornerstone-web-image-loader';
-import { PixelData } from '../../models/file-parser';
-import { DetectionType } from '../../models/detection';
+import { PixelData } from '../../../models/file-parser';
+import { DetectionType } from '../../../models/detection';
+import {
+  CornerstoneConfiguration,
+  CS_DEFAULT_CONFIGURATION,
+} from '../../../models/cornerstone';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CornerstoneService {
+  private _configuration: BehaviorSubject<CornerstoneConfiguration> =
+    new BehaviorSubject<CornerstoneConfiguration>(CS_DEFAULT_CONFIGURATION);
+
   constructor() {}
 
   async #arrayBufferToImage(
@@ -21,6 +28,14 @@ export class CornerstoneService {
     const imageObject: cornerstone.Image = createImage(image, imageId);
     imageObject.rgba = true;
     return imageObject;
+  }
+
+  public getCsConfiguration() {
+    return this._configuration.asObservable();
+  }
+
+  public setCsConfiguration(config: CornerstoneConfiguration) {
+    this._configuration.next(config);
   }
 
   getImageData(pixelData: PixelData): Observable<cornerstone.Image> {

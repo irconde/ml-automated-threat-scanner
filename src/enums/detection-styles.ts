@@ -29,12 +29,4 @@ export const DETECTION_STYLE = {
   BORDER_WIDTH: 2,
 } as const;
 
-export enum EDITION_MODE {
-  LABEL = 'label',
-  BOUNDING = 'bounding',
-  MOVE = 'movement',
-  POLYGON = 'polygon',
-  DELETE = 'delete',
-  NO_TOOL = 'none',
-  COLOR = 'color',
-}
+
