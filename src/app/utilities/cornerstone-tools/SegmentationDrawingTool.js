@@ -1,8 +1,9 @@
 import csTools from 'eac-cornerstone-tools';
-import * as constants from '../utils/enums/Constants';
 import * as cornerstone from 'cornerstone-core';
 import * as cornerstoneMath from 'cornerstone-math';
-import Utils from '../utils/general/Utils';
+import {CS_EVENTS, ToolNames} from "../../../enums/cornerstone";
+import {DETECTION_STYLE} from "../../../enums/detection-styles";
+import {renderPolygonMasks} from "../detection.utilities";
 const drawHandles = csTools.importInternal('drawing/drawHandles');
 const BaseAnnotationTool = csTools.importInternal('base/BaseAnnotationTool');
 const getNewContext = csTools.importInternal('drawing/getNewContext');
@@ -30,7 +31,7 @@ const { freehandArea, freehandIntersect, FreehandHandleData } = freehandUtils;
 export default class SegmentationDrawingTool extends BaseAnnotationTool {
     constructor(props = {}) {
         const defaultProps = {
-            name: constants.toolNames.segmentation,
+            name: ToolNames.Segmentation,
             supportedInteractionTypes: ['Mouse', 'Touch'],
             configuration: defaultFreehandConfiguration(),
         };
@@ -219,18 +220,18 @@ export default class SegmentationDrawingTool extends BaseAnnotationTool {
                 continue;
             }
             draw(context, (context) => {
-                let color = constants.annotationStyle.NORMAL_COLOR;
+                let color = DETECTION_STYLE.NORMAL_COLOR;
                 let fillColor;
                 if (data.active) {
                     if (data.handles.invalidHandlePlacement) {
                         color = config.invalidColor;
                         fillColor = config.invalidColor;
                     } else {
-                        color = constants.annotationStyle.NORMAL_COLOR;
-                        fillColor = constants.annotationStyle.NORMAL_COLOR;
+                        color = DETECTION_STYLE.NORMAL_COLOR;
+                        fillColor = DETECTION_STYLE.NORMAL_COLOR;
                     }
                 } else {
-                    fillColor = constants.annotationStyle.NORMAL_COLOR;
+                    fillColor = DETECTION_STYLE.NORMAL_COLOR;
                 }
 
                 let options = { color };
@@ -340,12 +341,12 @@ export default class SegmentationDrawingTool extends BaseAnnotationTool {
                         segmentationCoords.push(point);
                     }
                     context.strokeStyle =
-                        constants.annotationStyle.SELECTED_COLOR;
+                        DETECTION_STYLE.SELECTED_COLOR;
                     context.fillStyle =
-                        constants.annotationStyle.SELECTED_COLOR;
+                        DETECTION_STYLE.SELECTED_COLOR;
                     context.globalAlpha = 0.5;
                     if (segmentationCoords !== undefined)
-                        Utils.renderPolygonMasks(context, segmentationCoords);
+                        renderPolygonMasks(context, segmentationCoords);
                     context.globalAlpha = 1.0;
                 }
             });
@@ -514,7 +515,7 @@ export default class SegmentationDrawingTool extends BaseAnnotationTool {
      * @returns {void}
      */
     fireModifiedEvent(element, measurementData) {
-        const eventType = constants.events.POLYGON_MASK_MODIFIED;
+        const eventType = CS_EVENTS.POLYGON_MASK_MODIFIED;
         const eventData = {
             toolName: this.name,
             toolType: this.name, // Deprecation notice: toolType will be replaced by toolName
@@ -525,7 +526,7 @@ export default class SegmentationDrawingTool extends BaseAnnotationTool {
     }
 
     fireCompletedEvent(element, measurementData) {
-        const eventType = constants.events.POLYGON_MASK_CREATED;
+        const eventType = CS_EVENTS.POLYGON_MASK_CREATED;
         const eventData = {
             toolName: this.name,
             toolType: this.name, // Deprecation notice: toolType will be replaced by toolName

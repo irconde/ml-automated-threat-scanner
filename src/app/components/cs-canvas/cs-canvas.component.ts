@@ -1,16 +1,21 @@
-import { Component, OnInit } from '@angular/core';
-import { CornerstoneDirective } from '../../directives/cornerstone.directive';
-import { CornerstoneService } from '../../services/cornerstone/cornerstone.service';
-import { FileService } from '../../services/file/file.service';
-import { FilePayload } from '../../../../shared/models/file-models';
-import { FileParserService } from '../../services/file-parser/file-parser.service';
-import { IonicModule } from '@ionic/angular';
-import { KeyValuePipe, NgClass, NgForOf, NgIf, NgStyle } from '@angular/common';
-import { DetectionToolboxFabComponent } from '../detection-toolbox-fab/detection-toolbox-fab.component';
-import { ViewportsMap } from '../../../models/viewport';
-import { DetectionsService } from '../../services/detections/detections.service';
-import { Detection, RawDetection } from '../../../models/detection';
-import { CornerstoneMode } from '../../../enums/cornerstone';
+import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {CornerstoneDirective} from '../../directives/cornerstone.directive';
+import {CornerstoneService} from '../../services/cornerstone/cornerstone.service';
+import {FileService} from '../../services/file/file.service';
+import {FilePayload} from '../../../../shared/models/file-models';
+import {FileParserService} from '../../services/file-parser/file-parser.service';
+import {IonicModule} from '@ionic/angular';
+import {KeyValuePipe, NgClass, NgForOf, NgIf, NgStyle} from '@angular/common';
+import {DetectionToolboxFabComponent} from '../detection-toolbox-fab/detection-toolbox-fab.component';
+import {ViewportsMap} from '../../../models/viewport';
+import {DetectionsService} from '../../services/detections/detections.service';
+import {Detection, RawDetection} from '../../../models/detection';
+import {CornerstoneMode} from '../../../enums/cornerstone';
+import {cornerstoneTools} from '../../csSetup';
+import BoundingBoxDrawingTool from '../../utilities/cornerstone-tools/BoundingBoxDrawingTool';
+import SegmentationDrawingTool from '../../utilities/cornerstone-tools/SegmentationDrawingTool';
+
+// import AnnotationMovementTool from '../utilities/cornerstone-tools/AnnotationMovementTool';
 
 @Component({
   selector: 'app-cs-canvas',
@@ -28,7 +33,7 @@ import { CornerstoneMode } from '../../../enums/cornerstone';
     NgClass,
   ],
 })
-export class CsCanvasComponent implements OnInit {
+export class CsCanvasComponent implements OnInit, AfterViewInit {
   viewportsData: ViewportsMap = {
     top: { imageData: null, detectionData: [] },
     side: { imageData: null, detectionData: [] },
@@ -119,5 +124,22 @@ export class CsCanvasComponent implements OnInit {
       color: 'orange',
       categoryName: rawDetection.className,
     };
+  }
+
+  ngAfterViewInit(): void {
+    const PanTool = cornerstoneTools.PanTool;
+    cornerstoneTools.addTool(PanTool);
+    cornerstoneTools.setToolActive('Pan', { mouseButtonMask: 1 });
+
+    const ZoomMouseWheelTool = cornerstoneTools.ZoomMouseWheelTool;
+    cornerstoneTools.addTool(ZoomMouseWheelTool);
+    cornerstoneTools.setToolActive('ZoomMouseWheel', {});
+
+    const ZoomTouchPinchTool = cornerstoneTools.ZoomTouchPinchTool;
+    cornerstoneTools.addTool(ZoomTouchPinchTool);
+    cornerstoneTools.setToolActive('ZoomTouchPinch', { mouseButtonMask: 1 });
+
+    cornerstoneTools.addTool(BoundingBoxDrawingTool);
+    cornerstoneTools.addTool(SegmentationDrawingTool);
   }
 }

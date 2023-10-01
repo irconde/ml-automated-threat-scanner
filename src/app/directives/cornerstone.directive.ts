@@ -1,44 +1,19 @@
-import {
-  AfterViewInit,
-  Directive,
-  ElementRef,
-  HostListener,
-  Input,
-} from '@angular/core';
-import { ViewportData, ViewportsMap } from '../../models/viewport';
-import {
-  Coordinate2D,
-  CornerstoneClickEvent,
-  Detection,
-  Dimension2D,
-} from '../../models/detection';
-import { DETECTION_STYLE } from '../../enums/detection-styles';
-import {
-  displayDetection,
-  getBboxFromHandles,
-  getBoundingBoxArea,
-  pointInRect,
-} from '../utilities/detection.utilities';
-import { cornerstone, cornerstoneTools } from '../csSetup';
-import { DetectionsService } from '../services/detections/detections.service';
+import {AfterViewInit, Directive, ElementRef, HostListener, Input,} from '@angular/core';
+import {ViewportData, ViewportsMap} from '../../models/viewport';
+import {Coordinate2D, CornerstoneClickEvent, Detection, Dimension2D,} from '../../models/detection';
+import {DETECTION_STYLE} from '../../enums/detection-styles';
+import {displayDetection, getBboxFromHandles, getBoundingBoxArea, pointInRect,} from '../utilities/detection.utilities';
+import {cornerstone} from '../csSetup';
+import {DetectionsService} from '../services/detections/detections.service';
 import {
   getCreatedBoundingBox,
   resetCornerstoneTool,
   updateCornerstoneViewports,
 } from '../utilities/cornerstone.utilities';
-import BoundingBoxDrawingTool from '../utilities/cornerstone-tools/BoundingBoxDrawingTool';
-import {
-  AnnotationMode,
-  CornerstoneMode,
-  CS_EVENTS,
-  EditionMode,
-  ToolNames,
-} from '../../enums/cornerstone';
-import { CornerstoneService } from '../services/cornerstone/cornerstone.service';
-import { CS_DEFAULT_CONFIGURATION } from '../../models/cornerstone';
-import { renderBboxCrosshair } from '../utilities/drawing.utilities';
-// import SegmentationDrawingTool from '../utilities/cornerstone-tools/SegmentationDrawingTool';
-// import AnnotationMovementTool from '../utilities/cornerstone-tools/AnnotationMovementTool';
+import {AnnotationMode, CornerstoneMode, CS_EVENTS, EditionMode, ToolNames,} from '../../enums/cornerstone';
+import {CornerstoneService} from '../services/cornerstone/cornerstone.service';
+import {CS_DEFAULT_CONFIGURATION} from '../../models/cornerstone';
+import {renderBboxCrosshair} from '../utilities/drawing.utilities';
 // TODO: get the actual selected category
 const SELECTED_CATEGORY = '';
 // TODO: get the actual edition mode
@@ -155,20 +130,6 @@ export class CornerstoneDirective implements AfterViewInit {
   ngAfterViewInit() {
     // Enable the element with Cornerstone
     cornerstone.enable(this.element);
-
-    const PanTool = cornerstoneTools.PanTool;
-    cornerstoneTools.addTool(PanTool);
-    cornerstoneTools.setToolActive('Pan', { mouseButtonMask: 1 });
-
-    const ZoomMouseWheelTool = cornerstoneTools.ZoomMouseWheelTool;
-    cornerstoneTools.addTool(ZoomMouseWheelTool);
-    cornerstoneTools.setToolActive('ZoomMouseWheel', {});
-
-    const ZoomTouchPinchTool = cornerstoneTools.ZoomTouchPinchTool;
-    cornerstoneTools.addTool(ZoomTouchPinchTool);
-    cornerstoneTools.setToolActive('ZoomTouchPinch', { mouseButtonMask: 1 });
-
-    cornerstoneTools.addTool(BoundingBoxDrawingTool);
   }
 
   displayImage(image: cornerstone.Image) {

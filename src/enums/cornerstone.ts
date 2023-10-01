@@ -41,4 +41,6 @@ export enum CommonDetections {
 export const CS_EVENTS = {
   RENDER: 'cornerstoneimagerendered',
   CLICK: 'cornerstonetoolsmouseclick',
+  POLYGON_MASK_CREATED: 'polygon_mask_created',
+  POLYGON_MASK_MODIFIED: 'polygon_mask_modified',
 } as const;
