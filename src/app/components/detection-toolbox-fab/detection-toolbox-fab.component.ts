@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { cornerstoneTools } from '../../csSetup';
 import {
   AnnotationMode,
   CornerstoneMode,
@@ -8,6 +7,7 @@ import {
 } from '../../../enums/cornerstone';
 import { CornerstoneService } from '../../services/cornerstone/cornerstone.service';
 import { DetectionsService } from '../../services/detections/detections.service';
+import { setCornerstoneToolActive } from '../../utilities/cornerstone.utilities';
 
 @Component({
   selector: 'app-detection-toolbox-fab',
@@ -37,22 +37,27 @@ export class DetectionToolboxFabComponent implements OnInit {
     });
   }
 
-  handlePolygonBtnClick() {}
+  handleFabButtonClick(isBounding: boolean) {
+    const setup = isBounding
+      ? {
+          toolName: ToolNames.BoundingBox,
+          annotationMode: AnnotationMode.Bounding,
+        }
+      : {
+          toolName: ToolNames.Segmentation,
+          annotationMode: AnnotationMode.Polygon,
+        };
 
-  handleRectangleBtnClick() {
-    cornerstoneTools.setToolOptions(ToolNames.BoundingBox, {
+    const csConfiguration = {
       cornerstoneMode: CornerstoneMode.Annotation,
-      annotationMode: AnnotationMode.Bounding,
+      annotationMode: setup.annotationMode,
+    };
+    setCornerstoneToolActive(setup.toolName, {
+      ...csConfiguration,
+      updatingAnnotation: false,
     });
 
-    cornerstoneTools.setToolActive(ToolNames.BoundingBox, {
-      mouseButtonMask: 1,
-    });
-
-    this.cornerstoneService.setCsConfiguration({
-      annotationMode: AnnotationMode.Bounding,
-      cornerstoneMode: CornerstoneMode.Annotation,
-    });
+    this.cornerstoneService.setCsConfiguration(csConfiguration);
     this.detectionsService.clearSelectedDetection();
   }
 }

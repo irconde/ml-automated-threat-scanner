@@ -1,5 +1,9 @@
 import { cornerstone, cornerstoneTools } from '../csSetup';
-import { ToolNames } from '../../enums/cornerstone';
+import {
+  AnnotationMode,
+  CornerstoneMode,
+  ToolNames,
+} from '../../enums/cornerstone';
 import { CreatedBoundingBox } from '../../models/cornerstone';
 
 export const VIEWPORTS_CLASSNAME = 'viewportElement';
@@ -34,4 +38,19 @@ export const resetCornerstoneTool = (
   cornerstoneTools.setToolActive('Pan', { mouseButtonMask: 1 });
   cornerstoneTools.setToolActive('ZoomMouseWheel', {});
   cornerstoneTools.setToolActive('ZoomTouchPinch', {});
+};
+
+export const setCornerstoneToolActive = (
+  toolName: ToolNames,
+  toolOptions: {
+    cornerstoneMode: CornerstoneMode;
+    annotationMode: AnnotationMode;
+    updatingAnnotation: boolean;
+  },
+) => {
+  cornerstoneTools.setToolOptions(toolName, toolOptions);
+
+  cornerstoneTools.setToolActive(toolName, {
+    mouseButtonMask: 1,
+  });
 };

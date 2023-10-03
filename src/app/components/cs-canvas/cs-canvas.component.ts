@@ -1,21 +1,20 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
-import {CornerstoneDirective} from '../../directives/cornerstone.directive';
-import {CornerstoneService} from '../../services/cornerstone/cornerstone.service';
-import {FileService} from '../../services/file/file.service';
-import {FilePayload} from '../../../../shared/models/file-models';
-import {FileParserService} from '../../services/file-parser/file-parser.service';
-import {IonicModule} from '@ionic/angular';
-import {KeyValuePipe, NgClass, NgForOf, NgIf, NgStyle} from '@angular/common';
-import {DetectionToolboxFabComponent} from '../detection-toolbox-fab/detection-toolbox-fab.component';
-import {ViewportsMap} from '../../../models/viewport';
-import {DetectionsService} from '../../services/detections/detections.service';
-import {Detection, RawDetection} from '../../../models/detection';
-import {CornerstoneMode} from '../../../enums/cornerstone';
-import {cornerstoneTools} from '../../csSetup';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { CornerstoneDirective } from '../../directives/cornerstone.directive';
+import { CornerstoneService } from '../../services/cornerstone/cornerstone.service';
+import { FileService } from '../../services/file/file.service';
+import { FilePayload } from '../../../../shared/models/file-models';
+import { FileParserService } from '../../services/file-parser/file-parser.service';
+import { IonicModule } from '@ionic/angular';
+import { KeyValuePipe, NgClass, NgForOf, NgIf, NgStyle } from '@angular/common';
+import { DetectionToolboxFabComponent } from '../detection-toolbox-fab/detection-toolbox-fab.component';
+import { ViewportsMap } from '../../../models/viewport';
+import { DetectionsService } from '../../services/detections/detections.service';
+import { Detection, RawDetection } from '../../../models/detection';
+import { CornerstoneMode } from '../../../enums/cornerstone';
+import { cornerstoneTools } from '../../csSetup';
 import BoundingBoxDrawingTool from '../../utilities/cornerstone-tools/BoundingBoxDrawingTool';
 import SegmentationDrawingTool from '../../utilities/cornerstone-tools/SegmentationDrawingTool';
-
-// import AnnotationMovementTool from '../utilities/cornerstone-tools/AnnotationMovementTool';
+import AnnotationMovementTool from '../../utilities/cornerstone-tools/AnnotationMovementTool';
 
 @Component({
   selector: 'app-cs-canvas',
@@ -109,23 +108,6 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
     this.fileService.requestNextFile(next);
   }
 
-  /**
-   * Converts a raw detection to a detection for the application to use
-   */
-  private getDetection(rawDetection: RawDetection): Detection {
-    return {
-      ...rawDetection,
-      // TODO: set these values to something that makes sense
-      selected: false,
-      categorySelected: false,
-      visible: true,
-      id: '',
-      iscrowd: 0,
-      color: 'orange',
-      categoryName: rawDetection.className,
-    };
-  }
-
   ngAfterViewInit(): void {
     const PanTool = cornerstoneTools.PanTool;
     cornerstoneTools.addTool(PanTool);
@@ -141,5 +123,23 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
 
     cornerstoneTools.addTool(BoundingBoxDrawingTool);
     cornerstoneTools.addTool(SegmentationDrawingTool);
+    cornerstoneTools.addTool(AnnotationMovementTool);
+  }
+
+  /**
+   * Converts a raw detection to a detection for the application to use
+   */
+  private getDetection(rawDetection: RawDetection): Detection {
+    return {
+      ...rawDetection,
+      // TODO: set these values to something that makes sense
+      selected: false,
+      categorySelected: false,
+      visible: true,
+      id: '',
+      iscrowd: 0,
+      color: 'orange',
+      categoryName: rawDetection.className,
+    };
   }
 }
