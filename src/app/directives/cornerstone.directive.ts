@@ -32,6 +32,7 @@ export class CornerstoneDirective implements AfterViewInit {
   private imageDimensions: Dimension2D = { width: 0, height: 0 };
   private context: CanvasRenderingContext2D | null | undefined = undefined;
   private detections: Detection[] = [];
+  private isClickListenerActive = false;
 
   constructor(
     public elementRef: ElementRef,
@@ -53,6 +54,11 @@ export class CornerstoneDirective implements AfterViewInit {
     });
     this.cornerstoneService.getCsConfiguration().subscribe((config) => {
       this.cornerstoneConfig = config;
+      if (config.cornerstoneMode === CornerstoneMode.Annotation) {
+        this.stopListeningToCLicks();
+      } else {
+        this.listenToClicks();
+      }
     });
     this.detectionsService.getDetectionData().subscribe((detections) => {
       this.detections = detections[this.viewportName!];
@@ -76,8 +82,31 @@ export class CornerstoneDirective implements AfterViewInit {
     console.log('mouseWheel');
   }
 
-  @HostListener(CS_EVENTS.CLICK, ['$event'])
-  onMouseClick(event: CornerstoneClickEvent) {
+  listenToClicks() {
+    if (this.isClickListenerActive) return;
+    setTimeout(() => {
+      // Delay listening for click events until the new detection is created and selected
+      // adding the listener without delay causes the click event to be triggered too soon
+      // which deselects the newly created detection
+      this.element.addEventListener(CS_EVENTS.CLICK, this.onMouseClick);
+      this.isClickListenerActive = true;
+    }, 200);
+  }
+
+  stopListeningToCLicks() {
+    if (!this.isClickListenerActive) return;
+    console.log('STOP LISTENING');
+    this.element.removeEventListener(CS_EVENTS.CLICK, this.onMouseClick);
+    this.isClickListenerActive = false;
+  }
+
+  /**
+   * Runs after onDragEnd event
+   * @param event
+   */
+  // @HostListener(CS_EVENTS.CLICK, ['$event'])
+  onMouseClick = (event: CornerstoneClickEvent) => {
+    console.log('onMouseClick()');
     const canvas = event.detail?.currentPoints?.canvas;
     if (canvas) {
       const { x, y } = canvas;
@@ -97,19 +126,24 @@ export class CornerstoneDirective implements AfterViewInit {
           break;
         }
       }
-      if (!detClicked) {
-        this.detectionsService.clearSelectedDetection();
+      if (detClicked) {
         this.cornerstoneService.setCsConfiguration({
-          cornerstoneMode: CornerstoneMode.Selection,
+          cornerstoneMode: CornerstoneMode.Edition,
           annotationMode: AnnotationMode.NoTool,
         });
+      } else {
+        this.handleEmptyAreaClick();
       }
       updateCornerstoneViewports();
     }
-  }
+  };
 
+  /**
+   * Runs when a polygon mask has been fully drawn. This event is triggered by the PolygonDrawingTool
+   */
   @HostListener(CS_EVENTS.POLYGON_MASK_CREATED, ['$event'])
-  onPolygonEnd() {
+  onPolygonEnd(event: Event) {
+    console.log('onPolygonEnd()');
     const createdPolygon = getCreatedPolygonFromTool(this.element);
     this.cornerstoneService.setCsConfiguration({
       cornerstoneMode: CornerstoneMode.Edition,
@@ -120,19 +154,22 @@ export class CornerstoneDirective implements AfterViewInit {
       console.warn('Polygon tool state is undefined');
       return;
     }
-
+    event.stopPropagation();
     this.detectionsService.addDetection(
       this.viewportName!,
       createdPolygon.bbox,
       createdPolygon.polygonMask,
     );
-    cornerstone.updateImage(this.element, false);
+    updateCornerstoneViewports();
     resetCornerstoneTool(ToolNames.Polygon, this.element);
   }
 
+  /**
+   * Runs on mouseup event before the onMouseClick event
+   */
   @HostListener('mouseup', ['$event'])
   onDragEnd() {
-    console.log('Dragend');
+    console.log('onDragEnd()');
     if (this.cornerstoneConfig.annotationMode === AnnotationMode.Bounding) {
       this.handleBoundingBoxDetectionCreation();
     }
@@ -160,6 +197,7 @@ export class CornerstoneDirective implements AfterViewInit {
   ngAfterViewInit() {
     // Enable the element with Cornerstone
     cornerstone.enable(this.element);
+    this.element.addEventListener(CS_EVENTS.CLICK, this.onMouseClick);
   }
 
   displayImage(image: cornerstone.Image) {
@@ -180,9 +218,10 @@ export class CornerstoneDirective implements AfterViewInit {
 
     if (area > 0) {
       this.detectionsService.addDetection(this.viewportName!, bbox, undefined);
-      cornerstone.updateImage(this.element, false);
+      updateCornerstoneViewports();
     }
     resetCornerstoneTool(ToolNames.BoundingBox, this.element);
+    console.log('doneCreatingBounding');
   }
 
   /**
@@ -218,6 +257,14 @@ export class CornerstoneDirective implements AfterViewInit {
         zoom,
       ),
     );
+  }
+
+  private handleEmptyAreaClick() {
+    this.detectionsService.clearSelectedDetection();
+    this.cornerstoneService.setCsConfiguration({
+      cornerstoneMode: CornerstoneMode.Selection,
+      annotationMode: AnnotationMode.NoTool,
+    });
   }
 
   /**

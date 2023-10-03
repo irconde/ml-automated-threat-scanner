@@ -59,16 +59,17 @@ export class DetectionsService {
   }
 
   addDetection(
-    viewportName: keyof DetectionsMap,
-    bbox: BoundingBox,
+    viewpoint: keyof DetectionsMap,
+    boundingBox: BoundingBox,
     polygonMask: Point[] | undefined,
   ): Detection {
     const newDetection: Detection = {
-      selected: true,
+      viewpoint,
+      polygonMask,
+      boundingBox,
+      selected: false,
       categorySelected: false,
-      viewpoint: viewportName,
       visible: true,
-      boundingBox: bbox,
       iscrowd: 0,
       detectionFromFile: false,
       className: CommonDetections.Operator,
@@ -80,12 +81,13 @@ export class DetectionsService {
       id: '',
       algorithm: '',
       categoryName: '',
-      polygonMask,
     };
     this.setDetectionData({
       ...this.detectionData.value,
-      [viewportName]: [...this.detectionData.value[viewportName], newDetection],
+      [viewpoint]: [...this.detectionData.value[viewpoint], newDetection],
     });
+
+    this.selectDetection(newDetection.uuid, viewpoint);
 
     return newDetection;
   }
