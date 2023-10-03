@@ -211,17 +211,19 @@ export class CornerstoneDirective implements AfterViewInit {
     const bbox = getBboxFromHandles(createdBoundingBox.handles);
     const area = getBoundingBoxArea(bbox);
 
-    this.cornerstoneService.setCsConfiguration({
-      cornerstoneMode: CornerstoneMode.Edition,
-      annotationMode: AnnotationMode.NoTool,
-    });
-
+    let cornerstoneMode = CornerstoneMode.Selection;
     if (area > 0) {
+      cornerstoneMode = CornerstoneMode.Edition;
       this.detectionsService.addDetection(this.viewportName!, bbox, undefined);
       updateCornerstoneViewports();
     }
+
+    this.cornerstoneService.setCsConfiguration({
+      cornerstoneMode: cornerstoneMode,
+      annotationMode: AnnotationMode.NoTool,
+    });
+
     resetCornerstoneTool(ToolNames.BoundingBox, this.element);
-    console.log('doneCreatingBounding');
   }
 
   /**
