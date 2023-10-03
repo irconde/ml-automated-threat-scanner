@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { BoundingBox, Detection } from '../../../models/detection';
+import { BoundingBox, Detection, Point } from '../../../models/detection';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { CommonDetections } from '../../../enums/cornerstone';
+import { v4 as guid } from 'uuid';
 
 interface DetectionsMap {
   top: Detection[];
@@ -58,12 +59,10 @@ export class DetectionsService {
   }
 
   addDetection(
-    bbox: BoundingBox,
-    area: number,
     viewportName: keyof DetectionsMap,
-    uuid: string,
+    bbox: BoundingBox,
+    polygonMask: Point[] | undefined,
   ): Detection {
-    if (!uuid) throw Error('Missing uuid for newly created detection');
     const newDetection: Detection = {
       selected: true,
       categorySelected: false,
@@ -74,14 +73,14 @@ export class DetectionsService {
       detectionFromFile: false,
       className: CommonDetections.Operator,
       color: 'orange',
-      uuid,
+      uuid: guid(),
       // TODO: update below properties to the default
       confidence: 0,
       imageId: '',
       id: '',
       algorithm: '',
       categoryName: '',
-      polygonMask: [],
+      polygonMask,
     };
     this.setDetectionData({
       ...this.detectionData.value,

@@ -1,41 +1,20 @@
+import {AfterViewInit, Directive, ElementRef, HostListener, Input,} from '@angular/core';
+import {ViewportData, ViewportsMap} from '../../models/viewport';
+import {Coordinate2D, CornerstoneClickEvent, Detection, Dimension2D,} from '../../models/detection';
+import {DETECTION_STYLE} from '../../enums/detection-styles';
+import {displayDetection, getBboxFromHandles, getBoundingBoxArea, pointInRect,} from '../utilities/detection.utilities';
+import {cornerstone} from '../csSetup';
+import {DetectionsService} from '../services/detections/detections.service';
 import {
-  AfterViewInit,
-  Directive,
-  ElementRef,
-  HostListener,
-  Input,
-} from '@angular/core';
-import { ViewportData, ViewportsMap } from '../../models/viewport';
-import {
-  Coordinate2D,
-  CornerstoneClickEvent,
-  Detection,
-  Dimension2D,
-} from '../../models/detection';
-import { DETECTION_STYLE } from '../../enums/detection-styles';
-import {
-  displayDetection,
-  getBboxFromHandles,
-  getBoundingBoxArea,
-  pointInRect,
-} from '../utilities/detection.utilities';
-import { cornerstone } from '../csSetup';
-import { DetectionsService } from '../services/detections/detections.service';
-import {
-  getCreatedBoundingBox,
+  getCreatedBoundingBoxFromTool,
+  getCreatedPolygonFromTool,
   resetCornerstoneTool,
   updateCornerstoneViewports,
 } from '../utilities/cornerstone.utilities';
-import {
-  AnnotationMode,
-  CornerstoneMode,
-  CS_EVENTS,
-  EditionMode,
-  ToolNames,
-} from '../../enums/cornerstone';
-import { CornerstoneService } from '../services/cornerstone/cornerstone.service';
-import { CS_DEFAULT_CONFIGURATION } from '../../models/cornerstone';
-import { renderBboxCrosshair } from '../utilities/drawing.utilities';
+import {AnnotationMode, CornerstoneMode, CS_EVENTS, EditionMode, ToolNames,} from '../../enums/cornerstone';
+import {CornerstoneService} from '../services/cornerstone/cornerstone.service';
+import {CS_DEFAULT_CONFIGURATION} from '../../models/cornerstone';
+import {renderBboxCrosshair} from '../utilities/drawing.utilities';
 // TODO: get the actual selected category
 const SELECTED_CATEGORY = '';
 // TODO: get the actual edition mode
@@ -125,6 +104,25 @@ export class CornerstoneDirective implements AfterViewInit {
     }
   }
 
+  @HostListener(CS_EVENTS.POLYGON_MASK_CREATED, ['$event'])
+  onPolygonEnd() {
+    const createdPolygon = getCreatedPolygonFromTool(this.element);
+    this.cornerstoneService.setCsConfiguration({
+      cornerstoneMode: CornerstoneMode.Edition,
+      annotationMode: AnnotationMode.NoTool,
+    });
+    console.log(createdPolygon);
+    if (createdPolygon === undefined) return;
+
+    this.detectionsService.addDetection(
+      this.viewportName!,
+      createdPolygon.bbox,
+      createdPolygon.polygonMask,
+    );
+    cornerstone.updateImage(this.element, false);
+    resetCornerstoneTool(ToolNames.BoundingBox, this.element);
+  }
+
   @HostListener('mouseup', ['$event'])
   onDragEnd() {
     console.log('Dragend');
@@ -162,24 +160,19 @@ export class CornerstoneDirective implements AfterViewInit {
   }
 
   private handleBoundingBoxDetectionCreation() {
-    const createdBoundingBox = getCreatedBoundingBox(this.element);
+    const createdBoundingBox = getCreatedBoundingBoxFromTool(this.element);
     if (createdBoundingBox === undefined) return;
 
     const bbox = getBboxFromHandles(createdBoundingBox.handles);
     const area = getBoundingBoxArea(bbox);
 
     this.cornerstoneService.setCsConfiguration({
-      cornerstoneMode: CornerstoneMode.Selection,
+      cornerstoneMode: CornerstoneMode.Edition,
       annotationMode: AnnotationMode.NoTool,
     });
 
     if (area > 0) {
-      this.detectionsService.addDetection(
-        bbox,
-        area,
-        this.viewportName!,
-        createdBoundingBox.uuid,
-      );
+      this.detectionsService.addDetection(this.viewportName!, bbox, undefined);
       cornerstone.updateImage(this.element, false);
     }
     resetCornerstoneTool(ToolNames.BoundingBox, this.element);
