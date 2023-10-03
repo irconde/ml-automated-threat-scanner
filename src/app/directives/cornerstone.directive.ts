@@ -99,6 +99,10 @@ export class CornerstoneDirective implements AfterViewInit {
       }
       if (!detClicked) {
         this.detectionsService.clearSelectedDetection();
+        this.cornerstoneService.setCsConfiguration({
+          cornerstoneMode: CornerstoneMode.Selection,
+          annotationMode: AnnotationMode.NoTool,
+        });
       }
       updateCornerstoneViewports();
     }
@@ -111,8 +115,11 @@ export class CornerstoneDirective implements AfterViewInit {
       cornerstoneMode: CornerstoneMode.Edition,
       annotationMode: AnnotationMode.NoTool,
     });
-    console.log(createdPolygon);
-    if (createdPolygon === undefined) return;
+
+    if (createdPolygon === undefined) {
+      console.warn('Polygon tool state is undefined');
+      return;
+    }
 
     this.detectionsService.addDetection(
       this.viewportName!,
@@ -120,7 +127,7 @@ export class CornerstoneDirective implements AfterViewInit {
       createdPolygon.polygonMask,
     );
     cornerstone.updateImage(this.element, false);
-    resetCornerstoneTool(ToolNames.BoundingBox, this.element);
+    resetCornerstoneTool(ToolNames.Polygon, this.element);
   }
 
   @HostListener('mouseup', ['$event'])
