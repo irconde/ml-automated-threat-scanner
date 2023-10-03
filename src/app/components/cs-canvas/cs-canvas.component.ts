@@ -13,7 +13,7 @@ import { Detection, RawDetection } from '../../../models/detection';
 import { CornerstoneMode } from '../../../enums/cornerstone';
 import { cornerstoneTools } from '../../csSetup';
 import BoundingBoxDrawingTool from '../../utilities/cornerstone-tools/BoundingBoxDrawingTool';
-import SegmentationDrawingTool from '../../utilities/cornerstone-tools/SegmentationDrawingTool';
+import PolygonDrawingTool from '../../utilities/cornerstone-tools/PolygonDrawingTool';
 import AnnotationMovementTool from '../../utilities/cornerstone-tools/AnnotationMovementTool';
 
 @Component({
@@ -122,7 +122,7 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
     cornerstoneTools.setToolActive('ZoomTouchPinch', { mouseButtonMask: 1 });
 
     cornerstoneTools.addTool(BoundingBoxDrawingTool);
-    cornerstoneTools.addTool(SegmentationDrawingTool);
+    cornerstoneTools.addTool(PolygonDrawingTool);
     cornerstoneTools.addTool(AnnotationMovementTool);
   }
 

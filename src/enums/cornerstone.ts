@@ -1,6 +1,6 @@
 export enum ToolNames {
   BoundingBox = 'BoundingBoxDrawing',
-  Segmentation = 'SegmentationDrawingTool',
+  Polygon = 'PolygonDrawingTool',
   AnnotationMovement = 'AnnotationMovementTool',
 }
 

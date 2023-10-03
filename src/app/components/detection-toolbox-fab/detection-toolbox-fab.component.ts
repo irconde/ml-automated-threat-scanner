@@ -44,7 +44,7 @@ export class DetectionToolboxFabComponent implements OnInit {
           annotationMode: AnnotationMode.Bounding,
         }
       : {
-          toolName: ToolNames.Segmentation,
+          toolName: ToolNames.Polygon,
           annotationMode: AnnotationMode.Polygon,
         };
 

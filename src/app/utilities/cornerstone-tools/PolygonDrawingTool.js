@@ -22,16 +22,16 @@ const { freehandArea, freehandIntersect, FreehandHandleData } = freehandUtils;
 
 /**
  * @public
- * @class SegmentationDrawingTool
+ * @class PolygonDrawingTool
  * @memberof Tools.Annotation
  * @classdesc Tool for drawing arbitrary Segmentation regions of interest, and
  * measuring the statistics of the enclosed pixels.
  * @extends Tools.Base.BaseAnnotationTool
  */
-export default class SegmentationDrawingTool extends BaseAnnotationTool {
+export default class PolygonDrawingTool extends BaseAnnotationTool {
   constructor(props = {}) {
     const defaultProps = {
-      name: ToolNames.Segmentation,
+      name: ToolNames.Polygon,
       supportedInteractionTypes: ["Mouse", "Touch"],
       configuration: defaultFreehandConfiguration(),
     };
@@ -385,7 +385,6 @@ export default class SegmentationDrawingTool extends BaseAnnotationTool {
    * @returns {undefined}
    */
   _drawingMouseDownCallback(evt) {
-    console.log(evt);
     const eventData = evt.detail;
     const { buttons, currentPoints, element } = eventData;
 
