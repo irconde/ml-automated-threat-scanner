@@ -95,7 +95,6 @@ export class CornerstoneDirective implements AfterViewInit {
 
   stopListeningToCLicks() {
     if (!this.isClickListenerActive) return;
-    console.log('STOP LISTENING');
     this.element.removeEventListener(CS_EVENTS.CLICK, this.onMouseClick);
     this.isClickListenerActive = false;
   }
