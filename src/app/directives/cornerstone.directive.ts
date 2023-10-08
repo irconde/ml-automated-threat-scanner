@@ -1,20 +1,38 @@
-import {AfterViewInit, Directive, ElementRef, HostListener, Input,} from '@angular/core';
-import {ViewportData, ViewportsMap} from '../../models/viewport';
-import {Coordinate2D, CornerstoneClickEvent, Detection, Dimension2D,} from '../../models/detection';
-import {DETECTION_STYLE} from '../../enums/detection-styles';
-import {displayDetection, getBboxFromHandles, getBoundingBoxArea, pointInRect,} from '../utilities/detection.utilities';
-import {cornerstone} from '../csSetup';
-import {DetectionsService} from '../services/detections/detections.service';
+import {
+  AfterViewInit,
+  Directive,
+  ElementRef,
+  HostListener,
+  Input,
+} from '@angular/core';
+import { ViewportData, ViewportsMap } from '../../models/viewport';
+import { Coordinate2D, Detection, Dimension2D } from '../../models/detection';
+import { DETECTION_STYLE } from '../../enums/detection-styles';
+import {
+  displayDetection,
+  getBboxFromHandles,
+  getBoundingBoxArea,
+  pointInRect,
+} from '../utilities/detection.utilities';
+import { cornerstone } from '../csSetup';
+import { DetectionsService } from '../services/detections/detections.service';
 import {
   getCreatedBoundingBoxFromTool,
   getCreatedPolygonFromTool,
   resetCornerstoneTool,
   updateCornerstoneViewports,
 } from '../utilities/cornerstone.utilities';
-import {AnnotationMode, CornerstoneMode, CS_EVENTS, EditionMode, ToolNames,} from '../../enums/cornerstone';
-import {CornerstoneService} from '../services/cornerstone/cornerstone.service';
-import {CS_DEFAULT_CONFIGURATION} from '../../models/cornerstone';
-import {renderBboxCrosshair} from '../utilities/drawing.utilities';
+import {
+  AnnotationMode,
+  CornerstoneMode,
+  CS_EVENTS,
+  EditionMode,
+  ToolNames,
+} from '../../enums/cornerstone';
+import { CornerstoneService } from '../services/cornerstone/cornerstone.service';
+import { CS_DEFAULT_CONFIGURATION } from '../../models/cornerstone';
+import { renderBboxCrosshair } from '../utilities/drawing.utilities';
+import { SettingsService } from '../services/settings/settings.service';
 // TODO: get the actual selected category
 const SELECTED_CATEGORY = '';
 // TODO: get the actual edition mode
@@ -38,16 +56,26 @@ export class CornerstoneDirective implements AfterViewInit {
     public elementRef: ElementRef,
     private cornerstoneService: CornerstoneService,
     private detectionsService: DetectionsService,
+    private settingsService: SettingsService,
   ) {
     this.element = elementRef.nativeElement;
     // track the position of the mouse
-    document.body.addEventListener('mousemove', (e) => {
-      this.mousePosition.x = e.clientX;
-      this.mousePosition.y = e.clientY;
-      if (this.isAnnotating()) {
+    const handleMouseAndMove = (e: MouseEvent | TouchEvent) => {
+      console.log('MOVE');
+      if (e instanceof MouseEvent) {
+        this.mousePosition.x = e.clientX;
+        this.mousePosition.y = e.clientY;
+      } else {
+        this.mousePosition.x = e.touches[0].clientX;
+        this.mousePosition.y = e.touches[0].clientY;
+      }
+
+      if (this.shouldShowCrosshair()) {
         cornerstone.updateImage(this.element, false);
       }
-    });
+    };
+    document.body.addEventListener('mousemove', handleMouseAndMove);
+    document.body.addEventListener('touchmove', handleMouseAndMove);
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Escape') return;
       this.handleExitingAnnotationMode();
@@ -88,14 +116,18 @@ export class CornerstoneDirective implements AfterViewInit {
       // Delay listening for click events until the new detection is created and selected
       // adding the listener without delay causes the click event to be triggered too soon
       // which deselects the newly created detection
-      this.element.addEventListener(CS_EVENTS.CLICK, this.onMouseClick);
+      // this.element.addEventListener(CS_EVENTS.CLICK, this.onMouseClick);
+      this.element.addEventListener('click', this.onMouseClick);
+      this.element.addEventListener('touchstart', this.onMouseClick);
       this.isClickListenerActive = true;
     }, 200);
   }
 
   stopListeningToCLicks() {
     if (!this.isClickListenerActive) return;
-    this.element.removeEventListener(CS_EVENTS.CLICK, this.onMouseClick);
+    // this.element.removeEventListener(CS_EVENTS.CLICK, this.onMouseClick);
+    this.element.removeEventListener('click', this.onMouseClick);
+    this.element.removeEventListener('touchstart', this.onMouseClick);
     this.isClickListenerActive = false;
   }
 
@@ -104,37 +136,52 @@ export class CornerstoneDirective implements AfterViewInit {
    * @param event
    */
   // @HostListener(CS_EVENTS.CLICK, ['$event'])
-  onMouseClick = (event: CornerstoneClickEvent) => {
+  onMouseClick = (event: MouseEvent | TouchEvent) => {
     console.log('onMouseClick()');
-    const canvas = event.detail?.currentPoints?.canvas;
-    if (canvas) {
-      const { x, y } = canvas;
-      const mousePos = cornerstone.canvasToPixel(this.element, {
-        _canvasCoordinateBrand: '',
-        x: x,
-        y: y,
-      });
-      let detClicked = false;
-      for (let i = 0; i < this.detections.length; i++) {
-        if (pointInRect(mousePos, this.detections[i].boundingBox)) {
-          this.detectionsService.selectDetection(
-            this.detections[i].uuid,
-            this.detections[i].viewpoint,
-          );
-          detClicked = true;
-          break;
-        }
+    // const canvas = event.detail?.currentPoints?.canvas;
+    // console.log(canvas);
+    console.log(event);
+    let clientX;
+    let clientY;
+    if ('clientX' in event && 'clientY' in event) {
+      clientX = event.clientX;
+      clientY = event.clientY;
+    } else if ('touches' in event && event.touches.length) {
+      clientX = event.touches[0].clientX;
+      clientY = event.touches[0].clientY;
+    } else throw Error('Failed to locate coordinates of user click');
+    const x = clientX - this.element.getBoundingClientRect().left;
+    const y = clientY - this.element.getBoundingClientRect().top;
+
+    console.log({ x, y });
+    // if (canvas) {
+    //   const { x, y } = canvas;
+    const mousePos = cornerstone.canvasToPixel(this.element, {
+      _canvasCoordinateBrand: '',
+      x: x,
+      y: y,
+    });
+    let detClicked = false;
+    for (let i = 0; i < this.detections.length; i++) {
+      if (pointInRect(mousePos, this.detections[i].boundingBox)) {
+        this.detectionsService.selectDetection(
+          this.detections[i].uuid,
+          this.detections[i].viewpoint,
+        );
+        detClicked = true;
+        break;
       }
-      if (detClicked) {
-        this.cornerstoneService.setCsConfiguration({
-          cornerstoneMode: CornerstoneMode.Edition,
-          annotationMode: AnnotationMode.NoTool,
-        });
-      } else {
-        this.handleEmptyAreaClick();
-      }
-      updateCornerstoneViewports();
     }
+    if (detClicked) {
+      this.cornerstoneService.setCsConfiguration({
+        cornerstoneMode: CornerstoneMode.Edition,
+        annotationMode: AnnotationMode.NoTool,
+      });
+    } else {
+      this.handleEmptyAreaClick();
+    }
+    updateCornerstoneViewports();
+    // }
   };
 
   /**
@@ -167,6 +214,7 @@ export class CornerstoneDirective implements AfterViewInit {
    * Runs on mouseup event before the onMouseClick event
    */
   @HostListener('mouseup', ['$event'])
+  @HostListener('touchend')
   onDragEnd() {
     console.log('onDragEnd()');
     if (this.cornerstoneConfig.annotationMode === AnnotationMode.Bounding) {
@@ -182,7 +230,7 @@ export class CornerstoneDirective implements AfterViewInit {
     const enabledElement = cornerstone.getEnabledElement(this.element);
     const zoom = enabledElement.viewport?.scale || 1;
     this.renderDetections(this.context, zoom);
-    if (this.isAnnotating()) {
+    if (this.shouldShowCrosshair()) {
       renderBboxCrosshair(
         this.context,
         this.element,
@@ -196,7 +244,9 @@ export class CornerstoneDirective implements AfterViewInit {
   ngAfterViewInit() {
     // Enable the element with Cornerstone
     cornerstone.enable(this.element);
-    this.element.addEventListener(CS_EVENTS.CLICK, this.onMouseClick);
+    // this.element.addEventListener(CS_EVENTS.CLICK, this.onMouseClick);
+    this.element.addEventListener('click', this.onMouseClick);
+    this.element.addEventListener('touchstart', this.onMouseClick);
   }
 
   displayImage(image: cornerstone.Image) {
@@ -232,6 +282,16 @@ export class CornerstoneDirective implements AfterViewInit {
   private isAnnotating(): boolean {
     return (
       this.cornerstoneConfig.cornerstoneMode === CornerstoneMode.Annotation
+    );
+  }
+
+  private shouldShowCrosshair(): boolean {
+    return (
+      // if annotating on a NON mobile device
+      (this.isAnnotating() && !this.settingsService.isMobile) ||
+      // if annotating a bounding box on mobile
+      (this.cornerstoneConfig.annotationMode === AnnotationMode.Bounding &&
+        this.settingsService.isMobile)
     );
   }
 
