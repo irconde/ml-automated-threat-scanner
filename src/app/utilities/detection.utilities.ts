@@ -1,18 +1,8 @@
-import {
-  BoundingBox,
-  Coordinate2D,
-  Detection,
-  Point,
-  PolygonData,
-} from '../../models/detection';
-import { CornerstoneHandles } from '../../models/cornerstone';
-import { EditionMode } from '../../enums/cornerstone';
-import {
-  getTextLabelSize,
-  hexToCssRgba,
-  limitCharCount,
-} from './text.utilities';
-import { DETECTION_STYLE } from '../../enums/detection-styles';
+import {BoundingBox, Coordinate2D, Detection, Point, PolygonData,} from '../../models/detection';
+import {CornerstoneBboxHandles, PolygonPoint} from '../../models/cornerstone';
+import {EditionMode} from '../../enums/cornerstone';
+import {getTextLabelSize, hexToCssRgba, limitCharCount,} from './text.utilities';
+import {DETECTION_STYLE} from '../../enums/detection-styles';
 
 /**
  * Converts COCO bbox to a bounding box
@@ -51,6 +41,8 @@ export const getMasks = (
   let polygonMask: Point[] = [];
   if (segmentation.length > 0) {
     const polygonXY = coordinatesToPolygonData(segmentation[0]);
+    // TODO: determine the correct type of polygonXY because right now they aren't compatible
+    // @ts-ignore
     polygonMask = polygonDataToXYArray(polygonXY, boundingBox);
     binaryMask = polygonToBinaryMask(polygonMask);
   } else {
@@ -86,12 +78,12 @@ const coordinatesToPolygonData = (coordinates: number[]): PolygonData => {
  * corresponding to each wall of the bounding box(top/bottom/left/right). Which
  * represents its position as a percentage value inside the bounding box.
  *
- * @param {Array<number>} polygonData - List of handles, i.e., the vertices, of a polygon
- * @param {Array<number>} boundingBox - List of bounding box coords
+ * @param polygonData - List of handles, i.e., the vertices, of a polygon
+ * @param boundingBox - List of bounding box coords
  * @returns {Array<{x: number, y: number, anchor: {top: number, bottom: number, left: number, right: number}}>}
  */
-const polygonDataToXYArray = (
-  polygonData: PolygonData,
+export const polygonDataToXYArray = (
+  polygonData: PolygonPoint[],
   boundingBox: BoundingBox,
 ): Point[] => {
   const xDist = boundingBox[2] - boundingBox[0];
@@ -495,7 +487,7 @@ export const pointInRect = (point: Coordinate2D, rect: number[]) => {
 export const getBboxFromHandles = ({
   start,
   end,
-}: CornerstoneHandles): BoundingBox => {
+}: CornerstoneBboxHandles): BoundingBox => {
   // Fix flipped rectangle issues
   let bbox: BoundingBox;
   if (start.x > end.x && start.y > end.y) {
@@ -547,7 +539,7 @@ export const displayDetection = (
   context.strokeRect(x, y, w, h);
 
   context.globalAlpha = 0.5;
-  if ('polygonMask' in detection && detection.polygonMask.length) {
+  if ('polygonMask' in detection && detection.polygonMask?.length) {
     renderPolygonMasks(context, detection.polygonMask);
   } else if (detection.binaryMask) {
     renderBinaryMasks(detection.binaryMask, context, zoom);
@@ -608,4 +600,26 @@ export const getDetectionRenderColor = (
   }
 
   return renderColor;
+};
+
+/**
+ * Calculates the coordinates of the bounding box enclosing a given polygon
+ *
+ * @param polygonData - List of handles, i.e., the vertices, of a polygon
+ * @returns bounding box - New bounding box coordinates in form of [x_min, y_min, x_max, y_max].
+ */
+export const calculateBoundingBox = (
+  polygonData: PolygonPoint[],
+): BoundingBox => {
+  const x_values: number[] = [];
+  const y_values: number[] = [];
+  for (const index in polygonData) {
+    x_values.push(polygonData[index].x);
+    y_values.push(polygonData[index].y);
+  }
+  const x_min = Math.min(...x_values);
+  const y_max = Math.max(...y_values);
+  const x_max = Math.max(...x_values);
+  const y_min = Math.min(...y_values);
+  return [x_min, y_min, x_max - x_min, y_max - y_min];
 };

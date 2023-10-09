@@ -1,6 +1,15 @@
 import { cornerstone, cornerstoneTools } from '../csSetup';
-import { ToolNames } from '../../enums/cornerstone';
-import { CreatedBoundingBox } from '../../models/cornerstone';
+import {
+  AnnotationMode,
+  CornerstoneMode,
+  ToolNames,
+} from '../../enums/cornerstone';
+import { CreatedBoundingBox, PolygonHandles } from '../../models/cornerstone';
+import {
+  calculateBoundingBox,
+  polygonDataToXYArray,
+} from './detection.utilities';
+import { BoundingBox, Point } from '../../models/detection';
 
 export const VIEWPORTS_CLASSNAME = 'viewportElement';
 /**
@@ -18,7 +27,36 @@ export const updateCornerstoneViewports = () => {
   }
 };
 
-export const getCreatedBoundingBox = (
+export const getCreatedPolygonFromTool = (
+  viewport: HTMLElement,
+):
+  | {
+      bbox: BoundingBox;
+      polygonMask: Point[];
+    }
+  | undefined => {
+  const state = cornerstoneTools.getToolState(viewport, ToolNames.Polygon);
+  if (!state?.data[0]) return undefined;
+  const handles: PolygonHandles = state?.data[0].handles;
+  const bbox = calculateBoundingBox(handles.points);
+  console.log({ bbox });
+  // const bbox = pointsBoxToDimensionsBox(pointsBbox);
+  // const area = getBoundingBoxArea(bbox);
+  // console.log({ bbox, area });
+  // if (area <= 0) return undefined;
+  const area = Math.abs(
+    (bbox[0] - (bbox[0] + bbox[2])) * (bbox[1] - (bbox[1] + bbox[3])),
+  );
+
+  const polygonMask = polygonDataToXYArray(handles.points, bbox);
+  return { bbox, polygonMask };
+};
+
+/**
+ * Returns the state of the bounding box tool
+ * @param viewport
+ */
+export const getCreatedBoundingBoxFromTool = (
   viewport: HTMLElement,
 ): CreatedBoundingBox | undefined => {
   const state = cornerstoneTools.getToolState(viewport, ToolNames.BoundingBox);
@@ -34,4 +72,19 @@ export const resetCornerstoneTool = (
   cornerstoneTools.setToolActive('Pan', { mouseButtonMask: 1 });
   cornerstoneTools.setToolActive('ZoomMouseWheel', {});
   cornerstoneTools.setToolActive('ZoomTouchPinch', {});
+};
+
+export const setCornerstoneToolActive = (
+  toolName: ToolNames,
+  toolOptions: {
+    cornerstoneMode: CornerstoneMode;
+    annotationMode: AnnotationMode;
+    updatingAnnotation: boolean;
+  },
+) => {
+  cornerstoneTools.setToolOptions(toolName, toolOptions);
+
+  cornerstoneTools.setToolActive(toolName, {
+    mouseButtonMask: 1,
+  });
 };

@@ -1,4 +1,5 @@
 import { AnnotationMode, CornerstoneMode } from '../enums/cornerstone';
+import { Coordinate2D } from './detection';
 
 export interface CornerstoneConfiguration {
   cornerstoneMode: CornerstoneMode;
@@ -10,7 +11,7 @@ export const CS_DEFAULT_CONFIGURATION: CornerstoneConfiguration = {
   annotationMode: AnnotationMode.NoTool,
 } as const;
 
-export interface CornerstoneHandles {
+export interface CornerstoneBboxHandles {
   start: {
     x: number;
     y: number;
@@ -51,9 +52,30 @@ export interface CreatedBoundingBox {
   active: boolean;
   categoryName: string;
   color?: string;
-  handles: CornerstoneHandles;
+  handles: CornerstoneBboxHandles;
   invalidated: boolean;
   updatingAnnotation: boolean;
   uuid: string;
   visible: boolean;
+}
+
+export interface PolygonPoint extends Coordinate2D {
+  highlight: boolean;
+  active: boolean;
+  lines: Coordinate2D[];
+}
+
+export interface PolygonTextBox {
+  active: boolean;
+  hasMoved: boolean;
+  movesIndependently: boolean;
+  drawnIndependently: boolean;
+  allowedOutsideImage: boolean;
+  hasBoundingBox: boolean;
+}
+
+export interface PolygonHandles {
+  points: PolygonPoint[];
+  textBox: PolygonTextBox;
+  invalidHandlePlacement: boolean;
 }

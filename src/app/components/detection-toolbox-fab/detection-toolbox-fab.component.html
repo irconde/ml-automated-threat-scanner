@@ -1,10 +1,10 @@
 <div class="detection-toolbox-fab">
-  <button [disabled]="disabled" (click)="handleRectangleBtnClick()">
+  <button (click)="handleFabButtonClick(true)" [disabled]="disabled">
     <img alt="rectangle icon" src="assets/rectangle.svg"/>
     Bounding box
   </button>
   <div class="toolbox-divider"></div>
-  <button [disabled]="disabled" (click)="handlePolygonBtnClick()">
+  <button (click)="handleFabButtonClick(false)" [disabled]="disabled">
     <img alt="polygon icon" src="assets/polygon.svg"/>
     Polygon mask
   </button>

@@ -9,9 +9,7 @@ export enum DetectionType {
   UNKNOWN = 'UNKNOWN',
 }
 
-export interface Point {
-  x: number;
-  y: number;
+export interface Point extends Coordinate2D {
   anchor: { top: number; bottom: number; left: number; right: number };
 }
 
@@ -29,7 +27,7 @@ interface RawGeneralDetection {
 export interface RawDicosDetection extends RawGeneralDetection {}
 
 export interface RawCocoDetection extends RawGeneralDetection {
-  polygonMask: Point[];
+  polygonMask?: Point[];
   imageId: string;
 }
 
@@ -50,10 +48,7 @@ export type Detection = RawDetection & DetectionStateProps;
 export interface CornerstoneClickEvent extends Event {
   detail?: {
     currentPoints?: {
-      canvas?: {
-        x: number;
-        y: number;
-      };
+      canvas?: Coordinate2D;
     };
   };
 }
