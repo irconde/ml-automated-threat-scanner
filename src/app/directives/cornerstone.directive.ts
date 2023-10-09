@@ -61,7 +61,6 @@ export class CornerstoneDirective implements AfterViewInit {
     this.element = elementRef.nativeElement;
     // track the position of the mouse
     const handleMouseAndMove = (e: MouseEvent | TouchEvent) => {
-      console.log('MOVE');
       if (e instanceof MouseEvent) {
         this.mousePosition.x = e.clientX;
         this.mousePosition.y = e.clientY;
@@ -116,7 +115,6 @@ export class CornerstoneDirective implements AfterViewInit {
       // Delay listening for click events until the new detection is created and selected
       // adding the listener without delay causes the click event to be triggered too soon
       // which deselects the newly created detection
-      // this.element.addEventListener(CS_EVENTS.CLICK, this.onMouseClick);
       this.element.addEventListener('click', this.onMouseClick);
       this.element.addEventListener('touchstart', this.onMouseClick);
       this.isClickListenerActive = true;
@@ -125,7 +123,6 @@ export class CornerstoneDirective implements AfterViewInit {
 
   stopListeningToCLicks() {
     if (!this.isClickListenerActive) return;
-    // this.element.removeEventListener(CS_EVENTS.CLICK, this.onMouseClick);
     this.element.removeEventListener('click', this.onMouseClick);
     this.element.removeEventListener('touchstart', this.onMouseClick);
     this.isClickListenerActive = false;
@@ -138,29 +135,8 @@ export class CornerstoneDirective implements AfterViewInit {
   // @HostListener(CS_EVENTS.CLICK, ['$event'])
   onMouseClick = (event: MouseEvent | TouchEvent) => {
     console.log('onMouseClick()');
-    // const canvas = event.detail?.currentPoints?.canvas;
-    // console.log(canvas);
-    console.log(event);
-    let clientX;
-    let clientY;
-    if ('clientX' in event && 'clientY' in event) {
-      clientX = event.clientX;
-      clientY = event.clientY;
-    } else if ('touches' in event && event.touches.length) {
-      clientX = event.touches[0].clientX;
-      clientY = event.touches[0].clientY;
-    } else throw Error('Failed to locate coordinates of user click');
-    const x = clientX - this.element.getBoundingClientRect().left;
-    const y = clientY - this.element.getBoundingClientRect().top;
 
-    console.log({ x, y });
-    // if (canvas) {
-    //   const { x, y } = canvas;
-    const mousePos = cornerstone.canvasToPixel(this.element, {
-      _canvasCoordinateBrand: '',
-      x: x,
-      y: y,
-    });
+    const mousePos = this.getCanvasClickPosition(event);
     let detClicked = false;
     for (let i = 0; i < this.detections.length; i++) {
       if (pointInRect(mousePos, this.detections[i].boundingBox)) {
@@ -181,7 +157,6 @@ export class CornerstoneDirective implements AfterViewInit {
       this.handleEmptyAreaClick();
     }
     updateCornerstoneViewports();
-    // }
   };
 
   /**
@@ -244,7 +219,6 @@ export class CornerstoneDirective implements AfterViewInit {
   ngAfterViewInit() {
     // Enable the element with Cornerstone
     cornerstone.enable(this.element);
-    // this.element.addEventListener(CS_EVENTS.CLICK, this.onMouseClick);
     this.element.addEventListener('click', this.onMouseClick);
     this.element.addEventListener('touchstart', this.onMouseClick);
   }
@@ -340,5 +314,33 @@ export class CornerstoneDirective implements AfterViewInit {
     });
     resetCornerstoneTool(ToolNames.BoundingBox, this.element);
     cornerstone.updateImage(this.element, false);
+  }
+
+  /**
+   * Given a click or touch event on the canvas, it returns the pixel coordinate of the click or touch
+   * @param event
+   * @private
+   */
+  private getCanvasClickPosition(
+    event: MouseEvent | TouchEvent,
+  ): cornerstone.PixelCoordinate {
+    let clientX;
+    let clientY;
+    if (event instanceof MouseEvent) {
+      clientX = event.clientX;
+      clientY = event.clientY;
+    } else {
+      clientX = event.touches[0].clientX;
+      clientY = event.touches[0].clientY;
+    }
+
+    const x = clientX - this.element.getBoundingClientRect().left;
+    const y = clientY - this.element.getBoundingClientRect().top;
+
+    return cornerstone.canvasToPixel(this.element, {
+      _canvasCoordinateBrand: '',
+      x: x,
+      y: y,
+    });
   }
 }
