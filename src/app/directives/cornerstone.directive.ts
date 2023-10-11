@@ -122,20 +122,19 @@ export class CornerstoneDirective implements AfterViewInit {
     const mousePos = this.getCanvasClickPosition(event);
     let detClicked = false;
     for (let i = 0; i < this.detections.length; i++) {
-      if (
-        pointInRect(mousePos, this.detections[i].boundingBox) &&
-        !this.detections[i].selected
-      ) {
+      const detection = this.detections[i];
+      const isPointInRect = pointInRect(
+        mousePos,
+        this.detections[i].boundingBox,
+      );
+      if (isPointInRect && !detection.selected) {
         this.detectionsService.selectDetection(
-          this.detections[i].uuid,
-          this.detections[i].viewpoint,
+          detection.uuid,
+          detection.viewpoint,
         );
         detClicked = true;
         break;
-      } else if (
-        pointInRect(mousePos, this.detections[i].boundingBox) &&
-        this.detections[i].selected
-      ) {
+      } else if (isPointInRect && detection.selected) {
         detClicked = false;
         break;
       }
