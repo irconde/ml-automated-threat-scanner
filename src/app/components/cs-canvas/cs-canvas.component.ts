@@ -15,6 +15,7 @@ import { cornerstoneTools } from '../../csSetup';
 import BoundingBoxDrawingTool from '../../utilities/cornerstone-tools/BoundingBoxDrawingTool';
 import PolygonDrawingTool from '../../utilities/cornerstone-tools/PolygonDrawingTool';
 import AnnotationMovementTool from '../../utilities/cornerstone-tools/AnnotationMovementTool';
+import { DetectionContextMenuComponent } from '../detection-context-menu/detection-context-menu.component';
 
 @Component({
   selector: 'app-cs-canvas',
@@ -30,6 +31,7 @@ import AnnotationMovementTool from '../../utilities/cornerstone-tools/Annotation
     KeyValuePipe,
     NgStyle,
     NgClass,
+    DetectionContextMenuComponent,
   ],
 })
 export class CsCanvasComponent implements OnInit, AfterViewInit {
