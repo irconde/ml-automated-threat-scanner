@@ -1,38 +1,21 @@
-import {
-  AfterViewInit,
-  Directive,
-  ElementRef,
-  HostListener,
-  Input,
-} from '@angular/core';
-import { ViewportData, ViewportsMap } from '../../models/viewport';
-import { Coordinate2D, Detection, Dimension2D } from '../../models/detection';
-import { DETECTION_STYLE } from '../../enums/detection-styles';
-import {
-  displayDetection,
-  getBboxFromHandles,
-  getBoundingBoxArea,
-  pointInRect,
-} from '../utilities/detection.utilities';
-import { cornerstone } from '../csSetup';
-import { DetectionsService } from '../services/detections/detections.service';
+import {AfterViewInit, Directive, ElementRef, HostListener, Input,} from '@angular/core';
+import {ViewportData, ViewportsMap} from '../../models/viewport';
+import {Coordinate2D, Detection, Dimension2D} from '../../models/detection';
+import {DETECTION_STYLE} from '../../enums/detection-styles';
+import {displayDetection, getBboxFromHandles, getBoundingBoxArea, pointInRect,} from '../utilities/detection.utilities';
+import {cornerstone} from '../csSetup';
+import {DetectionsService} from '../services/detections/detections.service';
 import {
   getCreatedBoundingBoxFromTool,
   getCreatedPolygonFromTool,
   resetCornerstoneTool,
   updateCornerstoneViewports,
 } from '../utilities/cornerstone.utilities';
-import {
-  AnnotationMode,
-  CornerstoneMode,
-  CS_EVENTS,
-  EditionMode,
-  ToolNames,
-} from '../../enums/cornerstone';
-import { CornerstoneService } from '../services/cornerstone/cornerstone.service';
-import { CS_DEFAULT_CONFIGURATION } from '../../models/cornerstone';
-import { renderBboxCrosshair } from '../utilities/drawing.utilities';
-import { SettingsService } from '../services/settings/settings.service';
+import {AnnotationMode, CornerstoneMode, CS_EVENTS, EditionMode, ToolNames,} from '../../enums/cornerstone';
+import {CornerstoneService} from '../services/cornerstone/cornerstone.service';
+import {CS_DEFAULT_CONFIGURATION} from '../../models/cornerstone';
+import {renderBboxCrosshair} from '../utilities/drawing.utilities';
+import {SettingsService} from '../services/settings/settings.service';
 // TODO: get the actual selected category
 const SELECTED_CATEGORY = '';
 // TODO: get the actual edition mode
@@ -139,12 +122,21 @@ export class CornerstoneDirective implements AfterViewInit {
     const mousePos = this.getCanvasClickPosition(event);
     let detClicked = false;
     for (let i = 0; i < this.detections.length; i++) {
-      if (pointInRect(mousePos, this.detections[i].boundingBox)) {
+      if (
+        pointInRect(mousePos, this.detections[i].boundingBox) &&
+        !this.detections[i].selected
+      ) {
         this.detectionsService.selectDetection(
           this.detections[i].uuid,
           this.detections[i].viewpoint,
         );
         detClicked = true;
+        break;
+      } else if (
+        pointInRect(mousePos, this.detections[i].boundingBox) &&
+        this.detections[i].selected
+      ) {
+        detClicked = false;
         break;
       }
     }
