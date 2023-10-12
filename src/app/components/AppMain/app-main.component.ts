@@ -13,6 +13,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ApplicationSettings } from '../../services/settings/models/Settings';
 import { TopBarComponent } from '../top-bar/top-bar.component';
+import {DetectionContextMenuComponent} from "../detection-context-menu/detection-context-menu.component";
 
 @Component({
   selector: 'app-main',
@@ -29,6 +30,7 @@ import { TopBarComponent } from '../top-bar/top-bar.component';
     MatButtonModule,
     MatDialogModule,
     TopBarComponent,
+    DetectionContextMenuComponent,
   ],
 })
 export class AppMain {

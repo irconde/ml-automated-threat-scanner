@@ -1,11 +1,13 @@
 <div class="detection-context-menu">
   <div class="flex-container">
     <div class="main-widget">
-      <button (click)="handleMenuItemClick('LABEL')" aria-label="Label Edition Icon"
+      <button (click)="handleMenuItemClick('LABEL')"
+              aria-label="Label Edition Icon"
               type="button">
         <img alt="text icon" src="assets/text.icon.svg"/>
       </button>
-      <button (click)="handleMenuItemClick('COLOR')" aria-label="Color Edition Icon"
+      <button (click)="handleMenuItemClick('COLOR')"
+              aria-label="Color Edition Icon"
               type="button">
         <img alt="rectangle icon" src="assets/rectangle.svg"/>
       </button>
@@ -23,10 +25,11 @@
               type="button">
         <img alt="movement icon" src="assets/movement.icon.svg"/>
       </button>
-      <button (click)="handleMenuItemClick('DELETE')" aria-label="Delete Icon"
-              type="button">
-        <img alt="delete icon" src="assets/delete.icon.svg"/>
-      </button>
+
     </div>
+    <button class="delete-button" (click)="handleMenuItemClick('DELETE')" aria-label="Delete Icon"
+            type="button">
+      <img alt="delete icon" src="assets/delete.icon.svg"/>
+    </button>
   </div>
 </div>
