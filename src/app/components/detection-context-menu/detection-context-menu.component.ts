@@ -1,18 +1,56 @@
 import { Component } from '@angular/core';
+import { Coordinate2D, Detection } from '../../../models/detection';
+import { DetectionsService } from '../../services/detections/detections.service';
+import { cornerstone } from '../../csSetup';
+import { getViewportByViewpoint } from '../../utilities/cornerstone.utilities';
+import { NgStyle } from '@angular/common';
 
 @Component({
   selector: 'app-detection-context-menu',
   templateUrl: './detection-context-menu.component.html',
   styleUrls: ['./detection-context-menu.component.scss'],
   standalone: true,
-  imports: [],
+  imports: [NgStyle],
 })
 export class DetectionContextMenuComponent {
   color = 'blue';
+  position: Coordinate2D | null = { x: 0, y: 0 };
 
-  // detectionType: DetectionType;
+  constructor(private detectionService: DetectionsService) {
+    this.detectionService
+      .getSelectedDetection()
+      .subscribe((selectedDetection) => {
+        this.updatePosition(selectedDetection);
+      });
+  }
 
-  constructor() {}
+  updatePosition(selectedDetection: Detection | null) {
+    if (selectedDetection === null) {
+      this.position = null;
+      return;
+    }
+    const GAP = 5;
+    const width = selectedDetection.boundingBox[2];
+    const height = selectedDetection.boundingBox[3];
+    const viewport: HTMLElement = getViewportByViewpoint(
+      selectedDetection.viewpoint,
+    );
+    const { x, y } = cornerstone.pixelToCanvas(viewport, {
+      x: selectedDetection.boundingBox[0] + width / 2,
+      y: selectedDetection.boundingBox[1] + height,
+      _pixelCoordinateBrand: '',
+    });
+
+    this.position = { x, y: y + GAP };
+  }
+
+  handleContextMenuPosition() {
+    return {
+      left: (this.position?.x || 0) + 'px',
+      top: `calc(${this.position?.y || 0}px + 3.375rem)`,
+      display: this.position ? 'flex' : 'none',
+    };
+  }
 
   handleMenuItemClick(type: string) {
     switch (type) {

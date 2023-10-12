@@ -267,22 +267,26 @@ export class CornerstoneDirective implements AfterViewInit {
     context: CanvasRenderingContext2D,
     zoom: number,
   ): void {
-    const selectedDetection = this.detectionsService.getSelectedDetection();
+    const subscription = this.detectionsService
+      .getSelectedDetection()
+      .subscribe((selectedDetection) => {
+        const { BORDER_WIDTH, FONT_DETAILS } = DETECTION_STYLE;
+        context.font = FONT_DETAILS.get(zoom);
+        context.lineWidth = BORDER_WIDTH / zoom;
 
-    const { BORDER_WIDTH, FONT_DETAILS } = DETECTION_STYLE;
-    context.font = FONT_DETAILS.get(zoom);
-    context.lineWidth = BORDER_WIDTH / zoom;
+        this.detections.forEach((det) =>
+          displayDetection(
+            context,
+            det,
+            selectedDetection,
+            SELECTED_CATEGORY,
+            CURRENT_EDITION_MODE,
+            zoom,
+          ),
+        );
+      });
 
-    this.detections.forEach((det) =>
-      displayDetection(
-        context,
-        det,
-        selectedDetection,
-        SELECTED_CATEGORY,
-        CURRENT_EDITION_MODE,
-        zoom,
-      ),
-    );
+    subscription.unsubscribe();
   }
 
   private handleEmptyAreaClick() {

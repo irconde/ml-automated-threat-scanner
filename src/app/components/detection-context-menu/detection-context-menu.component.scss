@@ -1,14 +1,12 @@
 
 .detection-context-menu {
   position: absolute;
-  top: 10%;
-  left: 10%;
   z-index: 100;
-  display: flex;
   align-items: center;
   justify-content: center;
   $background-color: #dadada;
   $height: 30px;
+  transform: translateX(-42%);
 
   .flex-container {
     display: flex;

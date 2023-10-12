@@ -15,7 +15,9 @@ interface DetectionsMap {
 export class DetectionsService {
   private detectionData: BehaviorSubject<DetectionsMap> =
     new BehaviorSubject<DetectionsMap>({ top: [], side: [] });
-  private selectedDetection: Detection | null = null;
+  // private selectedDetection: Detection | null = null;
+  private selectedDetection: BehaviorSubject<Detection | null> =
+    new BehaviorSubject<Detection | null>(null);
 
   constructor() {}
 
@@ -35,27 +37,28 @@ export class DetectionsService {
       ...this.detectionData.value.side,
     ];
 
-    this.selectedDetection =
+    const selectedDetection =
       allDetections.find((detection) => detection.uuid === detectionID) || null;
 
-    if (this.selectedDetection !== null) {
-      this.selectedDetection.selected = true;
+    if (selectedDetection !== null) {
+      selectedDetection.selected = true;
       this.detectionData.value.top.forEach((det) => {
-        if (det.uuid !== this.selectedDetection?.uuid) {
+        if (det.uuid !== selectedDetection?.uuid) {
           det.selected = false;
         }
       });
 
       this.detectionData.value.side.forEach((det) => {
-        if (det.uuid !== this.selectedDetection?.uuid) {
+        if (det.uuid !== selectedDetection?.uuid) {
           det.selected = false;
         }
       });
     }
+    this.selectedDetection.next(selectedDetection);
   }
 
-  getSelectedDetection(): Detection | null {
-    return this.selectedDetection;
+  getSelectedDetection(): Observable<Detection | null> {
+    return this.selectedDetection.asObservable();
   }
 
   addDetection(
@@ -93,7 +96,7 @@ export class DetectionsService {
   }
 
   clearSelectedDetection(): void {
-    this.selectedDetection = null;
+    this.selectedDetection.next(null);
     this.detectionData.value.top.forEach((det) => {
       det.selected = false;
     });
