@@ -3,18 +3,19 @@ import { Coordinate2D, Detection } from '../../../models/detection';
 import { DetectionsService } from '../../services/detections/detections.service';
 import { cornerstone } from '../../csSetup';
 import { getViewportByViewpoint } from '../../utilities/cornerstone.utilities';
-import { NgStyle } from '@angular/common';
+import { NgIf, NgStyle } from '@angular/common';
 
 @Component({
   selector: 'app-detection-context-menu',
   templateUrl: './detection-context-menu.component.html',
   styleUrls: ['./detection-context-menu.component.scss'],
   standalone: true,
-  imports: [NgStyle],
+  imports: [NgStyle, NgIf],
 })
 export class DetectionContextMenuComponent {
   color = 'blue';
   position: Coordinate2D | null = { x: 0, y: 0 };
+  showPolygonIcon = false;
 
   constructor(private detectionService: DetectionsService) {
     this.detectionService
@@ -29,19 +30,26 @@ export class DetectionContextMenuComponent {
       this.position = null;
       return;
     }
+    this.showPolygonIcon = Boolean(
+      'polygonMask' in selectedDetection &&
+        selectedDetection?.polygonMask?.length,
+    );
     const GAP = 5;
     const width = selectedDetection.boundingBox[2];
     const height = selectedDetection.boundingBox[3];
     const viewport: HTMLElement = getViewportByViewpoint(
       selectedDetection.viewpoint,
     );
+    const viewportOffset =
+      selectedDetection.viewpoint === 'side' ? viewport.clientWidth : 0;
+    console.log(viewport.clientWidth);
     const { x, y } = cornerstone.pixelToCanvas(viewport, {
       x: selectedDetection.boundingBox[0] + width / 2,
       y: selectedDetection.boundingBox[1] + height,
       _pixelCoordinateBrand: '',
     });
 
-    this.position = { x, y: y + GAP };
+    this.position = { x: x + viewportOffset, y: y + GAP };
   }
 
   handleContextMenuPosition() {

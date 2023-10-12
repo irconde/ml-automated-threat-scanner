@@ -16,7 +16,7 @@
 			        type="button">
 				<img alt="rectangle icon" src="assets/rectangle.svg"/>
 			</button>
-			<button (click)="handleMenuItemClick('POLYGON')"
+			<button *ngIf="showPolygonIcon" (click)="handleMenuItemClick('POLYGON')"
 			        aria-label="Polygon Mask Edition Icon"
 			        type="button">
 				<img alt="polygon icon" src="assets/polygon.svg"/>
