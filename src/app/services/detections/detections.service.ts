@@ -31,7 +31,6 @@ export class DetectionsService {
 
   selectDetection(detectionID: string, viewpoint: string): void {
     // TODO select by viewpoint
-    console.log(viewpoint);
     const allDetections = [
       ...this.detectionData.value.top,
       ...this.detectionData.value.side,

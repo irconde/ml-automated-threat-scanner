@@ -6,10 +6,10 @@ import {displayDetection, getBboxFromHandles, getBoundingBoxArea, pointInRect,} 
 import {cornerstone} from '../csSetup';
 import {DetectionsService} from '../services/detections/detections.service';
 import {
-  getCreatedBoundingBoxFromTool,
-  getCreatedPolygonFromTool,
-  resetCornerstoneTool,
-  updateCornerstoneViewports,
+    getCreatedBoundingBoxFromTool,
+    getCreatedPolygonFromTool,
+    resetCornerstoneTool,
+    updateCornerstoneViewports,
 } from '../utilities/cornerstone.utilities';
 import {AnnotationMode, CornerstoneMode, CS_EVENTS, EditionMode, ToolNames,} from '../../enums/cornerstone';
 import {CornerstoneService} from '../services/cornerstone/cornerstone.service';
@@ -117,8 +117,6 @@ export class CornerstoneDirective implements AfterViewInit {
    */
   // @HostListener(CS_EVENTS.CLICK, ['$event'])
   onMouseClick = (event: MouseEvent | TouchEvent) => {
-    console.log('onMouseClick()');
-
     const mousePos = this.getCanvasClickPosition(event);
     let detClicked = false;
     for (let i = 0; i < this.detections.length; i++) {
@@ -155,7 +153,6 @@ export class CornerstoneDirective implements AfterViewInit {
    */
   @HostListener(CS_EVENTS.POLYGON_MASK_CREATED, ['$event'])
   onPolygonEnd(event: Event) {
-    console.log('onPolygonEnd()');
     const createdPolygon = getCreatedPolygonFromTool(this.element);
     this.cornerstoneService.setCsConfiguration({
       cornerstoneMode: CornerstoneMode.Edition,
@@ -182,7 +179,6 @@ export class CornerstoneDirective implements AfterViewInit {
   @HostListener('mouseup', ['$event'])
   @HostListener('touchend')
   onDragEnd() {
-    console.log('onDragEnd()');
     if (this.cornerstoneConfig.annotationMode === AnnotationMode.Bounding) {
       this.handleBoundingBoxDetectionCreation();
     }

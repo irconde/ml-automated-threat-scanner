@@ -42,7 +42,6 @@ export class DetectionContextMenuComponent {
     );
     const viewportOffset =
       selectedDetection.viewpoint === 'side' ? viewport.clientWidth : 0;
-    console.log(viewport.clientWidth);
     const { x, y } = cornerstone.pixelToCanvas(viewport, {
       x: selectedDetection.boundingBox[0] + width / 2,
       y: selectedDetection.boundingBox[1] + height,
