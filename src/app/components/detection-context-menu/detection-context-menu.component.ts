@@ -4,25 +4,38 @@ import { DetectionsService } from '../../services/detections/detections.service'
 import { cornerstone } from '../../csSetup';
 import { getViewportByViewpoint } from '../../utilities/cornerstone.utilities';
 import { NgIf, NgStyle } from '@angular/common';
+import { DynamicSvgComponent } from '../dynamic-svg/dynamic-svg.component';
+import { CornerstoneService } from '../../services/cornerstone/cornerstone.service';
 
 @Component({
   selector: 'app-detection-context-menu',
   templateUrl: './detection-context-menu.component.html',
   styleUrls: ['./detection-context-menu.component.scss'],
   standalone: true,
-  imports: [NgStyle, NgIf],
+  imports: [NgStyle, NgIf, DynamicSvgComponent],
 })
 export class DetectionContextMenuComponent {
   color = 'blue';
+  svgPath = 'assets/rectangle.svg';
+
   position: Coordinate2D | null = { x: 0, y: 0 };
+  enablePositionOffset = false;
   showPolygonIcon = false;
 
-  constructor(private detectionService: DetectionsService) {
+  constructor(
+    private detectionService: DetectionsService,
+    private cornerstoneService: CornerstoneService,
+  ) {
     this.detectionService
       .getSelectedDetection()
       .subscribe((selectedDetection) => {
         this.updatePosition(selectedDetection);
       });
+
+    this.detectionService.getDetectionData().subscribe((detections) => {
+      this.enablePositionOffset =
+        detections.top.length > 0 && detections.side.length > 0;
+    });
   }
 
   updatePosition(selectedDetection: Detection | null) {
@@ -41,7 +54,10 @@ export class DetectionContextMenuComponent {
       selectedDetection.viewpoint,
     );
     const viewportOffset =
-      selectedDetection.viewpoint === 'side' ? viewport.clientWidth : 0;
+      selectedDetection.viewpoint === 'side' && this.enablePositionOffset
+        ? viewport.clientWidth
+        : viewport.offsetLeft;
+    console.log(selectedDetection.viewpoint);
     const { x, y } = cornerstone.pixelToCanvas(viewport, {
       x: selectedDetection.boundingBox[0] + width / 2,
       y: selectedDetection.boundingBox[1] + height,
