@@ -1,0 +1,20 @@
+.side-menu {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  width: 238px;
+  background: orange;
+  // subtract top-bar height
+  height: calc(100vh - 3.375rem);
+  transform: translateX(100%);
+
+  &.open {
+    transition: transform 0.3s ease-in;
+    transform: translateX(0);
+  }
+
+}
+
+
+
+
