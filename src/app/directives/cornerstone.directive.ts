@@ -156,7 +156,6 @@ export class CornerstoneDirective implements AfterViewInit {
     } else {
       this.handleEmptyAreaClick();
     }
-    updateCornerstoneViewports();
   };
 
   /**

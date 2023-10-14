@@ -11,6 +11,7 @@
     </div>
     <ul class="algorithm-detections">
       <li
+        (click)="handleDetectionClick(detection)"
         *ngFor="let detection of algorithmsMap[algorithm]"
         [ngClass]="{ selected: detection.selected }"
         class="detection"

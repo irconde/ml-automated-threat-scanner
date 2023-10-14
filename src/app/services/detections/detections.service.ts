@@ -3,6 +3,7 @@ import { BoundingBox, Detection, Point } from '../../../models/detection';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { CommonDetections } from '../../../enums/cornerstone';
 import { v4 as guid } from 'uuid';
+import { updateCornerstoneViewports } from '../../utilities/cornerstone.utilities';
 
 export interface DetectionsMap {
   top: Detection[];
@@ -52,6 +53,8 @@ export class DetectionsService {
         }
       });
     }
+
+    updateCornerstoneViewports();
   }
 
   getSelectedDetection(): Detection | null {
@@ -101,5 +104,7 @@ export class DetectionsService {
     this.detectionData.value.side.forEach((det) => {
       det.selected = false;
     });
+
+    updateCornerstoneViewports();
   }
 }

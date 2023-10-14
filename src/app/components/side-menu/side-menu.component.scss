@@ -49,6 +49,8 @@
     align-items: center;
     list-style: none;
     text-transform: uppercase;
+    cursor: pointer;
+    user-select: none;
 
     .detection-color {
       width: 10px;

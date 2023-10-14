@@ -36,6 +36,17 @@ export class SideMenuComponent {
     return Object.keys(this.algorithmsMap);
   }
 
+  public handleDetectionClick(detection: Detection) {
+    if (detection.selected) {
+      this.detectionsService.clearSelectedDetection();
+    } else {
+      this.detectionsService.selectDetection(
+        detection.uuid,
+        detection.viewpoint,
+      );
+    }
+  }
+
   private updateAlgorithmsMap(detections: DetectionsMap) {
     const allDetections = [...detections.side, ...detections.top];
     this.algorithmsMap = allDetections.reduce<Record<string, Detection[]>>(
