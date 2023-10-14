@@ -1,3 +1,31 @@
-<div [ngClass]="{'open': isOpen}" class="side-menu">
-  side-menu works!
+<div [ngClass]="{ open: isOpen }" class="side-menu">
+  <div *ngFor="let algorithm of getAlgorithmNames()" class="algorithm-group">
+    <div class="algorithm">
+      <button>
+        <mat-icon color="white">arrow_left</mat-icon>
+      </button>
+      <span>{{ algorithm }}</span>
+      <button class="eye-icon">
+        <mat-icon>visibility</mat-icon>
+      </button>
+    </div>
+    <ul class="algorithm-detections">
+      <li
+        *ngFor="let detection of algorithmsMap[algorithm]"
+        [ngClass]="{ selected: detection.selected }"
+        class="detection"
+      >
+        <span
+          [style.background-color]="detection.color"
+          class="detection-color"
+        ></span>
+        <span>
+          {{ detection.categoryName }} - {{ detection.confidence }}%
+        </span>
+        <button class="eye-icon">
+          <mat-icon>visibility</mat-icon>
+        </button>
+      </li>
+    </ul>
+  </div>
 </div>

@@ -3,7 +3,7 @@
   right: 0;
   bottom: 0;
   width: 238px;
-  background: orange;
+  background: rgb(31, 31, 31);
   // subtract top-bar height
   height: calc(100vh - 3.375rem);
   transform: translateX(100%);
@@ -13,7 +13,67 @@
     transform: translateX(0);
   }
 
+  button {
+    background: none;
+    border: none;
+    outline: none;
+  }
+
+  .eye-icon {
+    margin-left: auto;
+    margin-right: 1rem;
+
+    mat-icon {
+      color: rgb(185, 185, 185);
+      font-size: 20px;
+      height: 20px;
+      width: 20px;
+    }
+  }
+
+
 }
+
+.algorithm-group {
+  font-size: 0.8rem;
+}
+
+.algorithm-detections {
+
+  margin: 0;
+  padding: 0;
+
+  .detection {
+    padding-block: 0.45rem;
+    display: flex;
+    align-items: center;
+    list-style: none;
+    text-transform: uppercase;
+
+    .detection-color {
+      width: 10px;
+      height: 10px;
+      border: 0.0625rem solid rgba(220, 220, 220, 0.4);
+      margin-right: 0.75rem;
+      margin-left: 2.4rem;
+    }
+
+    &.selected {
+      background-color: rgb(54, 127, 255);
+    }
+
+  }
+
+}
+
+.algorithm {
+  display: flex;
+  padding-block: 0.75rem;
+  align-items: center;
+
+}
+
+
 
 
 

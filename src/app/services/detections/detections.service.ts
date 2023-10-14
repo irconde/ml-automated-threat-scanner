@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { CommonDetections } from '../../../enums/cornerstone';
 import { v4 as guid } from 'uuid';
 
-interface DetectionsMap {
+export interface DetectionsMap {
   top: Detection[];
   side: Detection[];
 }

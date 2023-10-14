@@ -1,21 +1,19 @@
-import {Injectable} from '@angular/core';
-import {BehaviorSubject} from "rxjs";
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UiService {
+  private isSideMenuOpen = new BehaviorSubject(true);
 
-  private isSideMenuOpen = new BehaviorSubject(false);
-
-  constructor() {
-  }
+  constructor() {}
 
   getIsSideMenuOpen() {
-    return this.isSideMenuOpen.asObservable()
+    return this.isSideMenuOpen.asObservable();
   }
 
   toggleSideMenu() {
-    return this.isSideMenuOpen.next(!this.isSideMenuOpen.value)
+    return this.isSideMenuOpen.next(!this.isSideMenuOpen.value);
   }
 }
