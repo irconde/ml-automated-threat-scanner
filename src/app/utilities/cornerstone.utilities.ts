@@ -88,3 +88,16 @@ export const setCornerstoneToolActive = (
     mouseButtonMask: 1,
   });
 };
+
+/**
+ * Called when the side menu visibility is toggled to resize the viewports
+ */
+export const resizeCornerstoneViewports = () => {
+  const viewports = document.getElementsByClassName(
+    VIEWPORTS_CLASSNAME,
+  ) as HTMLCollectionOf<HTMLElement>;
+
+  for (let i = 0; i < viewports.length; i++) {
+    cornerstone.resize(viewports[i]);
+  }
+};
