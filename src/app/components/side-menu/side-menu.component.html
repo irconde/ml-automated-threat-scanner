@@ -1,18 +1,20 @@
 <div [ngClass]="{ open: isOpen }" class="side-menu">
-  <div *ngFor="let algorithm of getAlgorithmNames()" class="algorithm-group">
+  <div *ngFor="let groupName of getAlgorithmNames()" class="algorithm-group">
     <div class="algorithm">
-      <button>
-        <mat-icon color="white">arrow_left</mat-icon>
+      <button (click)="toggleDetectionGroupCollapse(groupName)">
+        <mat-icon color="white" [style.rotate]="detectionsGroupMetaData[groupName].collapsed ? '180deg' : '-90deg'">
+          arrow_left
+        </mat-icon>
       </button>
-      <span>{{ algorithm }}</span>
+      <span>{{ groupName }}</span>
       <button class="eye-icon">
         <mat-icon>visibility</mat-icon>
       </button>
     </div>
-    <ul class="algorithm-detections">
+    <ul class="algorithm-detections" *ngIf="!detectionsGroupMetaData[groupName].collapsed">
       <li
         (click)="handleDetectionClick(detection)"
-        *ngFor="let detection of algorithmsMap[algorithm]"
+        *ngFor="let detection of detectionsGroups[groupName]"
         [ngClass]="{ selected: detection.selected }"
         class="detection"
       >

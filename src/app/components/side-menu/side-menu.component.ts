@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { UiService } from '../../services/ui/ui.service';
-import { NgClass, NgForOf } from '@angular/common';
+import { NgClass, NgForOf, NgIf } from '@angular/common';
 import {
   DetectionsMap,
   DetectionsService,
@@ -13,11 +13,15 @@ import { MatIconModule } from '@angular/material/icon';
   templateUrl: './side-menu.component.html',
   styleUrls: ['./side-menu.component.scss'],
   standalone: true,
-  imports: [NgClass, NgForOf, MatIconModule],
+  imports: [NgClass, NgForOf, MatIconModule, NgIf],
 })
 export class SideMenuComponent {
   public isOpen: boolean = false;
-  public algorithmsMap: Record<string, Detection[]> = {};
+  public detectionsGroups: Record<string, Detection[]> = {};
+  public detectionsGroupMetaData: Record<
+    string,
+    { visible: boolean; collapsed: boolean; selected: boolean }
+  > = {};
 
   constructor(
     private uiService: UiService,
@@ -28,12 +32,12 @@ export class SideMenuComponent {
     });
 
     this.detectionsService.getDetectionData().subscribe((detections) => {
-      this.updateAlgorithmsMap(detections);
+      this.setDetectionsGroups(detections);
     });
   }
 
   public getAlgorithmNames(): string[] {
-    return Object.keys(this.algorithmsMap);
+    return Object.keys(this.detectionsGroups);
   }
 
   public handleDetectionClick(detection: Detection) {
@@ -47,14 +51,21 @@ export class SideMenuComponent {
     }
   }
 
-  private updateAlgorithmsMap(detections: DetectionsMap) {
+  private setDetectionsGroups(detections: DetectionsMap) {
     const allDetections = [...detections.side, ...detections.top];
-    this.algorithmsMap = allDetections.reduce<Record<string, Detection[]>>(
+    this.detectionsGroups = allDetections.reduce<Record<string, Detection[]>>(
       (map, currentDetection) => {
-        if (map[currentDetection.algorithm]) {
-          map[currentDetection.algorithm].push(currentDetection);
+        const groupKey =
+          currentDetection.algorithm || currentDetection.className;
+        if (map[groupKey]) {
+          map[groupKey].push(currentDetection);
         } else {
-          map[currentDetection.algorithm] = [currentDetection];
+          this.detectionsGroupMetaData[groupKey] = {
+            visible: true,
+            collapsed: false,
+            selected: false,
+          };
+          map[groupKey] = [currentDetection];
         }
 
         return map;
@@ -62,6 +73,11 @@ export class SideMenuComponent {
       {},
     );
 
-    console.log(this.algorithmsMap);
+    console.log(this.detectionsGroups);
+  }
+
+  toggleDetectionGroupCollapse(groupName: string) {
+    this.detectionsGroupMetaData[groupName].collapsed =
+      !this.detectionsGroupMetaData[groupName].collapsed;
   }
 }
