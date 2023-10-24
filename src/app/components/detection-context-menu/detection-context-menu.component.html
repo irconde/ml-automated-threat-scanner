@@ -3,33 +3,39 @@
     <div class="main-widget">
       <button (click)="handleMenuItemClick('LABEL')"
               aria-label="Label Edition Icon"
-              type="button">
-        <img alt="text icon" src="assets/text.icon.svg"/>
+              type="button"
+              class="context-menu-button"
+              id="label-edit-button">
+        <app-label-svg/>
       </button>
       <button (click)="handleMenuItemClick('COLOR')"
               aria-label="Color Edition Icon"
-              type="button">
-        <img alt="rectangle icon" src="assets/rectangle.svg"/>
+              type="button"
+              class="context-menu-button">
+        <app-color-svg/>
       </button>
       <button (click)="handleMenuItemClick('BOUNDING')"
               aria-label="Bounding Box Edition Icon"
-              type="button">
-        <img alt="rectangle icon" src="assets/rectangle.svg"/>
+              type="button"
+              class="context-menu-button">
+        <app-rectangle-svg/>
       </button>
       <button *ngIf="showPolygonIcon" (click)="handleMenuItemClick('POLYGON')"
               aria-label="Polygon Mask Edition Icon"
-              type="button">
-        <img alt="polygon icon" src="assets/polygon.svg"/>
+              type="button"
+              class="context-menu-button">
+        <app-polygon-svg/>
       </button>
       <button (click)="handleMenuItemClick('MOVE')" aria-label="Move Icon"
-              type="button">
-        <img alt="movement icon" src="assets/movement.icon.svg"/>
+              type="button"
+              class="context-menu-button">
+        <app-movement-svg/>
       </button>
 
     </div>
-    <button class="delete-button" (click)="handleMenuItemClick('DELETE')" aria-label="Delete Icon"
+    <button class="delete-button context-menu-button" (click)="handleMenuItemClick('DELETE')" aria-label="Delete Icon"
             type="button">
-      <img alt="delete icon" src="assets/delete.icon.svg"/>
+      <app-delete-svg/>
     </button>
   </div>
 </div>

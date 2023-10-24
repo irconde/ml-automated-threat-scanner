@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { DynamicSvgComponent } from './dynamic-svg.component';
+import { ColorComponent } from './color-svg.component';
 
-describe('DynamicSvgComponent', () => {
-  let component: DynamicSvgComponent;
-  let fixture: ComponentFixture<DynamicSvgComponent>;
+describe('ColorComponent', () => {
+  let component: ColorComponent;
+  let fixture: ComponentFixture<ColorComponent>;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ DynamicSvgComponent ],
-      imports: [IonicModule.forRoot()]
+      declarations: [ColorComponent],
+      imports: [IonicModule.forRoot()],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(DynamicSvgComponent);
+    fixture = TestBed.createComponent(ColorComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));

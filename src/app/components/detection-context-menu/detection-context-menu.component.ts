@@ -4,28 +4,35 @@ import { DetectionsService } from '../../services/detections/detections.service'
 import { cornerstone } from '../../csSetup';
 import { getViewportByViewpoint } from '../../utilities/cornerstone.utilities';
 import { NgIf, NgStyle } from '@angular/common';
-import { DynamicSvgComponent } from '../dynamic-svg/dynamic-svg.component';
-import { CornerstoneService } from '../../services/cornerstone/cornerstone.service';
+import { ColorComponent } from '../svgs/color-svg/color-svg.component';
+import { RectangleComponent } from '../svgs/rectangle-svg/rectangle-svg.component';
+import { MovementComponent } from '../svgs/move-svg/movement-svg.component';
+import { PolygonComponent } from '../svgs/polygon-svg/polygon-svg.component';
+import { LabelComponent } from '../svgs/label-svg/label-svg.component';
+import { DeleteComponent } from '../svgs/delete-svg/delete-svg.component';
 
 @Component({
   selector: 'app-detection-context-menu',
   templateUrl: './detection-context-menu.component.html',
   styleUrls: ['./detection-context-menu.component.scss'],
   standalone: true,
-  imports: [NgStyle, NgIf, DynamicSvgComponent],
+  imports: [
+    NgStyle,
+    NgIf,
+    ColorComponent,
+    RectangleComponent,
+    MovementComponent,
+    PolygonComponent,
+    LabelComponent,
+    DeleteComponent,
+  ],
 })
 export class DetectionContextMenuComponent {
-  color = 'blue';
-  svgPath = 'assets/rectangle.svg';
-
   position: Coordinate2D | null = { x: 0, y: 0 };
   enablePositionOffset = false;
   showPolygonIcon = false;
 
-  constructor(
-    private detectionService: DetectionsService,
-    private cornerstoneService: CornerstoneService,
-  ) {
+  constructor(private detectionService: DetectionsService) {
     this.detectionService
       .getSelectedDetection()
       .subscribe((selectedDetection) => {
