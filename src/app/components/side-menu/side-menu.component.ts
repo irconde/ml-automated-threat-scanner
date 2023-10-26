@@ -5,7 +5,7 @@ import {
   DetectionsMap,
   DetectionsService,
 } from '../../services/detections/detections.service';
-import { Detection } from '../../../models/detection';
+import { Detection, DetectionGroupMetaData } from '../../../models/detection';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
@@ -18,10 +18,7 @@ import { MatIconModule } from '@angular/material/icon';
 export class SideMenuComponent {
   public isOpen: boolean = false;
   public detectionsGroups: Record<string, Detection[]> = {};
-  public detectionsGroupMetaData: Record<
-    string,
-    { visible: boolean; collapsed: boolean; selected: boolean }
-  > = {};
+  public detectionsGroupMetaData: Record<string, DetectionGroupMetaData> = {};
 
   constructor(
     private uiService: UiService,
@@ -34,6 +31,11 @@ export class SideMenuComponent {
     this.detectionsService.getDetectionData().subscribe((detections) => {
       this.setDetectionsGroups(detections);
     });
+    this.detectionsService
+      .getDetectionsGroupsMetadata()
+      .subscribe((detectionsMetaData) => {
+        this.detectionsGroupMetaData = detectionsMetaData;
+      });
   }
 
   public getAlgorithmNames(): string[] {
@@ -56,15 +58,10 @@ export class SideMenuComponent {
     this.detectionsGroups = allDetections.reduce<Record<string, Detection[]>>(
       (map, currentDetection) => {
         const groupKey =
-          currentDetection.algorithm || currentDetection.className;
+          currentDetection.algorithm || currentDetection.categoryName;
         if (map[groupKey]) {
           map[groupKey].push(currentDetection);
         } else {
-          this.detectionsGroupMetaData[groupKey] = {
-            visible: true,
-            collapsed: false,
-            selected: false,
-          };
           map[groupKey] = [currentDetection];
         }
 
@@ -76,8 +73,18 @@ export class SideMenuComponent {
     console.log(this.detectionsGroups);
   }
 
-  toggleDetectionGroupCollapse(groupName: string) {
-    this.detectionsGroupMetaData[groupName].collapsed =
-      !this.detectionsGroupMetaData[groupName].collapsed;
+  handleGroupChevronClick(event: MouseEvent, groupName: string) {
+    event.stopPropagation();
+    this.detectionsService.toggleDetectionGroupProp(groupName, 'collapsed');
+  }
+
+  handleGroupEyeClick(event: MouseEvent, groupName: string) {
+    event.stopPropagation();
+    this.detectionsService.toggleDetectionGroupProp(groupName, 'visible');
+  }
+
+  handleGroupNameClick(groupName: string) {
+    console.log('group name click');
+    this.detectionsService.toggleDetectionGroupProp(groupName, 'selected');
   }
 }

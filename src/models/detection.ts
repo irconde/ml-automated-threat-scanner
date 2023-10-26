@@ -52,3 +52,13 @@ export interface CornerstoneClickEvent extends Event {
     };
   };
 }
+
+export type DetectionGroupMetaData = {
+  selected: boolean;
+  visible: boolean;
+  collapsed: boolean;
+};
+
+// TODO: move these methods to Detections class
+export const getDetectionGroupName = (detection: Detection) =>
+  detection.algorithm || detection.categoryName;

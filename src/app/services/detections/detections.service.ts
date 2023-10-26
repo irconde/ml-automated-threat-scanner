@@ -1,5 +1,11 @@
 import { Injectable } from '@angular/core';
-import { BoundingBox, Detection, Point } from '../../../models/detection';
+import {
+  BoundingBox,
+  Detection,
+  DetectionGroupMetaData,
+  getDetectionGroupName,
+  Point,
+} from '../../../models/detection';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { CommonDetections } from '../../../enums/cornerstone';
 import { v4 as guid } from 'uuid';
@@ -17,6 +23,9 @@ export class DetectionsService {
   private detectionData: BehaviorSubject<DetectionsMap> =
     new BehaviorSubject<DetectionsMap>({ top: [], side: [] });
   private selectedDetection: Detection | null = null;
+  private detectionsGroupsMetadata: BehaviorSubject<
+    Record<string, DetectionGroupMetaData>
+  > = new BehaviorSubject({});
 
   constructor() {}
 
@@ -24,8 +33,57 @@ export class DetectionsService {
     return this.detectionData.asObservable();
   }
 
+  public getDetectionsGroupsMetadata() {
+    return this.detectionsGroupsMetadata.asObservable();
+  }
+
+  public toggleDetectionGroupProp(
+    groupName: string,
+    prop: keyof DetectionGroupMetaData,
+  ) {
+    if (!this.detectionsGroupsMetadata.value[groupName]) {
+      throw Error(
+        `Cannot toggle '${groupName}' group name in 'toggleDetectionGroupSelection'`,
+      );
+    } else {
+      const groupMetaData = this.detectionsGroupsMetadata.value[groupName];
+      const updatedGroupMetaData: Record<string, DetectionGroupMetaData> = {
+        ...this.detectionsGroupsMetadata.value,
+        [groupName]: {
+          ...groupMetaData,
+          [prop]: !groupMetaData[prop],
+        },
+      };
+      this.detectionsGroupsMetadata.next(updatedGroupMetaData);
+    }
+  }
+
   setDetectionData(detectionData: Partial<DetectionsMap>) {
-    this.detectionData.next({ ...this.detectionData.value, ...detectionData });
+    const detectionsMap: DetectionsMap = {
+      ...this.detectionData.value,
+      ...detectionData,
+    };
+    this.detectionData.next(detectionsMap);
+    this.initDetectionsGroupsMetadata(detectionsMap);
+  }
+
+  private initDetectionsGroupsMetadata(detectionsMap: DetectionsMap) {
+    const detectionGroups = [
+      ...detectionsMap.top,
+      ...detectionsMap.side,
+    ].reduce<Record<string, DetectionGroupMetaData>>((result, detection) => {
+      const groupName = getDetectionGroupName(detection);
+      if (!result[groupName]) {
+        result[groupName] = {
+          selected: false,
+          visible: true,
+          collapsed: false,
+        };
+      }
+      return result;
+    }, {});
+
+    this.detectionsGroupsMetadata.next(detectionGroups);
   }
 
   selectDetection(detectionID: string, viewpoint: string): void {
@@ -105,6 +163,20 @@ export class DetectionsService {
       det.selected = false;
     });
 
+    updateCornerstoneViewports();
+  }
+
+  toggleDetectionsSelectionByGroupName(groupName: string) {
+    const callback = (detection: Detection) => {
+      if (
+        detection.algorithm === groupName ||
+        detection.categoryName === groupName
+      ) {
+        detection.categorySelected = true;
+      }
+    };
+    this.detectionData.value.top.forEach(callback);
+    this.detectionData.value.side.forEach(callback);
     updateCornerstoneViewports();
   }
 }
