@@ -26,8 +26,8 @@
         <span>
           {{ detection.categoryName }} - {{ detection.confidence }}%
         </span>
-        <button class="eye-icon">
-          <mat-icon>{{detectionsGroupMetaData[groupName].visible ? 'visibility' : 'visibility_off'}}</mat-icon>
+        <button class="eye-icon" (click)="handleDetectionEyeClick($event, detection)">
+          <mat-icon>{{isDetectionVisible(detection, groupName) ? 'visibility' : 'visibility_off'}}</mat-icon>
         </button>
       </li>
     </ul>

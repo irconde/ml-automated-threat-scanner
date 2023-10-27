@@ -27,6 +27,10 @@ export class DetectionsService {
     Record<string, DetectionGroupMetaData>
   > = new BehaviorSubject({});
 
+  private get detections() {
+    return [...this.detectionData.value.side, ...this.detectionData.value.top];
+  }
+
   constructor() {}
 
   getDetectionData(): Observable<DetectionsMap> {
@@ -68,10 +72,9 @@ export class DetectionsService {
   }
 
   private initDetectionsGroupsMetadata(detectionsMap: DetectionsMap) {
-    const detectionGroups = [
-      ...detectionsMap.top,
-      ...detectionsMap.side,
-    ].reduce<Record<string, DetectionGroupMetaData>>((result, detection) => {
+    const detectionGroups = this.detections.reduce<
+      Record<string, DetectionGroupMetaData>
+    >((result, detection) => {
       const groupName = getDetectionGroupName(detection);
       if (!result[groupName]) {
         result[groupName] = {
@@ -89,23 +92,13 @@ export class DetectionsService {
   selectDetection(detectionID: string, viewpoint: string): void {
     // TODO select by viewpoint
     console.log(viewpoint);
-    const allDetections = [
-      ...this.detectionData.value.top,
-      ...this.detectionData.value.side,
-    ];
 
     this.selectedDetection =
-      allDetections.find((detection) => detection.uuid === detectionID) || null;
+      this.detections.find(({ uuid }) => uuid === detectionID) || null;
 
     if (this.selectedDetection !== null) {
       this.selectedDetection.selected = true;
-      this.detectionData.value.top.forEach((det) => {
-        if (det.uuid !== this.selectedDetection?.uuid) {
-          det.selected = false;
-        }
-      });
-
-      this.detectionData.value.side.forEach((det) => {
+      this.detections.forEach((det) => {
         if (det.uuid !== this.selectedDetection?.uuid) {
           det.selected = false;
         }
@@ -155,28 +148,19 @@ export class DetectionsService {
 
   clearSelectedDetection(): void {
     this.selectedDetection = null;
-    this.detectionData.value.top.forEach((det) => {
-      det.selected = false;
-    });
-
-    this.detectionData.value.side.forEach((det) => {
+    this.detections.forEach((det) => {
       det.selected = false;
     });
 
     updateCornerstoneViewports();
   }
 
-  toggleDetectionsSelectionByGroupName(groupName: string) {
-    const callback = (detection: Detection) => {
-      if (
-        detection.algorithm === groupName ||
-        detection.categoryName === groupName
-      ) {
-        detection.categorySelected = true;
+  toggleDetectionVisibility(detection: Detection) {
+    this.detections.forEach((det) => {
+      if (det.uuid === detection.uuid) {
+        det.visible = !det.visible;
       }
-    };
-    this.detectionData.value.top.forEach(callback);
-    this.detectionData.value.side.forEach(callback);
+    });
     updateCornerstoneViewports();
   }
 }
