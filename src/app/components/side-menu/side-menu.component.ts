@@ -84,16 +84,11 @@ export class SideMenuComponent {
   }
 
   handleGroupNameClick(groupName: string) {
-    console.log('group name click');
     this.detectionsService.toggleDetectionGroupProp(groupName, 'selected');
   }
 
   handleDetectionEyeClick(event: MouseEvent, detection: Detection) {
     event.stopPropagation();
     this.detectionsService.toggleDetectionVisibility(detection);
-  }
-
-  isDetectionVisible(detection: Detection, groupName: string) {
-    return detection.visible && this.detectionsGroupMetaData[groupName].visible;
   }
 }

@@ -24,10 +24,10 @@
           class="detection-color"
         ></span>
         <span>
-          {{ detection.categoryName }} - {{ detection.confidence }}%
+          {{ detection.className }} - {{ detection.confidence }}%
         </span>
         <button class="eye-icon" (click)="handleDetectionEyeClick($event, detection)">
-          <mat-icon>{{isDetectionVisible(detection, groupName) ? 'visibility' : 'visibility_off'}}</mat-icon>
+          <mat-icon>{{detection.visible ? 'visibility' : 'visibility_off'}}</mat-icon>
         </button>
       </li>
     </ul>

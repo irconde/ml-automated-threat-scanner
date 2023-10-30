@@ -41,6 +41,12 @@ export class DetectionsService {
     return this.detectionsGroupsMetadata.asObservable();
   }
 
+  /**
+   * Give a group name and a prop to toggle ('selected' | 'collapsed' | 'visible') it updates the group metadata
+   * prop and the detections associated with the group name
+   * @param groupName
+   * @param prop
+   */
   public toggleDetectionGroupProp(
     groupName: string,
     prop: keyof DetectionGroupMetaData,
@@ -51,14 +57,24 @@ export class DetectionsService {
       );
     } else {
       const groupMetaData = this.detectionsGroupsMetadata.value[groupName];
+      const propNewValue = !groupMetaData[prop];
       const updatedGroupMetaData: Record<string, DetectionGroupMetaData> = {
         ...this.detectionsGroupsMetadata.value,
         [groupName]: {
           ...groupMetaData,
-          [prop]: !groupMetaData[prop],
+          [prop]: propNewValue,
         },
       };
+      if (prop === 'selected' || prop === 'visible') {
+        this.detections.forEach((det) => {
+          const detectionGroupName = getDetectionGroupName(det);
+          if (detectionGroupName === groupName) {
+            det[prop] = propNewValue;
+          }
+        });
+      }
       this.detectionsGroupsMetadata.next(updatedGroupMetaData);
+      updateCornerstoneViewports();
     }
   }
 
@@ -68,10 +84,10 @@ export class DetectionsService {
       ...detectionData,
     };
     this.detectionData.next(detectionsMap);
-    this.initDetectionsGroupsMetadata(detectionsMap);
+    this.setDetectionsGroupsMetadata();
   }
 
-  private initDetectionsGroupsMetadata(detectionsMap: DetectionsMap) {
+  private setDetectionsGroupsMetadata() {
     const detectionGroups = this.detections.reduce<
       Record<string, DetectionGroupMetaData>
     >((result, detection) => {
@@ -133,7 +149,7 @@ export class DetectionsService {
       confidence: 0,
       imageId: '',
       id: '',
-      algorithm: '',
+      algorithm: 'NEW',
       categoryName: '',
     };
     this.setDetectionData({
@@ -155,6 +171,10 @@ export class DetectionsService {
     updateCornerstoneViewports();
   }
 
+  /**
+   * Toggles the visibility of a single detection
+   * @param detection
+   */
   toggleDetectionVisibility(detection: Detection) {
     this.detections.forEach((det) => {
       if (det.uuid === detection.uuid) {
