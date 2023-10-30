@@ -5,12 +5,12 @@
   align-items: center;
   justify-content: center;
   $background-color: #dadada;
-  $height: 30px;
+  height: 35px;
   transform: translateX(-42%);
 
   .flex-container {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     gap: 0.5rem;
     height: 100%;
   }
@@ -23,27 +23,33 @@
     border-radius: 40px;
     overflow: hidden;
     box-shadow: 5px 5px 15px 2px rgba(0, 0, 0, 0.41);
-    padding: 0.3rem 0.25rem 0.2rem;
+    padding-inline: 0.5rem;
+    box-sizing: content-box;
+    width: 10rem;
 
-  }
+    button {
+      width: 25%;
+      margin-left: 0.5rem;
 
-  .context-menu-button {
-    margin: 0 0.65rem 0 0;
-  }
+      &:first-of-type {
+        margin-left: 0;
+      }
+    }
 
-  #label-edit-button {
-    margin-left: 0.65rem;
   }
 
   button {
     background: none;
+    height: 100%;
   }
 
   .delete-button {
     background: $background-color;
     border-radius: 50%;
-    padding: 0.25rem;
     aspect-ratio: 1;
+    height: 100%;
+    display: grid;
+    place-items: center;
   }
 
 

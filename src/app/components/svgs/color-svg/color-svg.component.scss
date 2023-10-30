@@ -8,3 +8,7 @@ svg {
   stroke: #464646;
   stroke-width: 3;
 }
+
+:host {
+  display: contents;
+}
