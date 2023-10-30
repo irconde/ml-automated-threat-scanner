@@ -31,12 +31,14 @@ export class DetectionContextMenuComponent {
   position: Coordinate2D | null = { x: 0, y: 0 };
   enablePositionOffset = false;
   showPolygonIcon = false;
+  detectionColor = '#ffffff';
 
   constructor(private detectionService: DetectionsService) {
     this.detectionService
       .getSelectedDetection()
       .subscribe((selectedDetection) => {
         this.updatePosition(selectedDetection);
+        this.detectionColor = selectedDetection?.color || '#ffffff';
       });
 
     this.detectionService.getDetectionData().subscribe((detections) => {

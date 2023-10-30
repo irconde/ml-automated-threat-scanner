@@ -12,7 +12,7 @@
               aria-label="Color Edition Icon"
               type="button"
               class="context-menu-button">
-        <app-color-svg/>
+        <app-color-svg [color]="detectionColor"/>
       </button>
       <button (click)="handleMenuItemClick('BOUNDING')"
               aria-label="Bounding Box Edition Icon"
