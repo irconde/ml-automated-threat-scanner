@@ -75,16 +75,24 @@ export class SideMenuComponent {
 
   handleGroupChevronClick(event: MouseEvent, groupName: string) {
     event.stopPropagation();
-    this.detectionsService.toggleDetectionGroupProp(groupName, 'collapsed');
+    this.detectionsService.toggleDetectionGroupProp(
+      groupName,
+      'collapsed',
+      true,
+    );
   }
 
   handleGroupEyeClick(event: MouseEvent, groupName: string) {
     event.stopPropagation();
-    this.detectionsService.toggleDetectionGroupProp(groupName, 'visible');
+    this.detectionsService.toggleDetectionGroupProp(groupName, 'visible', true);
   }
 
   handleGroupNameClick(groupName: string) {
-    this.detectionsService.toggleDetectionGroupProp(groupName, 'selected');
+    this.detectionsService.toggleDetectionGroupProp(
+      groupName,
+      'selected',
+      true,
+    );
   }
 
   handleDetectionEyeClick(event: MouseEvent, detection: Detection) {

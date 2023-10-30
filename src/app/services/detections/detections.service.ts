@@ -44,12 +44,16 @@ export class DetectionsService {
   /**
    * Give a group name and a prop to toggle ('selected' | 'collapsed' | 'visible') it updates the group metadata
    * prop and the detections associated with the group name
-   * @param groupName
-   * @param prop
+   * @param groupName - name of the group in which the prop should be updated
+   * @param prop - a detection group metadata property to be updated
+   * @param shouldUpdateDetections - whether detections within the group should be updated as well or just the group name
+   * @param forcedValue - if provided, then rather than toggling the current state, we use this value
    */
   public toggleDetectionGroupProp(
     groupName: string,
     prop: keyof DetectionGroupMetaData,
+    shouldUpdateDetections: boolean,
+    forcedValue: undefined | boolean = undefined,
   ) {
     if (!this.detectionsGroupsMetadata.value[groupName]) {
       throw Error(
@@ -57,7 +61,7 @@ export class DetectionsService {
       );
     } else {
       const groupMetaData = this.detectionsGroupsMetadata.value[groupName];
-      const propNewValue = !groupMetaData[prop];
+      const propNewValue = forcedValue ?? !groupMetaData[prop];
       const updatedGroupMetaData: Record<string, DetectionGroupMetaData> = {
         ...this.detectionsGroupsMetadata.value,
         [groupName]: {
@@ -65,7 +69,12 @@ export class DetectionsService {
           [prop]: propNewValue,
         },
       };
-      if (prop === 'selected' || prop === 'visible') {
+      if (
+        // update detections to match the state of the group name
+        // used when the actual group name is clicked
+        shouldUpdateDetections &&
+        (prop === 'selected' || prop === 'visible')
+      ) {
         this.detections.forEach((det) => {
           const detectionGroupName = getDetectionGroupName(det);
           if (detectionGroupName === groupName) {
@@ -176,11 +185,29 @@ export class DetectionsService {
    * @param detection
    */
   toggleDetectionVisibility(detection: Detection) {
-    this.detections.forEach((det) => {
+    let detectionGroupName = '';
+
+    // Loop through detections to find the given detection by id and update its visibility
+    for (const det of this.detections) {
       if (det.uuid === detection.uuid) {
         det.visible = !det.visible;
+        detectionGroupName = getDetectionGroupName(det); // Get the group name
+        break; // Stop the loop once the desired detection is found
       }
+    }
+
+    // Determine the group visibility based on the updated detection
+    const groupVisible = this.detections.some((det) => {
+      const groupName = getDetectionGroupName(det);
+      return groupName === detectionGroupName && det.visible;
     });
+
+    this.toggleDetectionGroupProp(
+      detectionGroupName,
+      'visible',
+      false,
+      groupVisible,
+    );
     updateCornerstoneViewports();
   }
 }
