@@ -1,0 +1,14 @@
+svg {
+  width: 24px;
+  aspect-ratio: 1;
+}
+
+
+.coloredTag {
+  stroke: #464646;
+  stroke-width: 3;
+}
+
+:host {
+  display: contents;
+}

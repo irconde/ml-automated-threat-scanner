@@ -101,3 +101,9 @@ export const resizeCornerstoneViewports = () => {
     cornerstone.resize(viewports[i]);
   }
 };
+
+export const getViewportByViewpoint = (viewpoint: string): HTMLElement => {
+  const viewport = document.getElementsByClassName(viewpoint)[0] as HTMLElement;
+  if (viewport) return viewport;
+  else throw Error(`Viewpoint ${viewpoint} is unknown`);
+};

@@ -22,7 +22,9 @@ export interface DetectionsMap {
 export class DetectionsService {
   private detectionData: BehaviorSubject<DetectionsMap> =
     new BehaviorSubject<DetectionsMap>({ top: [], side: [] });
-  private selectedDetection: Detection | null = null;
+  // private selectedDetection: Detection | null = null;
+  private selectedDetection: BehaviorSubject<Detection | null> =
+    new BehaviorSubject<Detection | null>(null);
   private detectionsGroupsMetadata: BehaviorSubject<
     Record<string, DetectionGroupMetaData>
   > = new BehaviorSubject({});
@@ -116,25 +118,25 @@ export class DetectionsService {
 
   selectDetection(detectionID: string, viewpoint: string): void {
     // TODO select by viewpoint
-    console.log(viewpoint);
 
-    this.selectedDetection =
+    const selectedDetection =
       this.detections.find(({ uuid }) => uuid === detectionID) || null;
 
-    if (this.selectedDetection !== null) {
-      this.selectedDetection.selected = true;
+    if (selectedDetection !== null) {
+      selectedDetection.selected = true;
       this.detections.forEach((det) => {
-        if (det.uuid !== this.selectedDetection?.uuid) {
+        if (det.uuid !== selectedDetection?.uuid) {
           det.selected = false;
         }
       });
     }
+    this.selectedDetection.next(selectedDetection);
 
     updateCornerstoneViewports();
   }
 
-  getSelectedDetection(): Detection | null {
-    return this.selectedDetection;
+  getSelectedDetection(): Observable<Detection | null> {
+    return this.selectedDetection.asObservable();
   }
 
   addDetection(
@@ -172,7 +174,7 @@ export class DetectionsService {
   }
 
   clearSelectedDetection(): void {
-    this.selectedDetection = null;
+    this.selectedDetection.next(null);
     this.detections.forEach((det) => {
       det.selected = false;
     });

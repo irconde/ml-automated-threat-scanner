@@ -1,0 +1,41 @@
+<div class="detection-context-menu" style="{{handleContextMenuPosition()}}">
+  <div class="flex-container">
+    <div class="main-widget">
+      <button (click)="handleMenuItemClick('LABEL')"
+              aria-label="Label Edition Icon"
+              type="button"
+              class="context-menu-button"
+              id="label-edit-button">
+        <app-label-svg/>
+      </button>
+      <button (click)="handleMenuItemClick('COLOR')"
+              aria-label="Color Edition Icon"
+              type="button"
+              class="context-menu-button">
+        <app-color-svg [color]="detectionColor"/>
+      </button>
+      <button (click)="handleMenuItemClick('BOUNDING')"
+              aria-label="Bounding Box Edition Icon"
+              type="button"
+              class="context-menu-button">
+        <app-rectangle-svg/>
+      </button>
+      <button *ngIf="showPolygonIcon" (click)="handleMenuItemClick('POLYGON')"
+              aria-label="Polygon Mask Edition Icon"
+              type="button"
+              class="context-menu-button">
+        <app-polygon-svg/>
+      </button>
+      <button (click)="handleMenuItemClick('MOVE')" aria-label="Move Icon"
+              type="button"
+              class="context-menu-button">
+        <app-movement-svg/>
+      </button>
+
+    </div>
+    <button class="delete-button context-menu-button" (click)="handleMenuItemClick('DELETE')" aria-label="Delete Icon"
+            type="button">
+      <app-delete-svg/>
+    </button>
+  </div>
+</div>

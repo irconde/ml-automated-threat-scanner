@@ -17,6 +17,7 @@ import PolygonDrawingTool from '../../utilities/cornerstone-tools/PolygonDrawing
 import AnnotationMovementTool from '../../utilities/cornerstone-tools/AnnotationMovementTool';
 import { UiService } from '../../services/ui/ui.service';
 import { resizeCornerstoneViewports } from '../../utilities/cornerstone.utilities';
+import { DetectionContextMenuComponent } from '../detection-context-menu/detection-context-menu.component';
 
 @Component({
   selector: 'app-cs-canvas',
@@ -32,6 +33,7 @@ import { resizeCornerstoneViewports } from '../../utilities/cornerstone.utilitie
     KeyValuePipe,
     NgStyle,
     NgClass,
+    DetectionContextMenuComponent,
   ],
 })
 export class CsCanvasComponent implements OnInit, AfterViewInit {

@@ -1,19 +1,20 @@
-import {Component} from '@angular/core';
-import {IonicModule} from '@ionic/angular';
-import {ExploreContainerComponent} from '../explore-container/explore-container.component';
-import {CsCanvasComponent} from '../cs-canvas/cs-canvas.component';
-import {FilePayload} from '../../../../shared/models/file-models';
-import {FileService} from '../../services/file/file.service';
-import {SettingsService} from '../../services/settings/settings.service';
-import {Platforms} from '../../../enums/platforms';
-import {CommonModule} from '@angular/common';
-import {SettingsModalComponent} from '../settings-modal/settings-modal.component';
-import {MatIconModule} from '@angular/material/icon';
-import {MatButtonModule} from '@angular/material/button';
-import {MatDialog, MatDialogModule} from '@angular/material/dialog';
-import {ApplicationSettings} from '../../services/settings/models/Settings';
-import {TopBarComponent} from '../top-bar/top-bar.component';
-import {SideMenuComponent} from "../side-menu/side-menu.component";
+import { Component } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
+import { ExploreContainerComponent } from '../explore-container/explore-container.component';
+import { CsCanvasComponent } from '../cs-canvas/cs-canvas.component';
+import { FilePayload } from '../../../../shared/models/file-models';
+import { FileService } from '../../services/file/file.service';
+import { SettingsService } from '../../services/settings/settings.service';
+import { Platforms } from '../../../enums/platforms';
+import { CommonModule } from '@angular/common';
+import { SettingsModalComponent } from '../settings-modal/settings-modal.component';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ApplicationSettings } from '../../services/settings/models/Settings';
+import { TopBarComponent } from '../top-bar/top-bar.component';
+import { DetectionContextMenuComponent } from "../detection-context-menu/detection-context-menu.component";
+import { SideMenuComponent } from "../side-menu/side-menu.component";
 
 @Component({
   selector: 'app-main',
@@ -30,6 +31,7 @@ import {SideMenuComponent} from "../side-menu/side-menu.component";
     MatButtonModule,
     MatDialogModule,
     TopBarComponent,
+    DetectionContextMenuComponent,
     SideMenuComponent,
   ],
 })
