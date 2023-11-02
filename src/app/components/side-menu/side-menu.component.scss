@@ -74,6 +74,17 @@
   padding-block: 0.75rem;
   align-items: center;
 
+  .algorithm-chevron {
+    margin-left: 0.5rem;
+
+    mat-icon {
+      transition: rotate 100ms;
+    }
+  }
+
+  .algorithm-name {
+    margin-left: 0.4rem;
+  }
 
 }
 

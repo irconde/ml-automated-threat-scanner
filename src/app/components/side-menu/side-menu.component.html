@@ -2,12 +2,12 @@
   <div *ngFor="let groupName of getAlgorithmNames()" class="algorithm-group">
     <div class="algorithm" (click)="handleGroupNameClick(groupName)"
          [ngClass]="{ selected: detectionsGroupMetaData[groupName].selected }">
-      <button (click)="handleGroupChevronClick($event, groupName)">
-        <mat-icon color="white" [style.rotate]="detectionsGroupMetaData[groupName].collapsed ? '180deg' : '-90deg'">
+      <button class="algorithm-chevron" (click)="handleGroupChevronClick($event, groupName)">
+        <mat-icon color="white" [style.rotate]="detectionsGroupMetaData[groupName].collapsed ? '180deg' : '270deg'">
           arrow_left
         </mat-icon>
       </button>
-      <span>{{ groupName }}</span>
+      <span class="algorithm-name">{{ groupName }}</span>
       <button class="eye-icon" (click)="handleGroupEyeClick($event, groupName)">
         <mat-icon>{{detectionsGroupMetaData[groupName].visible ? 'visibility' : 'visibility_off'}}</mat-icon>
       </button>

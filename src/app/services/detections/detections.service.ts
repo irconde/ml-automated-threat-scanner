@@ -105,10 +105,14 @@ export class DetectionsService {
     >((result, detection) => {
       const groupName = getDetectionGroupName(detection);
       if (!result[groupName]) {
+        // get the current values for the groups
+        const { collapsed, visible } = this.detectionsGroupsMetadata.value[
+          groupName
+        ] || { collapsed: false, visible: true };
         result[groupName] = {
           selected: false,
-          visible: true,
-          collapsed: false,
+          visible,
+          collapsed,
         };
       }
       return result;
