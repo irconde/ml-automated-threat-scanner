@@ -5,7 +5,11 @@ import {
   DetectionsMap,
   DetectionsService,
 } from '../../services/detections/detections.service';
-import { Detection, DetectionGroupMetaData } from '../../../models/detection';
+import {
+  Detection,
+  DetectionGroupMetaData,
+  getDetectionGroupName,
+} from '../../../models/detection';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
@@ -43,8 +47,12 @@ export class SideMenuComponent {
   }
 
   public handleDetectionClick(detection: Detection) {
-    if (detection.selected) {
-      this.detectionsService.clearSelectedDetection();
+    const groupName = getDetectionGroupName(detection);
+    if (
+      detection.selected &&
+      !this.detectionsGroupMetaData[groupName].selected
+    ) {
+      this.detectionsService.clearDetectionsSelection();
     } else {
       this.detectionsService.selectDetection(
         detection.uuid,

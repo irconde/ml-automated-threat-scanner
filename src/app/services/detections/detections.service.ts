@@ -3,6 +3,7 @@ import {
   BoundingBox,
   Detection,
   DetectionGroupMetaData,
+  DetectionGroups,
   getDetectionGroupName,
   Point,
 } from '../../../models/detection';
@@ -22,12 +23,10 @@ export interface DetectionsMap {
 export class DetectionsService {
   private detectionData: BehaviorSubject<DetectionsMap> =
     new BehaviorSubject<DetectionsMap>({ top: [], side: [] });
-  // private selectedDetection: Detection | null = null;
   private selectedDetection: BehaviorSubject<Detection | null> =
     new BehaviorSubject<Detection | null>(null);
-  private detectionsGroupsMetadata: BehaviorSubject<
-    Record<string, DetectionGroupMetaData>
-  > = new BehaviorSubject({});
+  private detectionsGroupsMetadata: BehaviorSubject<DetectionGroups> =
+    new BehaviorSubject({});
 
   private get detections() {
     return [...this.detectionData.value.side, ...this.detectionData.value.top];
@@ -77,12 +76,14 @@ export class DetectionsService {
         shouldUpdateDetections &&
         (prop === 'selected' || prop === 'visible')
       ) {
+        prop === 'selected' && this.clearDetectionsSelection();
         this.detections.forEach((det) => {
           const detectionGroupName = getDetectionGroupName(det);
           if (detectionGroupName === groupName) {
             det[prop] = propNewValue;
           }
         });
+        this.selectedDetection.next(null);
       }
       this.detectionsGroupsMetadata.next(updatedGroupMetaData);
       updateCornerstoneViewports();
@@ -129,6 +130,7 @@ export class DetectionsService {
           det.selected = false;
         }
       });
+      this.clearGroupsSelection();
     }
     this.selectedDetection.next(selectedDetection);
 
@@ -173,11 +175,13 @@ export class DetectionsService {
     return newDetection;
   }
 
-  clearSelectedDetection(): void {
+  clearDetectionsSelection(): void {
     this.selectedDetection.next(null);
     this.detections.forEach((det) => {
       det.selected = false;
     });
+
+    this.clearGroupsSelection();
 
     updateCornerstoneViewports();
   }
@@ -211,5 +215,12 @@ export class DetectionsService {
       groupVisible,
     );
     updateCornerstoneViewports();
+  }
+
+  private clearGroupsSelection() {
+    for (const groupName in this.detectionsGroupsMetadata.value) {
+      this.detectionsGroupsMetadata.value[groupName].selected = false;
+    }
+    this.detectionsGroupsMetadata.next(this.detectionsGroupsMetadata.value);
   }
 }
