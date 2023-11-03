@@ -132,7 +132,6 @@ export class CornerstoneDirective implements AfterViewInit {
    * Runs after onDragEnd event
    * @param event
    */
-  // @HostListener(CS_EVENTS.CLICK, ['$event'])
   onMouseClick = (event: MouseEvent | TouchEvent) => {
     const mousePos = this.getCanvasClickPosition(event);
     let detClicked = false;
@@ -142,7 +141,7 @@ export class CornerstoneDirective implements AfterViewInit {
         mousePos,
         this.detections[i].boundingBox,
       );
-      if (isPointInRect && !detection.selected) {
+      if (isPointInRect && !detection.selected && detection.visible) {
         this.detectionsService.selectDetection(
           detection.uuid,
           detection.viewpoint,

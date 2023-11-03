@@ -42,17 +42,8 @@ export class DetectionsService {
     return this.detectionsGroupsMetadata.asObservable();
   }
 
-  public toggleDetectionGroupVisibility(
-    groupName: string,
-    shouldUpdateDetections: boolean,
-    forcedValue: undefined | boolean = undefined,
-  ) {
-    this.toggleDetectionGroupProp(
-      groupName,
-      'visible',
-      shouldUpdateDetections,
-      forcedValue,
-    );
+  public toggleDetectionGroupVisibility(groupName: string) {
+    this.toggleDetectionGroupProp(groupName, 'visible', true);
   }
 
   public toggleDetectionGroupCollapse(groupName: string) {
@@ -60,7 +51,6 @@ export class DetectionsService {
   }
 
   public toggleDetectionGroupSelection(groupName: string) {
-    this.clearDetectionsSelection();
     this.toggleDetectionGroupProp(groupName, 'selected', true);
   }
 
@@ -85,10 +75,11 @@ export class DetectionsService {
     } else {
       const groupMetaData = this.detectionsGroupsMetadata.value[groupName];
       const propNewValue = forcedValue ?? !groupMetaData[prop];
-      const updatedGroupMetaData: Record<string, DetectionGroupMetaData> = {
+      const updatedGroupMetaData: DetectionGroups = {
         ...this.detectionsGroupsMetadata.value,
         [groupName]: {
           ...groupMetaData,
+          ...(prop === 'visible' ? { selected: false } : {}),
           [prop]: propNewValue,
         },
       };
@@ -98,16 +89,18 @@ export class DetectionsService {
         shouldUpdateDetections &&
         (prop === 'selected' || prop === 'visible')
       ) {
+        if (prop === 'selected') this.clearDetectionsSelection();
         this.detections.forEach((det) => {
           const detectionGroupName = getDetectionGroupName(det);
           if (detectionGroupName === groupName) {
             det[prop] = propNewValue;
+            if (prop === 'visible') det.selected = false;
           }
         });
         this.selectedDetection.next(null);
       }
       this.detectionsGroupsMetadata.next(updatedGroupMetaData);
-      updateCornerstoneViewports();
+      if (prop !== 'collapsed') updateCornerstoneViewports();
     }
   }
 
@@ -121,23 +114,24 @@ export class DetectionsService {
   }
 
   private setDetectionsGroupsMetadata() {
-    const detectionGroups = this.detections.reduce<
-      Record<string, DetectionGroupMetaData>
-    >((result, detection) => {
-      const groupName = getDetectionGroupName(detection);
-      if (!result[groupName]) {
-        // get the current values for the groups
-        const { collapsed, visible } = this.detectionsGroupsMetadata.value[
-          groupName
-        ] || { collapsed: false, visible: true };
-        result[groupName] = {
-          selected: false,
-          visible,
-          collapsed,
-        };
-      }
-      return result;
-    }, {});
+    const detectionGroups = this.detections.reduce<DetectionGroups>(
+      (result, detection) => {
+        const groupName = getDetectionGroupName(detection);
+        if (!result[groupName]) {
+          // get the current values for the groups
+          const { collapsed, visible } = this.detectionsGroupsMetadata.value[
+            groupName
+          ] || { collapsed: false, visible: true };
+          result[groupName] = {
+            selected: false,
+            visible,
+            collapsed,
+          };
+        }
+        return result;
+      },
+      {},
+    );
 
     this.detectionsGroupsMetadata.next(detectionGroups);
   }
@@ -223,6 +217,10 @@ export class DetectionsService {
       if (det.uuid === detection.uuid) {
         det.visible = !det.visible;
         detectionGroupName = getDetectionGroupName(det); // Get the group name
+        if (det.uuid === this.selectedDetection.value?.uuid) {
+          det.selected = false;
+          this.selectedDetection.next(null);
+        }
         break; // Stop the loop once the desired detection is found
       }
     }

@@ -47,6 +47,7 @@ export class SideMenuComponent {
   }
 
   public handleDetectionClick(detection: Detection) {
+    if (!detection.visible) return;
     const groupName = getDetectionGroupName(detection);
     if (
       detection.selected &&
@@ -85,11 +86,13 @@ export class SideMenuComponent {
 
   handleGroupEyeClick(event: MouseEvent, groupName: string) {
     event.stopPropagation();
-    this.detectionsService.toggleDetectionGroupVisibility(groupName, true);
+    this.detectionsService.toggleDetectionGroupVisibility(groupName);
   }
 
   handleGroupNameClick(groupName: string) {
-    this.detectionsService.toggleDetectionGroupSelection(groupName);
+    if (this.detectionsGroupMetaData[groupName].visible) {
+      this.detectionsService.toggleDetectionGroupSelection(groupName);
+    }
   }
 
   handleDetectionEyeClick(event: MouseEvent, detection: Detection) {
