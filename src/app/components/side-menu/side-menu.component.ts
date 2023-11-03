@@ -65,42 +65,31 @@ export class SideMenuComponent {
     const allDetections = [...detections.side, ...detections.top];
     this.detectionsGroups = allDetections.reduce<Record<string, Detection[]>>(
       (map, currentDetection) => {
-        const groupKey =
-          currentDetection.algorithm || currentDetection.categoryName;
-        if (map[groupKey]) {
-          map[groupKey].push(currentDetection);
+        const groupName = getDetectionGroupName(currentDetection);
+        if (map[groupName]) {
+          map[groupName].push(currentDetection);
         } else {
-          map[groupKey] = [currentDetection];
+          map[groupName] = [currentDetection];
         }
 
         return map;
       },
       {},
     );
-
-    console.log(this.detectionsGroups);
   }
 
   handleGroupChevronClick(event: MouseEvent, groupName: string) {
     event.stopPropagation();
-    this.detectionsService.toggleDetectionGroupProp(
-      groupName,
-      'collapsed',
-      true,
-    );
+    this.detectionsService.toggleDetectionGroupCollapse(groupName);
   }
 
   handleGroupEyeClick(event: MouseEvent, groupName: string) {
     event.stopPropagation();
-    this.detectionsService.toggleDetectionGroupProp(groupName, 'visible', true);
+    this.detectionsService.toggleDetectionGroupVisibility(groupName, true);
   }
 
   handleGroupNameClick(groupName: string) {
-    this.detectionsService.toggleDetectionGroupProp(
-      groupName,
-      'selected',
-      true,
-    );
+    this.detectionsService.toggleDetectionGroupSelection(groupName);
   }
 
   handleDetectionEyeClick(event: MouseEvent, detection: Detection) {

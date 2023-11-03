@@ -42,6 +42,28 @@ export class DetectionsService {
     return this.detectionsGroupsMetadata.asObservable();
   }
 
+  public toggleDetectionGroupVisibility(
+    groupName: string,
+    shouldUpdateDetections: boolean,
+    forcedValue: undefined | boolean = undefined,
+  ) {
+    this.toggleDetectionGroupProp(
+      groupName,
+      'visible',
+      shouldUpdateDetections,
+      forcedValue,
+    );
+  }
+
+  public toggleDetectionGroupCollapse(groupName: string) {
+    this.toggleDetectionGroupProp(groupName, 'collapsed', false);
+  }
+
+  public toggleDetectionGroupSelection(groupName: string) {
+    this.clearDetectionsSelection();
+    this.toggleDetectionGroupProp(groupName, 'selected', true);
+  }
+
   /**
    * Give a group name and a prop to toggle ('selected' | 'collapsed' | 'visible') it updates the group metadata
    * prop and the detections associated with the group name
@@ -50,7 +72,7 @@ export class DetectionsService {
    * @param shouldUpdateDetections - whether detections within the group should be updated as well or just the group name
    * @param forcedValue - if provided, then rather than toggling the current state, we use this value
    */
-  public toggleDetectionGroupProp(
+  private toggleDetectionGroupProp(
     groupName: string,
     prop: keyof DetectionGroupMetaData,
     shouldUpdateDetections: boolean,
@@ -76,7 +98,6 @@ export class DetectionsService {
         shouldUpdateDetections &&
         (prop === 'selected' || prop === 'visible')
       ) {
-        prop === 'selected' && this.clearDetectionsSelection();
         this.detections.forEach((det) => {
           const detectionGroupName = getDetectionGroupName(det);
           if (detectionGroupName === groupName) {
