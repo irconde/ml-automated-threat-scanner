@@ -11,8 +11,9 @@
             [ngClass]="{'hidden': !detectionsGroupMetaData[groupName].visible}">{{ groupName }}</span>
       <button class="eye-icon"
               (click)="handleGroupEyeClick($event, groupName)">
-        <mat-icon
-          [ngClass]="{'hidden': !detectionsGroupMetaData[groupName].visible}">{{detectionsGroupMetaData[groupName].visible ? 'visibility' : 'visibility_off'}}</mat-icon>
+        <mat-icon [ngClass]="{'hidden': !detectionsGroupMetaData[groupName].visible}">
+          {{detectionsGroupMetaData[groupName].visible ? 'visibility' : 'visibility_off'}}
+        </mat-icon>
       </button>
     </div>
     <ul class="algorithm-detections" *ngIf="!detectionsGroupMetaData[groupName].collapsed">

@@ -1,8 +1,18 @@
-import {BoundingBox, Coordinate2D, Detection, Point, PolygonData,} from '../../models/detection';
-import {CornerstoneBboxHandles, PolygonPoint} from '../../models/cornerstone';
-import {EditionMode} from '../../enums/cornerstone';
-import {getTextLabelSize, hexToCssRgba, limitCharCount,} from './text.utilities';
-import {DETECTION_STYLE} from '../../enums/detection-styles';
+import {
+  BoundingBox,
+  Coordinate2D,
+  Detection,
+  Point,
+  PolygonData,
+} from '../../models/detection';
+import { CornerstoneBboxHandles, PolygonPoint } from '../../models/cornerstone';
+import { EditionMode } from '../../enums/cornerstone';
+import {
+  getTextLabelSize,
+  hexToCssRgba,
+  limitCharCount,
+} from './text.utilities';
+import { DETECTION_STYLE } from '../../enums/detection-styles';
 
 /**
  * Converts COCO bbox to a bounding box
@@ -514,8 +524,7 @@ export const getBoundingBoxArea = (bbox: BoundingBox): number => {
 export const displayDetection = (
   context: CanvasRenderingContext2D,
   detection: Detection,
-  selectedDetection: Detection | null,
-  selectedCategory: string,
+  anyDetectionSelected: boolean,
   editionMode: EditionMode,
   zoom: number,
 ) => {
@@ -526,11 +535,7 @@ export const displayDetection = (
     return;
   }
 
-  const renderColor = getDetectionRenderColor(
-    detection,
-    selectedCategory,
-    selectedDetection,
-  );
+  const renderColor = getDetectionRenderColor(detection, anyDetectionSelected);
   context.strokeStyle = renderColor;
   context.fillStyle = renderColor;
 
@@ -583,23 +588,13 @@ export const renderDetectionLabel = (
  */
 export const getDetectionRenderColor = (
   detection: Detection,
-  selectedCategory: string,
-  selectedDetection: Detection | null,
+  anyDetectionSelected: boolean,
 ): string => {
-  let renderColor = detection.color;
-  if (detection.selected || detection.categorySelected) {
-    renderColor = DETECTION_STYLE.SELECTED_COLOR;
-  }
-  if (selectedDetection !== null && selectedCategory === '') {
-    if (selectedDetection?.uuid !== detection.uuid) {
-      renderColor = hexToCssRgba(detection.color);
-    }
-  }
-  if (selectedCategory !== '' && selectedCategory !== detection.categoryName) {
-    renderColor = hexToCssRgba(detection.color);
-  }
-
-  return renderColor;
+  if (detection.selected) {
+    return DETECTION_STYLE.SELECTED_COLOR;
+  } else if (anyDetectionSelected) {
+    return hexToCssRgba(detection.color);
+  } else return detection.color;
 };
 
 /**

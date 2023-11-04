@@ -285,12 +285,16 @@ export class CornerstoneDirective implements AfterViewInit {
         context.font = FONT_DETAILS.get(zoom);
         context.lineWidth = BORDER_WIDTH / zoom;
 
+        const anyDetectionsSelected = Boolean(
+          selectedDetection ||
+            this.detectionsService.allDetections.some((det) => det.selected),
+        );
+
         this.detections.forEach((det) =>
           displayDetection(
             context,
             det,
-            selectedDetection,
-            SELECTED_CATEGORY,
+            anyDetectionsSelected,
             CURRENT_EDITION_MODE,
             zoom,
           ),

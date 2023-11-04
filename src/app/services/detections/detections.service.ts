@@ -28,7 +28,7 @@ export class DetectionsService {
   private detectionsGroupsMetadata: BehaviorSubject<DetectionGroups> =
     new BehaviorSubject({});
 
-  private get detections() {
+  public get allDetections() {
     return [...this.detectionData.value.side, ...this.detectionData.value.top];
   }
 
@@ -90,7 +90,7 @@ export class DetectionsService {
         (prop === 'selected' || prop === 'visible')
       ) {
         if (prop === 'selected') this.clearDetectionsSelection();
-        this.detections.forEach((det) => {
+        this.allDetections.forEach((det) => {
           const detectionGroupName = getDetectionGroupName(det);
           if (detectionGroupName === groupName) {
             det[prop] = propNewValue;
@@ -114,7 +114,7 @@ export class DetectionsService {
   }
 
   private setDetectionsGroupsMetadata() {
-    const detectionGroups = this.detections.reduce<DetectionGroups>(
+    const detectionGroups = this.allDetections.reduce<DetectionGroups>(
       (result, detection) => {
         const groupName = getDetectionGroupName(detection);
         if (!result[groupName]) {
@@ -140,11 +140,11 @@ export class DetectionsService {
     // TODO select by viewpoint
 
     const selectedDetection =
-      this.detections.find(({ uuid }) => uuid === detectionID) || null;
+      this.allDetections.find(({ uuid }) => uuid === detectionID) || null;
 
     if (selectedDetection !== null) {
       selectedDetection.selected = true;
-      this.detections.forEach((det) => {
+      this.allDetections.forEach((det) => {
         if (det.uuid !== selectedDetection?.uuid) {
           det.selected = false;
         }
@@ -196,7 +196,7 @@ export class DetectionsService {
 
   clearDetectionsSelection(): void {
     this.selectedDetection.next(null);
-    this.detections.forEach((det) => {
+    this.allDetections.forEach((det) => {
       det.selected = false;
     });
 
@@ -213,7 +213,7 @@ export class DetectionsService {
     let detectionGroupName = '';
 
     // Loop through detections to find the given detection by id and update its visibility
-    for (const det of this.detections) {
+    for (const det of this.allDetections) {
       if (det.uuid === detection.uuid) {
         det.visible = !det.visible;
         detectionGroupName = getDetectionGroupName(det); // Get the group name
@@ -226,7 +226,7 @@ export class DetectionsService {
     }
 
     // Determine the group visibility based on the updated detection
-    const groupVisible = this.detections.some((det) => {
+    const groupVisible = this.allDetections.some((det) => {
       const groupName = getDetectionGroupName(det);
       return groupName === detectionGroupName && det.visible;
     });
