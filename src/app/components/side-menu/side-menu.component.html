@@ -7,16 +7,19 @@
           arrow_left
         </mat-icon>
       </button>
-      <span class="algorithm-name">{{ groupName }}</span>
-      <button class="eye-icon" (click)="handleGroupEyeClick($event, groupName)">
-        <mat-icon>{{detectionsGroupMetaData[groupName].visible ? 'visibility' : 'visibility_off'}}</mat-icon>
+      <span class="algorithm-name"
+            [ngClass]="{'hidden': !detectionsGroupMetaData[groupName].visible}">{{ groupName }}</span>
+      <button class="eye-icon"
+              (click)="handleGroupEyeClick($event, groupName)">
+        <mat-icon
+          [ngClass]="{'hidden': !detectionsGroupMetaData[groupName].visible}">{{detectionsGroupMetaData[groupName].visible ? 'visibility' : 'visibility_off'}}</mat-icon>
       </button>
     </div>
     <ul class="algorithm-detections" *ngIf="!detectionsGroupMetaData[groupName].collapsed">
       <li
         (click)="handleDetectionClick(detection)"
         *ngFor="let detection of detectionsGroups[groupName]"
-        [ngClass]="{ selected: detection.selected }"
+        [ngClass]="{ selected: detection.selected, hidden: !detection.visible}"
         class="detection"
       >
         <span
