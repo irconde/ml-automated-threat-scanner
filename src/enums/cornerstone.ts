@@ -35,7 +35,7 @@ export enum EditionMode {
 
 export enum CommonDetections {
   Unknown = 'Unknown',
-  Operator = 'Operator',
+  Operator = 'OPERATOR',
 }
 
 export const CS_EVENTS = {
