@@ -12,6 +12,7 @@ import { LabelComponent } from '../svgs/label-svg/label-svg.component';
 import { DeleteComponent } from '../svgs/delete-svg/delete-svg.component';
 import { LabelEditComponent } from '../label-edit/label-edit.component';
 import { SideMenuComponent } from '../side-menu/side-menu.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-detection-context-menu',
@@ -37,7 +38,10 @@ export class DetectionContextMenuComponent {
   showPolygonIcon = false;
   detectionColor = '#ffffff';
 
-  constructor(private detectionService: DetectionsService) {
+  constructor(
+    private detectionService: DetectionsService,
+    public dialog: MatDialog,
+  ) {
     this.detectionService
       .getSelectedDetection()
       .subscribe((selectedDetection) => {

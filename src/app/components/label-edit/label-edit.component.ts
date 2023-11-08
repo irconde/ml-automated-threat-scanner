@@ -70,7 +70,8 @@ export class LabelEditComponent implements OnInit {
   }
 
   handleLabelEditPosition() {
-    this.isVisible = this.selectedDetection !== null;
+    if (!this.selectedDetection) return;
+    this.isVisible = this.selectedDetection.selected;
     const offsetY = this.size.height - 4;
     const offsetX = 1;
 
