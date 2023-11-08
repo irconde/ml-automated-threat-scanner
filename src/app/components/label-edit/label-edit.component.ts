@@ -30,18 +30,17 @@ export class LabelEditComponent implements OnInit {
       .subscribe((selectedDetection) => {
         if (!selectedDetection) return;
         this.selectedDetection = selectedDetection;
+        this.zoomLevel = this.detectionService.getZoomLevel(
+          this.selectedDetection,
+        )!;
         this.ngOnInit();
       });
   }
 
   ngOnInit(): void {
-    // Use this.zoomLevel, this.isVisible, this.selectedAnnotation here
     console.log('LabelEditComponent ngOnInit()');
     if (!this.selectedDetection) return;
     this.label = this.selectedDetection.className;
-    this.zoomLevel = this.detectionService.getZoomLevel(
-      this.selectedDetection,
-    )!;
     this.updatePosition(this.selectedDetection);
   }
 
@@ -94,43 +93,7 @@ export class LabelEditComponent implements OnInit {
     this.submit(this.label.trim() || 'unknown');
   }
 
-  // submitFromList(label: string) {
-  //   this.isListOpen = false;
-  //   this.submit(label);
-  // }
-  //
-  // submitFromInput(event: KeyboardEvent) {
-  //   if (event.key !== 'Enter') return;
-  //   this.submit(this.value.trim() || this.unknown);
-  // }
-  //
-  // clearInput() {
-  //   this.inputRef.nativeElement.focus();
-  //   this.value = '';
-  // }
-  //
-  // toggleList() {
-  //   if (this.isListOpen) {
-  //     setTimeout(() => this.inputRef.nativeElement.focus(), 0);
-  //   }
-  //   this.isListOpen = !this.isListOpen;
-  // }
-
-  // submit(value: string) {
-  //   this.store.dispatch(updateEditLabelVisibility(false));
-  //   this.store.dispatch(updateAnnotationContextVisibility(true));
-  //   Utils.dispatchAndUpdateImage(this.store, updateAnnotationCategory, {
-  //     id: this.selectedAnnotation.id,
-  //     newCategory: value,
-  //   });
-  //   this.value = '';
-  // }
-
-  // getWidth(width: number): number {
-  //   return this.scaleByZoom(width) + this.borderWidth;
-  // }
-
-  // scaleByZoom(value: number): number {
-  //   return value * this.zoomLevel;
-  // }
+  clearInput() {
+    this.label = '';
+  }
 }
