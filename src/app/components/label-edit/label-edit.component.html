@@ -1,8 +1,11 @@
-<div id="edit-label-wrapper">
+<div id="edit-label-wrapper" style="{{handleLabelEditPosition()}}">
   <div id="label-input-wrapper">
-    <input/>
+    <input id="label-input" placeholder="UNKNOWN" [value]="label.toLowerCase()"
+           (keydown)="submitFromInput($event.key)"
+           [autofocus]="true"/>
     <button>
-      <div>X</div>
+      <mat-icon class="mat-icon material-icons">close</mat-icon>
     </button>
   </div>
+  <div>arrow icon</div>
 </div>

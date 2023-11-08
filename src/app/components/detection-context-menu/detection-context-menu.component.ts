@@ -10,6 +10,8 @@ import { MovementComponent } from '../svgs/move-svg/movement-svg.component';
 import { PolygonComponent } from '../svgs/polygon-svg/polygon-svg.component';
 import { LabelComponent } from '../svgs/label-svg/label-svg.component';
 import { DeleteComponent } from '../svgs/delete-svg/delete-svg.component';
+import { LabelEditComponent } from '../label-edit/label-edit.component';
+import { SideMenuComponent } from '../side-menu/side-menu.component';
 
 @Component({
   selector: 'app-detection-context-menu',
@@ -25,6 +27,8 @@ import { DeleteComponent } from '../svgs/delete-svg/delete-svg.component';
     PolygonComponent,
     LabelComponent,
     DeleteComponent,
+    LabelEditComponent,
+    SideMenuComponent,
   ],
 })
 export class DetectionContextMenuComponent {
@@ -66,7 +70,6 @@ export class DetectionContextMenuComponent {
       selectedDetection.viewpoint === 'side' && this.enablePositionOffset
         ? viewport.clientWidth
         : viewport.offsetLeft;
-    console.log(selectedDetection.viewpoint);
     const { x, y } = cornerstone.pixelToCanvas(viewport, {
       x: selectedDetection.boundingBox[0] + width / 2,
       y: selectedDetection.boundingBox[1] + height,

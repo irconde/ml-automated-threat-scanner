@@ -10,7 +10,11 @@ import {
 import { BehaviorSubject, Observable } from 'rxjs';
 import { CommonDetections } from '../../../enums/cornerstone';
 import { v4 as guid } from 'uuid';
-import { updateCornerstoneViewports } from '../../utilities/cornerstone.utilities';
+import {
+  getViewportByViewpoint,
+  updateCornerstoneViewports,
+} from '../../utilities/cornerstone.utilities';
+import { cornerstone } from '../../csSetup';
 
 export interface DetectionsMap {
   top: Detection[];
@@ -158,6 +162,11 @@ export class DetectionsService {
 
   getSelectedDetection(): Observable<Detection | null> {
     return this.selectedDetection.asObservable();
+  }
+
+  getZoomLevel(selectedDetection: Detection) {
+    const viewport = getViewportByViewpoint(selectedDetection.viewpoint);
+    return cornerstone.getViewport(viewport)?.scale;
   }
 
   addDetection(
