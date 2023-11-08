@@ -1,17 +1,17 @@
-<div class="viewports">
+<div class="viewports" [style.width]="isSideMenuOpen ? 'calc(100% - 238px)' : '100%'">
   <div *ngFor="let viewpoint of getImageData();"
-       csDirective
+       [class.annotation]="isAnnotating"
+       [class.hidden]="!viewportsData[viewpoint].imageData"
        [image]="viewportsData[viewpoint]"
        [viewportName]="viewpoint"
        class="viewportElement {{viewpoint}}"
-       [class.hidden]="!viewportsData[viewpoint].imageData"
-       [class.annotation]="isAnnotating"
+       csDirective
   >
     <canvas class="cornerstone-canvas"></canvas>
   </div>
   <app-detection-toolbox-fab/>
 </div>
-<ion-item class="controlButtons">
-  <button (click)="handleChangeImage(false)">Previous</button>
-  <button (click)="handleChangeImage(true)">Next</button>
-</ion-item>
+<!--<ion-item class="controlButtons">-->
+<!--  <button (click)="handleChangeImage(false)">Previous</button>-->
+<!--  <button (click)="handleChangeImage(true)">Next</button>-->
+<!--</ion-item>-->

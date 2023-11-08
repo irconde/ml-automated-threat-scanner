@@ -1,21 +1,38 @@
-import {AfterViewInit, Directive, ElementRef, HostListener, Input,} from '@angular/core';
-import {ViewportData, ViewportsMap} from '../../models/viewport';
-import {Coordinate2D, Detection, Dimension2D} from '../../models/detection';
-import {DETECTION_STYLE} from '../../enums/detection-styles';
-import {displayDetection, getBboxFromHandles, getBoundingBoxArea, pointInRect,} from '../utilities/detection.utilities';
-import {cornerstone} from '../csSetup';
-import {DetectionsService} from '../services/detections/detections.service';
 import {
-    getCreatedBoundingBoxFromTool,
-    getCreatedPolygonFromTool,
-    resetCornerstoneTool,
-    updateCornerstoneViewports,
+  AfterViewInit,
+  Directive,
+  ElementRef,
+  HostListener,
+  Input,
+} from '@angular/core';
+import { ViewportData, ViewportsMap } from '../../models/viewport';
+import { Coordinate2D, Detection, Dimension2D } from '../../models/detection';
+import { DETECTION_STYLE } from '../../enums/detection-styles';
+import {
+  displayDetection,
+  getBboxFromHandles,
+  getBoundingBoxArea,
+  pointInRect,
+} from '../utilities/detection.utilities';
+import { cornerstone } from '../csSetup';
+import { DetectionsService } from '../services/detections/detections.service';
+import {
+  getCreatedBoundingBoxFromTool,
+  getCreatedPolygonFromTool,
+  resetCornerstoneTool,
+  updateCornerstoneViewports,
 } from '../utilities/cornerstone.utilities';
-import {AnnotationMode, CornerstoneMode, CS_EVENTS, EditionMode, ToolNames,} from '../../enums/cornerstone';
-import {CornerstoneService} from '../services/cornerstone/cornerstone.service';
-import {CS_DEFAULT_CONFIGURATION} from '../../models/cornerstone';
-import {renderBboxCrosshair} from '../utilities/drawing.utilities';
-import {SettingsService} from '../services/settings/settings.service';
+import {
+  AnnotationMode,
+  CornerstoneMode,
+  CS_EVENTS,
+  EditionMode,
+  ToolNames,
+} from '../../enums/cornerstone';
+import { CornerstoneService } from '../services/cornerstone/cornerstone.service';
+import { CS_DEFAULT_CONFIGURATION } from '../../models/cornerstone';
+import { renderBboxCrosshair } from '../utilities/drawing.utilities';
+import { SettingsService } from '../services/settings/settings.service';
 // TODO: get the actual selected category
 const SELECTED_CATEGORY = '';
 // TODO: get the actual edition mode
@@ -81,7 +98,7 @@ export class CornerstoneDirective implements AfterViewInit {
     cornerstone.enable(this.element);
     const enabledElement = cornerstone.getEnabledElement(this.element);
     this.context = enabledElement.canvas?.getContext('2d');
-    this.detectionsService.clearSelectedDetection();
+    this.detectionsService.clearDetectionsSelection();
     this.displayImage(imageData);
     this.imageDimensions.height = imageData.height;
     this.imageDimensions.width = imageData.width;
@@ -115,7 +132,6 @@ export class CornerstoneDirective implements AfterViewInit {
    * Runs after onDragEnd event
    * @param event
    */
-  // @HostListener(CS_EVENTS.CLICK, ['$event'])
   onMouseClick = (event: MouseEvent | TouchEvent) => {
     const mousePos = this.getCanvasClickPosition(event);
     let detClicked = false;
@@ -125,7 +141,7 @@ export class CornerstoneDirective implements AfterViewInit {
         mousePos,
         this.detections[i].boundingBox,
       );
-      if (isPointInRect && !detection.selected) {
+      if (isPointInRect && !detection.selected && detection.visible) {
         this.detectionsService.selectDetection(
           detection.uuid,
           detection.viewpoint,
@@ -145,7 +161,6 @@ export class CornerstoneDirective implements AfterViewInit {
     } else {
       this.handleEmptyAreaClick();
     }
-    updateCornerstoneViewports();
   };
 
   /**
@@ -270,12 +285,16 @@ export class CornerstoneDirective implements AfterViewInit {
         context.font = FONT_DETAILS.get(zoom);
         context.lineWidth = BORDER_WIDTH / zoom;
 
+        const anyDetectionsSelected = Boolean(
+          selectedDetection ||
+            this.detectionsService.allDetections.some((det) => det.selected),
+        );
+
         this.detections.forEach((det) =>
           displayDetection(
             context,
             det,
-            selectedDetection,
-            SELECTED_CATEGORY,
+            anyDetectionsSelected,
             CURRENT_EDITION_MODE,
             zoom,
           ),
@@ -286,7 +305,7 @@ export class CornerstoneDirective implements AfterViewInit {
   }
 
   private handleEmptyAreaClick() {
-    this.detectionsService.clearSelectedDetection();
+    this.detectionsService.clearDetectionsSelection();
     this.cornerstoneService.setCsConfiguration({
       cornerstoneMode: CornerstoneMode.Selection,
       annotationMode: AnnotationMode.NoTool,
