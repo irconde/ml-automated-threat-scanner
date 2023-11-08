@@ -14,6 +14,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ApplicationSettings } from '../../services/settings/models/Settings';
 import { TopBarComponent } from '../top-bar/top-bar.component';
 import {DetectionContextMenuComponent} from "../detection-context-menu/detection-context-menu.component";
+import {LabelEditComponent} from "../label-edit/label-edit.component";
 
 @Component({
   selector: 'app-main',
@@ -31,6 +32,7 @@ import {DetectionContextMenuComponent} from "../detection-context-menu/detection
     MatDialogModule,
     TopBarComponent,
     DetectionContextMenuComponent,
+    LabelEditComponent,
   ],
 })
 export class AppMain {

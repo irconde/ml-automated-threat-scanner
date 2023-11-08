@@ -1,0 +1,10 @@
+#edit-label-wrapper {
+  position: absolute;
+  display: flex;
+  align-items: center;
+
+  min-width: 182px;
+  min-height: 28px;
+  z-index: 500;
+  background-color: $primary-500;
+}
