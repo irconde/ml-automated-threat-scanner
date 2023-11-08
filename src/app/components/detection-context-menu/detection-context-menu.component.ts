@@ -12,7 +12,7 @@ import { LabelComponent } from '../svgs/label-svg/label-svg.component';
 import { DeleteComponent } from '../svgs/delete-svg/delete-svg.component';
 import { LabelEditComponent } from '../label-edit/label-edit.component';
 import { SideMenuComponent } from '../side-menu/side-menu.component';
-import { MatDialog } from '@angular/material/dialog';
+import { ContextMenuService } from '../../services/context-menu/context-menu.service';
 
 @Component({
   selector: 'app-detection-context-menu',
@@ -40,19 +40,26 @@ export class DetectionContextMenuComponent {
 
   constructor(
     private detectionService: DetectionsService,
-    public dialog: MatDialog,
+    private contextMenuService: ContextMenuService,
   ) {
     this.detectionService
       .getSelectedDetection()
       .subscribe((selectedDetection) => {
         this.updatePosition(selectedDetection);
         this.detectionColor = selectedDetection?.color || '#ffffff';
+        if (!selectedDetection?.selected) {
+          this.contextMenuService.isLabelEditVisible = false;
+          this.contextMenuService.isColorEditVisible = false;
+        }
       });
 
     this.detectionService.getDetectionData().subscribe((detections) => {
       this.enablePositionOffset =
         detections.top.length > 0 && detections.side.length > 0;
     });
+
+    this.contextMenuService.isLabelEditVisible = false;
+    this.contextMenuService.isColorEditVisible = false;
   }
 
   updatePosition(selectedDetection: Detection | null) {
@@ -95,6 +102,8 @@ export class DetectionContextMenuComponent {
     switch (type) {
       case 'LABEL':
         console.log('Label Edit');
+        this.contextMenuService.isLabelEditVisible =
+          !this.contextMenuService.isLabelEditVisible;
         break;
       case 'COLOR':
         console.log('Color Edit');

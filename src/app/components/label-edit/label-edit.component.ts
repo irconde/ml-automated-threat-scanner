@@ -5,6 +5,7 @@ import { cornerstone } from '../../csSetup';
 import { getViewportByViewpoint } from '../../utilities/cornerstone.utilities';
 import { NgStyle } from '@angular/common';
 import { Coordinate2D, Detection } from '../../../models/detection';
+import { ContextMenuService } from '../../services/context-menu/context-menu.service';
 
 @Component({
   selector: 'app-label-edit',
@@ -24,7 +25,10 @@ export class LabelEditComponent implements OnInit {
   enablePositionOffset = false;
   label: string = '';
 
-  constructor(private detectionService: DetectionsService) {
+  constructor(
+    private detectionService: DetectionsService,
+    private contextMenuService: ContextMenuService,
+  ) {
     this.detectionService
       .getSelectedDetection()
       .subscribe((selectedDetection) => {
@@ -40,6 +44,7 @@ export class LabelEditComponent implements OnInit {
   ngOnInit(): void {
     if (!this.selectedDetection) return;
     this.label = this.selectedDetection.className;
+    this.isVisible = this.contextMenuService.isLabelEditVisible;
     this.updatePosition(this.selectedDetection);
   }
 
@@ -70,16 +75,14 @@ export class LabelEditComponent implements OnInit {
   }
 
   handleLabelEditPosition() {
-    if (!this.selectedDetection) return;
-    this.isVisible = this.selectedDetection.selected;
-    const offsetY = this.size.height - 4;
+    const offsetY = this.size.height - 5;
     const offsetX = 1;
 
     return {
       left: this.position!.x - offsetX + 'px' || '0px',
       top: this.position!.y + offsetY + 'px' || '0px',
       width: this.size.width + 'px' || '0px',
-      display: this.isVisible ? 'flex' : 'none',
+      display: this.contextMenuService.isLabelEditVisible ? 'flex' : 'none',
     };
   }
 

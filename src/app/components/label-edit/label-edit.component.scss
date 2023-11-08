@@ -9,7 +9,7 @@
   min-height: 28px;
   z-index: 500;
   background-color: #367FFF;
-  display: none;
+  display: flex;
 }
 
 #label-input-wrapper {
@@ -22,7 +22,9 @@
 }
 
 #label-input {
-  font-size: 15px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: bold;
+  font-size: 13px;
   min-height: 26px;
   padding-left: 8px;
   color: white;
