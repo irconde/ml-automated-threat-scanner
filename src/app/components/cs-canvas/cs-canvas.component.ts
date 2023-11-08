@@ -15,6 +15,8 @@ import { cornerstoneTools } from '../../csSetup';
 import BoundingBoxDrawingTool from '../../utilities/cornerstone-tools/BoundingBoxDrawingTool';
 import PolygonDrawingTool from '../../utilities/cornerstone-tools/PolygonDrawingTool';
 import AnnotationMovementTool from '../../utilities/cornerstone-tools/AnnotationMovementTool';
+import { UiService } from '../../services/ui/ui.service';
+import { resizeCornerstoneViewports } from '../../utilities/cornerstone.utilities';
 import { DetectionContextMenuComponent } from '../detection-context-menu/detection-context-menu.component';
 
 @Component({
@@ -35,6 +37,7 @@ import { DetectionContextMenuComponent } from '../detection-context-menu/detecti
   ],
 })
 export class CsCanvasComponent implements OnInit, AfterViewInit {
+  public isSideMenuOpen: boolean = false;
   viewportsData: ViewportsMap = {
     top: { imageData: null, detectionData: [] },
     side: { imageData: null, detectionData: [] },
@@ -46,10 +49,17 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
     private fileService: FileService,
     private fileParserService: FileParserService,
     private detectionsService: DetectionsService,
+    private uiService: UiService,
   ) {
     this.csService.getCsConfiguration().subscribe((csConfig) => {
       this.isAnnotating =
         csConfig.cornerstoneMode === CornerstoneMode.Annotation;
+    });
+    this.uiService.getIsSideMenuOpen().subscribe((isOpen) => {
+      this.isSideMenuOpen = isOpen;
+      setTimeout(() => {
+        resizeCornerstoneViewports();
+      }, 0);
     });
   }
 
