@@ -1,6 +1,9 @@
 <div id="edit-label-wrapper" style="{{handleLabelEditPosition()}}">
 	<div id="label-input-wrapper">
-		<input id="label-input" placeholder="UNKNOWN" [value]="label.toLowerCase()"
+		<input id="label-input"
+		       placeholder="UNKNOWN"
+		       [(ngModel)]="label"
+		       [value]="label.toLowerCase()"
 		       (keydown)="submitFromInput($event.key)"
 		       [autofocus]="true"/>
 		<button id="clear-icon-button" (click)="clearInput()">

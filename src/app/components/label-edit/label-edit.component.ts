@@ -2,17 +2,21 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { DetectionsService } from '../../services/detections/detections.service';
 import { cornerstone } from '../../csSetup';
-import { getViewportByViewpoint } from '../../utilities/cornerstone.utilities';
+import {
+  getViewportByViewpoint,
+  updateCornerstoneViewports,
+} from '../../utilities/cornerstone.utilities';
 import { NgStyle } from '@angular/common';
 import { Coordinate2D, Detection } from '../../../models/detection';
 import { ContextMenuService } from '../../services/context-menu/context-menu.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-label-edit',
   templateUrl: './label-edit.component.html',
   styleUrls: ['./label-edit.component.scss'],
   standalone: true,
-  imports: [MatIconModule, NgStyle],
+  imports: [MatIconModule, NgStyle, FormsModule],
 })
 export class LabelEditComponent implements OnInit {
   selectedDetection: Detection | null = null;
@@ -20,7 +24,6 @@ export class LabelEditComponent implements OnInit {
     document.getElementById('input-label')!;
   zoomLevel: number = 1;
   size: { width: number; height: number } = { width: 0, height: 30 };
-  isVisible: boolean = false;
   position: Coordinate2D | null = { x: 0, y: 0 };
   enablePositionOffset = false;
   label: string = '';
@@ -44,7 +47,6 @@ export class LabelEditComponent implements OnInit {
   ngOnInit(): void {
     if (!this.selectedDetection) return;
     this.label = this.selectedDetection.className;
-    this.isVisible = this.contextMenuService.isLabelEditVisible;
     this.updatePosition(this.selectedDetection);
   }
 
@@ -86,13 +88,20 @@ export class LabelEditComponent implements OnInit {
     };
   }
 
-  submit(value: string) {
-    console.log('LabelEditComponent submit():' + value);
+  submit() {
+    if (this.selectedDetection && this.label.trim() !== '') {
+      this.detectionService.setDetectionLabel(
+        this.selectedDetection,
+        this.label,
+      );
+      updateCornerstoneViewports();
+      this.contextMenuService.isLabelEditVisible = false;
+    }
   }
 
   submitFromInput(key: string) {
     if (key !== 'Enter') return;
-    this.submit(this.label.trim() || 'unknown');
+    this.submit();
   }
 
   clearInput() {

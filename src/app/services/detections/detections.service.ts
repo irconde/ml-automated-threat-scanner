@@ -169,6 +169,11 @@ export class DetectionsService {
     return cornerstone.getViewport(viewport)?.scale;
   }
 
+  setDetectionLabel(selectedDetection: Detection, label: string) {
+    selectedDetection.className = label;
+    this.setDetectionData(this.detectionData.value);
+  }
+
   addDetection(
     viewpoint: keyof DetectionsMap,
     boundingBox: BoundingBox,
