@@ -17,7 +17,7 @@ export class LabelEditComponent implements OnInit {
   selectedDetection: Detection | null = null;
   @ViewChild('inputRef', { static: false }) inputRef: HTMLElement =
     document.getElementById('input-label')!;
-  zoomLevel: number | null = null;
+  zoomLevel: number = 1;
   size: { width: number; height: number } = { width: 0, height: 30 };
   isVisible: boolean = false;
   position: Coordinate2D | null = { x: 0, y: 0 };
@@ -65,7 +65,10 @@ export class LabelEditComponent implements OnInit {
     });
 
     this.position = { x: x + viewportOffset, y: y };
-    this.size.width = width;
+
+    const scaleByZoom = (value: number) => value * this.zoomLevel;
+    const getWidth = (width: number) => scaleByZoom(width) + 2;
+    this.size.width = getWidth(width);
   }
 
   handleLabelEditPosition() {
