@@ -18,12 +18,12 @@
   justify-content: center;
   width: 100%;
   height: 100%;
+
 }
 
 #label-input {
-  font-weight: bold;
-  font-size: 13px;
-  min-height: 24px;
+  font-size: 15px;
+  min-height: 26px;
   padding-left: 8px;
   color: white;
   border: none;
@@ -50,11 +50,31 @@
   }
 }
 
-#clear-icon-wrapper {
-  height: 20px;
+#clear-icon-button {
   position: absolute;
-  right: 6px;
-  width: fit-content;
+  right: 30px;
+  display: flex;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
   cursor: pointer;
-  vertical-align: text-top;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+#label-clear-icon {
+  font-size: 16px;
+  line-height: 20px;
+}
+
+#arrow-icon-button {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1 / 1;
+  height: 28px;
+  cursor: pointer;
+  background-color: #367FFF;
+}
+
+#label-arrow-icon {
+
 }

@@ -38,7 +38,6 @@ export class LabelEditComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('LabelEditComponent ngOnInit()');
     if (!this.selectedDetection) return;
     this.label = this.selectedDetection.className;
     this.updatePosition(this.selectedDetection);
@@ -71,9 +70,8 @@ export class LabelEditComponent implements OnInit {
   }
 
   handleLabelEditPosition() {
-    console.log({ position: this.position, size: this.size });
     this.isVisible = this.selectedDetection !== null;
-    const offsetY = this.size.height / 2 + 2;
+    const offsetY = this.size.height - 4;
     const offsetX = 1;
 
     return {
