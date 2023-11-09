@@ -45,6 +45,14 @@ interface DetectionStateProps {
 
 export type Detection = RawDetection & DetectionStateProps;
 
+export type DetectionAlgorithm = Partial<{
+  name: string;
+  detectorType: string;
+  detectorConfiguration: string;
+  series: string;
+  study: string;
+}>;
+
 export interface CornerstoneClickEvent extends Event {
   detail?: {
     currentPoints?: {

@@ -7,6 +7,7 @@ import {
   getMasks,
 } from '../../utilities/detection.utilities';
 import {
+  DetectionAlgorithm,
   DetectionType,
   RawCocoDetection,
   RawDetection,
@@ -277,10 +278,8 @@ export class FileParserService {
   ): Promise<RawDicosDetection> {
     const dicosData: Uint8Array = await detectionFile.async('uint8array');
     const dataSet: dicomParser.DataSet = dicomParser.parseDicom(dicosData);
-
-    const algorithm = dataSet.string(
-      DICOS.DICOS_DICTIONARY.ThreatDetectionAlgorithmandVersion.tag,
-    );
+    const algorithm = this.getDicosDetectionAlgorithm(dataSet);
+    console.log(algorithm);
     const threatSequence = dataSet.elements['x40101011'];
     const alarmObjectNumTag =
       DICOS.DICOS_DICTIONARY['NumberOfAlarmObjects'].tag;
@@ -304,7 +303,7 @@ export class FileParserService {
       );
       const binaryMask = DICOS.retrieveMaskData(dicomElement, dataSet);
       return {
-        algorithm: algorithm || '',
+        algorithm: algorithm.name || '',
         className: className || '',
         confidence,
         viewpoint,
@@ -314,5 +313,28 @@ export class FileParserService {
         uuid: guid(),
       };
     }
+  }
+
+  /**
+   * Given a DICOM dataset, it returns information about the algorithm used to generate the detection
+   * @param dataSet
+   */
+  private getDicosDetectionAlgorithm(
+    dataSet: dicomParser.DataSet,
+  ): DetectionAlgorithm {
+    const name = dataSet.string(
+      DICOS.DICOS_DICTIONARY.ThreatDetectionAlgorithmandVersion.tag,
+    );
+    // construct algorithm information object
+    const detectorType = dataSet.string(
+      DICOS.DICOS_DICTIONARY.DetectorType.tag,
+    );
+    const detectorConfiguration = dataSet.string(
+      DICOS.DICOS_DICTIONARY.DetectorConfiguration.tag,
+    );
+    const series = dataSet.string(DICOS.DICOS_DICTIONARY.SeriesDescription.tag);
+    const study = dataSet.string(DICOS.DICOS_DICTIONARY.StudyDescription.tag);
+
+    return { name, detectorType, detectorConfiguration, series, study };
   }
 }
