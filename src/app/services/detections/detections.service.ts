@@ -29,6 +29,7 @@ export class DetectionsService {
     new BehaviorSubject<DetectionsMap>({ top: [], side: [] });
   private selectedDetection: BehaviorSubject<Detection | null> =
     new BehaviorSubject<Detection | null>(null);
+  public labels: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
   private detectionsGroupsMetadata: BehaviorSubject<DetectionGroups> =
     new BehaviorSubject({});
 
@@ -167,6 +168,17 @@ export class DetectionsService {
   getZoomLevel(selectedDetection: Detection) {
     const viewport = getViewportByViewpoint(selectedDetection.viewpoint);
     return cornerstone.getViewport(viewport)?.scale;
+  }
+
+  getLabels(): Observable<string[]> {
+    const labels = this.allDetections
+      .map((detection) => detection.className.toLowerCase())
+      .filter((label, index, array) => array.indexOf(label) === index);
+    const uniqueLabels = labels.map((label: string) => label.toLowerCase());
+
+    this.labels.next(uniqueLabels); // Update the BehaviorSubject
+
+    return this.labels.asObservable();
   }
 
   setDetectionLabel(selectedDetection: Detection, label: string) {
