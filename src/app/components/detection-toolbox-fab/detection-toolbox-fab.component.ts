@@ -58,6 +58,6 @@ export class DetectionToolboxFabComponent implements OnInit {
     });
 
     this.cornerstoneService.setCsConfiguration(csConfiguration);
-    this.detectionsService.clearSelectedDetection();
+    this.detectionsService.clearDetectionsSelection();
   }
 }

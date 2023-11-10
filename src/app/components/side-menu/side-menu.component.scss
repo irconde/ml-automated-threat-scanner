@@ -1,0 +1,105 @@
+.side-menu {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  width: 238px;
+  background: rgb(31, 31, 31);
+  // subtract top-bar height
+  height: calc(100vh - 3.375rem);
+  transform: translateX(100%);
+
+  &.open {
+    transition: transform 0.3s ease-in;
+    transform: translateX(0);
+  }
+
+  button {
+    background: none;
+    border: none;
+    outline: none;
+  }
+}
+
+.eye-icon {
+  margin-left: auto;
+  margin-right: 1rem;
+
+  mat-icon {
+    color: rgb(185, 185, 185);
+    font-size: 20px;
+    height: 20px;
+    width: 20px;
+  }
+  
+}
+
+.algorithm-group {
+  font-size: 0.8rem;
+
+  .selected {
+    background-color: rgb(54, 127, 255);
+  }
+}
+
+.algorithm-detections {
+
+  margin: 0;
+  padding: 0;
+
+  .detection {
+    padding-block: 0.45rem;
+    display: flex;
+    align-items: center;
+    list-style: none;
+    text-transform: uppercase;
+    cursor: pointer;
+    user-select: none;
+
+    .detection-color {
+      width: 10px;
+      height: 10px;
+      border: 0.0625rem solid rgba(220, 220, 220, 0.4);
+      margin-right: 0.75rem;
+      margin-left: 2.4rem;
+    }
+
+    &.hidden {
+      color: grey;
+
+      mat-icon {
+        color: grey;
+      }
+    }
+
+  }
+
+}
+
+.algorithm {
+  display: flex;
+  padding-block: 0.75rem;
+  align-items: center;
+
+  .algorithm-chevron {
+    margin-left: 0.5rem;
+
+    mat-icon {
+      transition: rotate 100ms;
+    }
+  }
+
+  .algorithm-name {
+    margin-left: 0.4rem;
+  }
+
+  .hidden, .hidden .eye-icon mat-icon {
+    color: grey;
+  }
+
+}
+
+
+
+
+
+
