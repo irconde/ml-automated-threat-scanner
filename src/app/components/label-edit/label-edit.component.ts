@@ -76,13 +76,13 @@ export class LabelEditComponent implements OnInit {
     }
   }
 
-  clearInput() {
-    this.label = '';
-  }
-
   submitFromList(label: string) {
     this.isListOpen = false;
-    this.submit(label);
+    this.submit(label, true);
+  }
+
+  clearInput() {
+    this.label = '';
   }
 
   updatePosition(selectedDetection: Detection | null) {

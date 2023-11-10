@@ -1,22 +1,7 @@
-<!--<div id="LabelListWrapper">-->
-<!--  <ul id="LabelList">-->
-<!--        {labels &&-->
-<!--            labels.map((label, i) => {-->
-<!--                return (-->
-<!--                    <LabelListItem-->
-<!--                        key={i}-->
-<!--                        onClick={() => handleClick(i)}>-->
-<!--                        <span>{label}</span>-->
-<!--                    </LabelListItem>-->
-<!--                );-->
-<!--            })}-->
-<!--  </ul>-->
-<!--</div>-->
-
 <div id="LabelListWrapper">
-  <ul id="LabelList">
-    <li *ngFor="let label of labels; let i = index" (click)="handleClick(i)">
-      <span>{{ label }}</span>
-    </li>
-  </ul>
+	<ul id="LabelList">
+		<li *ngFor="let label of labels; let i = index" (click)="handleClick(i)">
+			<span>{{ label }}</span>
+		</li>
+	</ul>
 </div>
