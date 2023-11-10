@@ -1,5 +1,10 @@
 import { Injectable } from '@angular/core';
-import { BoundingBox, Detection, Point } from '../../../models/detection';
+import {
+  BoundingBox,
+  Detection,
+  DetectionAlgorithm,
+  Point,
+} from '../../../models/detection';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { CommonDetections } from '../../../enums/cornerstone';
 import { v4 as guid } from 'uuid';
@@ -18,6 +23,7 @@ export class DetectionsService {
   // private selectedDetection: Detection | null = null;
   private selectedDetection: BehaviorSubject<Detection | null> =
     new BehaviorSubject<Detection | null>(null);
+  private algorithms: Record<string, DetectionAlgorithm> | null = null;
 
   constructor() {}
 
@@ -28,6 +34,12 @@ export class DetectionsService {
   setDetectionData(detectionData: Partial<DetectionsMap>) {
     this.detectionData.next({ ...this.detectionData.value, ...detectionData });
   }
+
+  public setAlgorithms(algorithms: Record<string, DetectionAlgorithm>) {
+    this.algorithms = algorithms;
+  }
+
+  public getSelectedAlgorithm() {}
 
   selectDetection(detectionID: string, viewpoint: string): void {
     // TODO select by viewpoint

@@ -80,7 +80,9 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
             '--------------------------------------------------------',
           );
 
-          console.log(parsedFile.algorithms);
+          if (parsedFile.algorithms) {
+            this.detectionsService.setAlgorithms(parsedFile.algorithms);
+          }
 
           Object.keys(this.viewportsData).forEach((key): void => {
             const viewpoint = key as keyof ViewportsMap;

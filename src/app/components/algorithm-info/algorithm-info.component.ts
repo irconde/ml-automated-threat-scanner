@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+import { DetectionsService } from '../../services/detections/detections.service';
 
 @Component({
   selector: 'app-algorithm-info',
@@ -9,5 +10,9 @@ import { MatIconModule } from '@angular/material/icon';
   imports: [MatIconModule],
 })
 export class AlgorithmInfoComponent {
-  constructor() {}
+  constructor(private detectionsService: DetectionsService) {}
+
+  get algorithm() {
+    return '';
+  }
 }
