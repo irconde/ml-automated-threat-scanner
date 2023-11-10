@@ -2,10 +2,10 @@ import { Injectable } from '@angular/core';
 import {
   BoundingBox,
   Detection,
+  DetectionAlgorithm,
   DetectionGroupMetaData,
   DetectionGroups,
   getDetectionGroupName,
-  DetectionAlgorithm,
   Point,
 } from '../../../models/detection';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -28,13 +28,21 @@ export class DetectionsService {
     new BehaviorSubject<Detection | null>(null);
   private detectionsGroupsMetadata: BehaviorSubject<DetectionGroups> =
     new BehaviorSubject({});
+  private selectedAlgorithm = new BehaviorSubject<DetectionAlgorithm | null>(
+    null,
+  );
 
   public get allDetections() {
     return [...this.detectionData.value.side, ...this.detectionData.value.top];
   }
+
   private algorithms: Record<string, DetectionAlgorithm> | null = null;
 
   constructor() {}
+
+  public getSelectedAlgorithm() {
+    return this.selectedAlgorithm.asObservable();
+  }
 
   getDetectionData(): Observable<DetectionsMap> {
     return this.detectionData.asObservable();
@@ -100,6 +108,8 @@ export class DetectionsService {
           }
         });
         this.selectedDetection.next(null);
+        if (prop === 'selected')
+          this.updateSelectedAlgorithm(groupName, propNewValue);
       }
       this.detectionsGroupsMetadata.next(updatedGroupMetaData);
       if (prop !== 'collapsed') updateCornerstoneViewports();
@@ -141,8 +151,6 @@ export class DetectionsService {
   public setAlgorithms(algorithms: Record<string, DetectionAlgorithm>) {
     this.algorithms = algorithms;
   }
-
-  public getSelectedAlgorithm() {}
 
   selectDetection(detectionID: string, viewpoint: string): void {
     // TODO select by viewpoint
@@ -253,5 +261,14 @@ export class DetectionsService {
       this.detectionsGroupsMetadata.value[groupName].selected = false;
     }
     this.detectionsGroupsMetadata.next(this.detectionsGroupsMetadata.value);
+    this.selectedAlgorithm.next(null);
+  }
+
+  private updateSelectedAlgorithm(groupName: string, selected: boolean) {
+    let algorithm: DetectionAlgorithm | null = null;
+    if (selected && this.algorithms && this.algorithms[groupName]) {
+      algorithm = this.algorithms[groupName];
+    }
+    this.selectedAlgorithm.next(algorithm);
   }
 }
