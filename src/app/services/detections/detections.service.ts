@@ -171,12 +171,13 @@ export class DetectionsService {
   }
 
   getLabels(): Observable<string[]> {
-    const labels = this.allDetections
+    const labels: string[] = this.allDetections
       .map((detection) => detection.className.toLowerCase())
-      .filter((label, index, array) => array.indexOf(label) === index);
-    const uniqueLabels = labels.map((label: string) => label.toLowerCase());
+      .filter((label, index, array) => array.indexOf(label) === index)
+      .map((label) => label.toLowerCase())
+      .filter((label) => label !== CommonDetections.Unknown.toLowerCase());
 
-    this.labels.next(uniqueLabels); // Update the BehaviorSubject
+    this.labels.next(labels);
 
     return this.labels.asObservable();
   }
