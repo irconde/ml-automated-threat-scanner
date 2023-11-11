@@ -1,10 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Renderer2,
-  ViewChild,
-} from '@angular/core';
+import { AfterViewInit, Component, Renderer2 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { DetectionsService } from '../../services/detections/detections.service';
 import { cornerstone } from '../../csSetup';
@@ -35,7 +29,6 @@ export class LabelEditComponent implements AfterViewInit {
   selectedDetection: Detection | null = null;
   zoomLevel: number = 1;
   size: { width: number; height: number } = { width: 0, height: 30 };
-  @ViewChild('inputRef') inputRef!: ElementRef<HTMLInputElement>;
   position: Coordinate2D | null = { x: 0, y: 0 };
   enablePositionOffset = false;
   label: string = '';
