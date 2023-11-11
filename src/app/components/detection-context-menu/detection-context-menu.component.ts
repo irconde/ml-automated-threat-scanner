@@ -13,6 +13,12 @@ import { DeleteComponent } from '../svgs/delete-svg/delete-svg.component';
 import { LabelEditComponent } from '../label-edit/label-edit.component';
 import { SideMenuComponent } from '../side-menu/side-menu.component';
 import { ContextMenuService } from '../../services/context-menu/context-menu.service';
+import { CornerstoneService } from '../../services/cornerstone/cornerstone.service';
+import {
+  AnnotationMode,
+  CornerstoneMode,
+  EditionMode,
+} from '../../../enums/cornerstone';
 
 @Component({
   selector: 'app-detection-context-menu',
@@ -41,6 +47,7 @@ export class DetectionContextMenuComponent {
   constructor(
     private detectionService: DetectionsService,
     private contextMenuService: ContextMenuService,
+    private csService: CornerstoneService,
   ) {
     this.detectionService
       .getSelectedDetection()
@@ -101,10 +108,11 @@ export class DetectionContextMenuComponent {
   handleMenuItemClick(type: string) {
     switch (type) {
       case 'LABEL':
-        console.log('Label Edit');
-        this.contextMenuService.isLabelEditVisible =
-          !this.contextMenuService.isLabelEditVisible;
-        break;
+        return this.csService.setCsConfiguration({
+          cornerstoneMode: CornerstoneMode.Edition,
+          annotationMode: AnnotationMode.NoTool,
+          editionMode: EditionMode.Label,
+        });
       case 'COLOR':
         console.log('Color Edit');
         break;

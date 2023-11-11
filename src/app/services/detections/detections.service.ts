@@ -182,8 +182,9 @@ export class DetectionsService {
     return this.labels.asObservable();
   }
 
-  setDetectionLabel(selectedDetection: Detection, label: string) {
-    selectedDetection.className = label;
+  setDetectionLabel(label: string) {
+    if (!this.selectedDetection.value) return;
+    this.selectedDetection.value.className = label;
     this.setDetectionData(this.detectionData.value);
   }
 

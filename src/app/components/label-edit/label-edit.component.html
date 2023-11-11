@@ -1,23 +1,30 @@
-<div id="edit-label-wrapper" style="{{handleLabelEditPosition()}}">
-  <div id="label-input-wrapper">
-    <input id="label-input"
-           placeholder="UNKNOWN"
-           [(ngModel)]="label"
-           [value]="label.toLowerCase()"
-           (keydown)="submitFromInput($event.key)"
-           [autofocus]="true"/>
-    <button id="clear-icon-button" (click)="clearInput()">
-      <mat-icon id="label-clear-icon" class="mat-icon material-icons">close</mat-icon>
-    </button>
-  </div>
-  <button id="arrow-icon-button" (click)="toggleLabelList()">
-    <mat-icon id="list-arrow-icon" class="mat-icon material-icons">
-      {{ isListOpen ? 'expand_less' : 'expand_more' }}
-    </mat-icon>
-  </button>
-  <app-label-list
-    *ngIf="isListOpen"
-    [labels]="formattedLabels"
-    (labelSelect)="submitFromList($event)"
-  ></app-label-list>
+<div id="edit-label-wrapper" [ngStyle]="{
+'left': position!.x - 1 + 'px',
+'top': position!.y + size.height - 5 + 'px',
+'width': size.width + 'px',
+}"
+     *ngIf="isShown">
+	<div id="label-input-wrapper">
+		<input id="label-input"
+		       placeholder="unknown"
+		       [disabled]="isListOpen"
+		       (input)="handleChange($event)"
+		       [value]="label.toLowerCase()"
+		       autocomplete="off"
+		       autofocus
+		       (keydown)="onKeyDown($event.key)"/>
+		<button id="clear-icon-button" (click)="clearInput()" *ngIf="this.label && !isListOpen">
+			<mat-icon id="label-clear-icon" class="mat-icon material-icons">close</mat-icon>
+		</button>
+	</div>
+	<button id="arrow-icon-button" (click)="toggleLabelList()">
+		<mat-icon id="list-arrow-icon" class="mat-icon material-icons">
+			{{ isListOpen ? 'expand_less' : 'expand_more' }}
+		</mat-icon>
+	</button>
+	<app-label-list
+			*ngIf="isListOpen"
+			[labels]="formattedLabels"
+			(labelSelect)="submitFromList($event)"
+	></app-label-list>
 </div>
