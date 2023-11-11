@@ -12,7 +12,6 @@ import { LabelComponent } from '../svgs/label-svg/label-svg.component';
 import { DeleteComponent } from '../svgs/delete-svg/delete-svg.component';
 import { LabelEditComponent } from '../label-edit/label-edit.component';
 import { SideMenuComponent } from '../side-menu/side-menu.component';
-import { ContextMenuService } from '../../services/context-menu/context-menu.service';
 import { CornerstoneService } from '../../services/cornerstone/cornerstone.service';
 import {
   AnnotationMode,
@@ -46,7 +45,6 @@ export class DetectionContextMenuComponent {
 
   constructor(
     private detectionService: DetectionsService,
-    private contextMenuService: ContextMenuService,
     private csService: CornerstoneService,
   ) {
     this.detectionService
@@ -54,19 +52,12 @@ export class DetectionContextMenuComponent {
       .subscribe((selectedDetection) => {
         this.updatePosition(selectedDetection);
         this.detectionColor = selectedDetection?.color || '#ffffff';
-        if (!selectedDetection?.selected) {
-          this.contextMenuService.isLabelEditVisible = false;
-          this.contextMenuService.isColorEditVisible = false;
-        }
       });
 
     this.detectionService.getDetectionData().subscribe((detections) => {
       this.enablePositionOffset =
         detections.top.length > 0 && detections.side.length > 0;
     });
-
-    this.contextMenuService.isLabelEditVisible = false;
-    this.contextMenuService.isColorEditVisible = false;
   }
 
   updatePosition(selectedDetection: Detection | null) {
