@@ -89,7 +89,9 @@ export class DetectionsService {
         ...this.detectionsGroupsMetadata.value,
         [groupName]: {
           ...groupMetaData,
-          ...(prop === 'visible' ? { selected: false } : {}),
+          ...(prop === 'visible' && shouldUpdateDetections
+            ? { selected: false }
+            : {}),
           [prop]: propNewValue,
         },
       };
@@ -108,8 +110,11 @@ export class DetectionsService {
           }
         });
         this.selectedDetection.next(null);
-        if (prop === 'selected')
+        if (prop === 'selected') {
           this.updateSelectedAlgorithm(groupName, propNewValue);
+        } else {
+          this.updateSelectedAlgorithm(groupName, false);
+        }
       }
       this.detectionsGroupsMetadata.next(updatedGroupMetaData);
       if (prop !== 'collapsed') updateCornerstoneViewports();
