@@ -212,6 +212,12 @@ export class DetectionsService {
 
     this.selectDetection(newDetection.uuid, viewpoint);
 
+    // upon detection creation, ensure the group name is visible
+    const groupName = getDetectionGroupName(newDetection);
+    if (!this.detectionsGroupsMetadata.value[groupName].visible) {
+      this.toggleDetectionGroupProp(groupName, 'visible', false);
+    }
+
     return newDetection;
   }
 
