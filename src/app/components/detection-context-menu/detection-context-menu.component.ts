@@ -10,6 +10,14 @@ import { MovementComponent } from '../svgs/move-svg/movement-svg.component';
 import { PolygonComponent } from '../svgs/polygon-svg/polygon-svg.component';
 import { LabelComponent } from '../svgs/label-svg/label-svg.component';
 import { DeleteComponent } from '../svgs/delete-svg/delete-svg.component';
+import { LabelEditComponent } from '../label-edit/label-edit.component';
+import { SideMenuComponent } from '../side-menu/side-menu.component';
+import { CornerstoneService } from '../../services/cornerstone/cornerstone.service';
+import {
+  AnnotationMode,
+  CornerstoneMode,
+  EditionMode,
+} from '../../../enums/cornerstone';
 
 @Component({
   selector: 'app-detection-context-menu',
@@ -25,6 +33,8 @@ import { DeleteComponent } from '../svgs/delete-svg/delete-svg.component';
     PolygonComponent,
     LabelComponent,
     DeleteComponent,
+    LabelEditComponent,
+    SideMenuComponent,
   ],
 })
 export class DetectionContextMenuComponent {
@@ -33,7 +43,10 @@ export class DetectionContextMenuComponent {
   showPolygonIcon = false;
   detectionColor = '#ffffff';
 
-  constructor(private detectionService: DetectionsService) {
+  constructor(
+    private detectionService: DetectionsService,
+    private csService: CornerstoneService,
+  ) {
     this.detectionService
       .getSelectedDetection()
       .subscribe((selectedDetection) => {
@@ -66,7 +79,6 @@ export class DetectionContextMenuComponent {
       selectedDetection.viewpoint === 'side' && this.enablePositionOffset
         ? viewport.clientWidth
         : viewport.offsetLeft;
-    console.log(selectedDetection.viewpoint);
     const { x, y } = cornerstone.pixelToCanvas(viewport, {
       x: selectedDetection.boundingBox[0] + width / 2,
       y: selectedDetection.boundingBox[1] + height,
@@ -87,8 +99,11 @@ export class DetectionContextMenuComponent {
   handleMenuItemClick(type: string) {
     switch (type) {
       case 'LABEL':
-        console.log('Label Edit');
-        break;
+        return this.csService.setCsConfiguration({
+          cornerstoneMode: CornerstoneMode.Edition,
+          annotationMode: AnnotationMode.NoTool,
+          editionMode: EditionMode.Label,
+        });
       case 'COLOR':
         console.log('Color Edit');
         break;
