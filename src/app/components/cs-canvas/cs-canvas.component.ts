@@ -18,6 +18,7 @@ import AnnotationMovementTool from '../../utilities/cornerstone-tools/Annotation
 import { UiService } from '../../services/ui/ui.service';
 import { resizeCornerstoneViewports } from '../../utilities/cornerstone.utilities';
 import { DetectionContextMenuComponent } from '../detection-context-menu/detection-context-menu.component';
+import { AlgorithmInfoComponent } from '../algorithm-info/algorithm-info.component';
 
 @Component({
   selector: 'app-cs-canvas',
@@ -34,6 +35,7 @@ import { DetectionContextMenuComponent } from '../detection-context-menu/detecti
     NgStyle,
     NgClass,
     DetectionContextMenuComponent,
+    AlgorithmInfoComponent,
   ],
 })
 export class CsCanvasComponent implements OnInit, AfterViewInit {
@@ -87,6 +89,10 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
           console.log(
             '--------------------------------------------------------',
           );
+
+          if (parsedFile.algorithms) {
+            this.detectionsService.setAlgorithms(parsedFile.algorithms);
+          }
 
           Object.keys(this.viewportsData).forEach((key): void => {
             const viewpoint = key as keyof ViewportsMap;

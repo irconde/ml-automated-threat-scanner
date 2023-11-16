@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {
   BoundingBox,
   Detection,
+  DetectionAlgorithm,
   DetectionGroupMetaData,
   DetectionGroups,
   getDetectionGroupName,
@@ -32,12 +33,21 @@ export class DetectionsService {
   public labels: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
   private detectionsGroupsMetadata: BehaviorSubject<DetectionGroups> =
     new BehaviorSubject({});
+  private selectedAlgorithm = new BehaviorSubject<DetectionAlgorithm | null>(
+    null,
+  );
 
   public get allDetections() {
     return [...this.detectionData.value.side, ...this.detectionData.value.top];
   }
 
+  private algorithms: Record<string, DetectionAlgorithm> | null = null;
+
   constructor() {}
+
+  public getSelectedAlgorithm() {
+    return this.selectedAlgorithm.asObservable();
+  }
 
   getDetectionData(): Observable<DetectionsMap> {
     return this.detectionData.asObservable();
@@ -84,7 +94,9 @@ export class DetectionsService {
         ...this.detectionsGroupsMetadata.value,
         [groupName]: {
           ...groupMetaData,
-          ...(prop === 'visible' ? { selected: false } : {}),
+          ...(prop === 'visible' && shouldUpdateDetections
+            ? { selected: false }
+            : {}),
           [prop]: propNewValue,
         },
       };
@@ -103,6 +115,11 @@ export class DetectionsService {
           }
         });
         this.selectedDetection.next(null);
+        if (prop === 'selected') {
+          this.updateSelectedAlgorithm(groupName, propNewValue);
+        } else {
+          this.updateSelectedAlgorithm(groupName, false);
+        }
       }
       this.detectionsGroupsMetadata.next(updatedGroupMetaData);
       if (prop !== 'collapsed') updateCornerstoneViewports();
@@ -139,6 +156,10 @@ export class DetectionsService {
     );
 
     this.detectionsGroupsMetadata.next(detectionGroups);
+  }
+
+  public setAlgorithms(algorithms: Record<string, DetectionAlgorithm>) {
+    this.algorithms = algorithms;
   }
 
   selectDetection(detectionID: string, viewpoint: string): void {
@@ -219,6 +240,12 @@ export class DetectionsService {
 
     this.selectDetection(newDetection.uuid, viewpoint);
 
+    // upon detection creation, ensure the group name is visible
+    const groupName = getDetectionGroupName(newDetection);
+    if (!this.detectionsGroupsMetadata.value[groupName].visible) {
+      this.toggleDetectionGroupProp(groupName, 'visible', false);
+    }
+
     return newDetection;
   }
 
@@ -273,5 +300,14 @@ export class DetectionsService {
       this.detectionsGroupsMetadata.value[groupName].selected = false;
     }
     this.detectionsGroupsMetadata.next(this.detectionsGroupsMetadata.value);
+    this.selectedAlgorithm.next(null);
+  }
+
+  private updateSelectedAlgorithm(groupName: string, selected: boolean) {
+    let algorithm: DetectionAlgorithm | null = null;
+    if (selected && this.algorithms && this.algorithms[groupName]) {
+      algorithm = this.algorithms[groupName];
+    }
+    this.selectedAlgorithm.next(algorithm);
   }
 }
