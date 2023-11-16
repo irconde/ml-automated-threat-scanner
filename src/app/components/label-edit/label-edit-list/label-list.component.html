@@ -1,0 +1,7 @@
+<div id="LabelListWrapper">
+	<ul id="LabelList">
+		<li *ngFor="let label of labels; let i = index" (click)="handleClick(i)">
+			<span>{{ label }}</span>
+		</li>
+	</ul>
+</div>

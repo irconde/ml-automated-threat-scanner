@@ -11,7 +11,11 @@ import {
 import { BehaviorSubject, Observable } from 'rxjs';
 import { CommonDetections } from '../../../enums/cornerstone';
 import { v4 as guid } from 'uuid';
-import { updateCornerstoneViewports } from '../../utilities/cornerstone.utilities';
+import {
+  getViewportByViewpoint,
+  updateCornerstoneViewports,
+} from '../../utilities/cornerstone.utilities';
+import { cornerstone } from '../../csSetup';
 
 export interface DetectionsMap {
   top: Detection[];
@@ -26,6 +30,7 @@ export class DetectionsService {
     new BehaviorSubject<DetectionsMap>({ top: [], side: [] });
   private selectedDetection: BehaviorSubject<Detection | null> =
     new BehaviorSubject<Detection | null>(null);
+  public labels: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
   private detectionsGroupsMetadata: BehaviorSubject<DetectionGroups> =
     new BehaviorSubject({});
   private selectedAlgorithm = new BehaviorSubject<DetectionAlgorithm | null>(
@@ -179,6 +184,29 @@ export class DetectionsService {
 
   getSelectedDetection(): Observable<Detection | null> {
     return this.selectedDetection.asObservable();
+  }
+
+  getZoomLevel(selectedDetection: Detection) {
+    const viewport = getViewportByViewpoint(selectedDetection.viewpoint);
+    return cornerstone.getViewport(viewport)?.scale;
+  }
+
+  getLabels(): Observable<string[]> {
+    const labels: string[] = this.allDetections
+      .map((detection) => detection.className.toLowerCase())
+      .filter((label, index, array) => array.indexOf(label) === index)
+      .map((label) => label.toLowerCase())
+      .filter((label) => label !== CommonDetections.Unknown.toLowerCase());
+
+    this.labels.next(labels);
+
+    return this.labels.asObservable();
+  }
+
+  setDetectionLabel(label: string) {
+    if (!this.selectedDetection.value) return;
+    this.selectedDetection.value.className = label;
+    this.setDetectionData(this.detectionData.value);
   }
 
   addDetection(

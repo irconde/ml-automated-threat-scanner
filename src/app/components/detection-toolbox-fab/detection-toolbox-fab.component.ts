@@ -3,6 +3,7 @@ import { MatIconModule } from '@angular/material/icon';
 import {
   AnnotationMode,
   CornerstoneMode,
+  EditionMode,
   ToolNames,
 } from '../../../enums/cornerstone';
 import { CornerstoneService } from '../../services/cornerstone/cornerstone.service';
@@ -51,6 +52,7 @@ export class DetectionToolboxFabComponent implements OnInit {
     const csConfiguration = {
       cornerstoneMode: CornerstoneMode.Annotation,
       annotationMode: setup.annotationMode,
+      editionMode: EditionMode.NoTool,
     };
     setCornerstoneToolActive(setup.toolName, {
       ...csConfiguration,

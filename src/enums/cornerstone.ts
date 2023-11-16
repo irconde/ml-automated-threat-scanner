@@ -34,7 +34,7 @@ export enum EditionMode {
 }
 
 export enum CommonDetections {
-  Unknown = 'Unknown',
+  Unknown = 'unknown',
   Operator = 'OPERATOR',
 }
 
