@@ -1,4 +1,5 @@
-<div class="detection-context-menu" style="{{handleContextMenuPosition()}}">
+<div class="detection-context-menu" *ngIf="show"
+     [ngStyle]="{'left': (position?.x || 0) + 'px', 'top': 'calc(' + (position?.y || 0) + 'px + 3.375rem)'}">
   <div class="flex-container">
     <div class="main-widget">
       <button (click)="handleMenuItemClick(EditionMode.Label)"

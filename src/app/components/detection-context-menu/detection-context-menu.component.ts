@@ -42,6 +42,9 @@ export class DetectionContextMenuComponent {
   enablePositionOffset = false;
   showPolygonIcon = false;
   detectionColor = '#ffffff';
+  selectedDetection: Detection | null = null;
+  show: boolean = false;
+  readonly yGap = 5;
 
   constructor(
     private detectionService: DetectionsService,
@@ -50,6 +53,7 @@ export class DetectionContextMenuComponent {
     this.detectionService
       .getSelectedDetection()
       .subscribe((selectedDetection) => {
+        this.selectedDetection = selectedDetection;
         this.updatePosition(selectedDetection);
         this.detectionColor = selectedDetection?.color || '#ffffff';
       });
@@ -60,16 +64,19 @@ export class DetectionContextMenuComponent {
     });
   }
 
+  private hideMenu() {
+    this.show = false;
+    this.position = null;
+  }
+
   updatePosition(selectedDetection: Detection | null) {
     if (selectedDetection === null) {
-      this.position = null;
-      return;
+      return this.hideMenu();
     }
     this.showPolygonIcon = Boolean(
       'polygonMask' in selectedDetection &&
         selectedDetection?.polygonMask?.length,
     );
-    const GAP = 5;
     const width = selectedDetection.boundingBox[2];
     const height = selectedDetection.boundingBox[3];
     const viewport: HTMLElement = getViewportByViewpoint(
@@ -85,15 +92,8 @@ export class DetectionContextMenuComponent {
       _pixelCoordinateBrand: '',
     });
 
-    this.position = { x: x + viewportOffset, y: y + GAP };
-  }
-
-  handleContextMenuPosition() {
-    return {
-      left: (this.position?.x || 0) + 'px',
-      top: `calc(${this.position?.y || 0}px + 3.375rem)`,
-      display: this.position ? 'flex' : 'none',
-    };
+    this.position = { x: x + viewportOffset, y: y + this.yGap };
+    this.show = true;
   }
 
   private enableBoundingDetectionEdition() {
