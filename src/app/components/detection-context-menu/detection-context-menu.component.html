@@ -1,39 +1,40 @@
 <div class="detection-context-menu" style="{{handleContextMenuPosition()}}">
   <div class="flex-container">
     <div class="main-widget">
-      <button (click)="handleMenuItemClick('LABEL')"
+      <button (click)="handleMenuItemClick(EditionMode.Label)"
               aria-label="Label Edition Icon"
               type="button"
               class="context-menu-button"
               id="label-edit-button">
         <app-label-svg/>
       </button>
-      <button (click)="handleMenuItemClick('COLOR')"
+      <button (click)="handleMenuItemClick(EditionMode.Color)"
               aria-label="Color Edition Icon"
               type="button"
               class="context-menu-button">
         <app-color-svg [color]="detectionColor"/>
       </button>
-      <button (click)="handleMenuItemClick('BOUNDING')"
+      <button (click)="handleMenuItemClick(EditionMode.Bounding)"
               aria-label="Bounding Box Edition Icon"
               type="button"
               class="context-menu-button">
         <app-rectangle-svg/>
       </button>
-      <button *ngIf="showPolygonIcon" (click)="handleMenuItemClick('POLYGON')"
+      <button *ngIf="showPolygonIcon" (click)="handleMenuItemClick(EditionMode.Polygon)"
               aria-label="Polygon Mask Edition Icon"
               type="button"
               class="context-menu-button">
         <app-polygon-svg/>
       </button>
-      <button (click)="handleMenuItemClick('MOVE')" aria-label="Move Icon"
+      <button (click)="handleMenuItemClick(EditionMode.Move)" aria-label="Move Icon"
               type="button"
               class="context-menu-button">
         <app-movement-svg/>
       </button>
 
     </div>
-    <button class="delete-button context-menu-button" (click)="handleMenuItemClick('DELETE')" aria-label="Delete Icon"
+    <button class="delete-button context-menu-button" (click)="handleMenuItemClick(EditionMode.Delete)"
+            aria-label="Delete Icon"
             type="button">
       <app-delete-svg/>
     </button>

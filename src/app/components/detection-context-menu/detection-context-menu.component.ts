@@ -96,31 +96,101 @@ export class DetectionContextMenuComponent {
     };
   }
 
-  handleMenuItemClick(type: string) {
+  private enableBoundingDetectionEdition() {
+    this.csService.setCsConfiguration({
+      cornerstoneMode: CornerstoneMode.Edition,
+      annotationMode: AnnotationMode.Bounding,
+      editionMode: EditionMode.Bounding,
+    });
+    // this.resetCornerstoneTool();
+    // const data = {
+    //   handles: {
+    //     start: {
+    //       x: this.props.selectedDetection.boundingBox[0],
+    //       y: this.props.selectedDetection.boundingBox[1],
+    //     },
+    //     end: {
+    //       x: this.props.selectedDetection.boundingBox[2],
+    //       y: this.props.selectedDetection.boundingBox[3],
+    //     },
+    //     start_prima: {
+    //       x: this.props.selectedDetection.boundingBox[0],
+    //       y: this.props.selectedDetection.boundingBox[3],
+    //     },
+    //     end_prima: {
+    //       x: this.props.selectedDetection.boundingBox[2],
+    //       y: this.props.selectedDetection.boundingBox[1],
+    //     },
+    //   },
+    //   uuid: this.props.selectedDetection.uuid,
+    //   algorithm: this.props.selectedDetection.algorithm,
+    //   class: this.props.selectedDetection.className,
+    //   renderColor: constants.detectionStyle.SELECTED_COLOR,
+    //   confidence: this.props.selectedDetection.confidence,
+    //   updatingDetection: true,
+    //   view: this.props.selectedDetection.view,
+    //   polygonCoords:
+    //     this.props.selectedDetection.polygonMask !== null
+    //       ? this.props.selectedDetection.polygonMask
+    //       : undefined,
+    //   binaryMask: this.props.selectedDetection.binaryMask,
+    // };
+    // if (
+    //   this.props.selectedDetection.view === constants.viewport.TOP
+    // ) {
+    //   cornerstoneTools.addToolState(
+    //     this.state.imageViewportTop,
+    //     'BoundingBoxDrawing',
+    //     data
+    //   );
+    // } else if (
+    //   this.props.selectedDetection.view ===
+    //   constants.viewport.SIDE
+    // ) {
+    //   cornerstoneTools.addToolState(
+    //     this.state.imageViewportSide,
+    //     'BoundingBoxDrawing',
+    //     data
+    //   );
+    // }
+    // cornerstoneTools.setToolActive('BoundingBoxDrawing', {
+    //   mouseButtonMask: 1,
+    // });
+    // cornerstoneTools.setToolActive('Pan', {
+    //   mouseButtonMask: 1,
+    // });
+    // cornerstoneTools.setToolOptions('BoundingBoxDrawing', {
+    //   cornerstoneMode: constants.cornerstoneMode.EDITION,
+    //   editionMode: constants.editionMode.NO_TOOL,
+    // });
+  }
+
+  handleMenuItemClick(type: EditionMode) {
     switch (type) {
-      case 'LABEL':
+      case EditionMode.Label:
         return this.csService.setCsConfiguration({
           cornerstoneMode: CornerstoneMode.Edition,
           annotationMode: AnnotationMode.NoTool,
           editionMode: EditionMode.Label,
         });
-      case 'COLOR':
+      case EditionMode.Color:
         console.log('Color Edit');
         break;
-      case 'BOUNDING':
-        console.log('Bounding Box Edit');
-        break;
-      case 'POLYGON':
+      case EditionMode.Bounding:
+        return this.enableBoundingDetectionEdition();
+      case EditionMode.Polygon:
         console.log('Polygon Mask Edit');
         break;
-      case 'MOVE':
+      case EditionMode.Move:
         console.log('Move');
         break;
-      case 'DELETE':
+      case EditionMode.Delete:
         console.log('Delete');
         break;
       default:
         break;
     }
   }
+
+  protected readonly EditionMode = EditionMode;
 }
