@@ -2,6 +2,9 @@ export enum ToolNames {
   BoundingBox = 'BoundingBoxDrawing',
   Polygon = 'PolygonDrawingTool',
   AnnotationMovement = 'AnnotationMovementTool',
+  Pan = 'Pan',
+  ZoomMouseWheel = 'ZoomMouseWheel',
+  ZoomTouchPinch = 'ZoomTouchPinch',
 }
 
 export enum CornerstoneMode {

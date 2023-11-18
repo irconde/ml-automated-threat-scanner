@@ -2,7 +2,10 @@ import { Component } from '@angular/core';
 import { Coordinate2D, Detection } from '../../../models/detection';
 import { DetectionsService } from '../../services/detections/detections.service';
 import { cornerstone } from '../../csSetup';
-import { getViewportByViewpoint } from '../../utilities/cornerstone.utilities';
+import {
+  getViewportByViewpoint,
+  setBoundingEditToolActive,
+} from '../../utilities/cornerstone.utilities';
 import { NgIf, NgStyle } from '@angular/common';
 import { ColorComponent } from '../svgs/color-svg/color-svg.component';
 import { RectangleComponent } from '../svgs/rectangle-svg/rectangle-svg.component';
@@ -97,72 +100,13 @@ export class DetectionContextMenuComponent {
   }
 
   private enableBoundingDetectionEdition() {
+    if (this.selectedDetection === null) return;
+    setBoundingEditToolActive(this.selectedDetection);
     this.csService.setCsConfiguration({
       cornerstoneMode: CornerstoneMode.Edition,
-      annotationMode: AnnotationMode.Bounding,
+      annotationMode: AnnotationMode.NoTool,
       editionMode: EditionMode.Bounding,
     });
-    // this.resetCornerstoneTool();
-    // const data = {
-    //   handles: {
-    //     start: {
-    //       x: this.props.selectedDetection.boundingBox[0],
-    //       y: this.props.selectedDetection.boundingBox[1],
-    //     },
-    //     end: {
-    //       x: this.props.selectedDetection.boundingBox[2],
-    //       y: this.props.selectedDetection.boundingBox[3],
-    //     },
-    //     start_prima: {
-    //       x: this.props.selectedDetection.boundingBox[0],
-    //       y: this.props.selectedDetection.boundingBox[3],
-    //     },
-    //     end_prima: {
-    //       x: this.props.selectedDetection.boundingBox[2],
-    //       y: this.props.selectedDetection.boundingBox[1],
-    //     },
-    //   },
-    //   uuid: this.props.selectedDetection.uuid,
-    //   algorithm: this.props.selectedDetection.algorithm,
-    //   class: this.props.selectedDetection.className,
-    //   renderColor: constants.detectionStyle.SELECTED_COLOR,
-    //   confidence: this.props.selectedDetection.confidence,
-    //   updatingDetection: true,
-    //   view: this.props.selectedDetection.view,
-    //   polygonCoords:
-    //     this.props.selectedDetection.polygonMask !== null
-    //       ? this.props.selectedDetection.polygonMask
-    //       : undefined,
-    //   binaryMask: this.props.selectedDetection.binaryMask,
-    // };
-    // if (
-    //   this.props.selectedDetection.view === constants.viewport.TOP
-    // ) {
-    //   cornerstoneTools.addToolState(
-    //     this.state.imageViewportTop,
-    //     'BoundingBoxDrawing',
-    //     data
-    //   );
-    // } else if (
-    //   this.props.selectedDetection.view ===
-    //   constants.viewport.SIDE
-    // ) {
-    //   cornerstoneTools.addToolState(
-    //     this.state.imageViewportSide,
-    //     'BoundingBoxDrawing',
-    //     data
-    //   );
-    // }
-    // cornerstoneTools.setToolActive('BoundingBoxDrawing', {
-    //   mouseButtonMask: 1,
-    // });
-    // cornerstoneTools.setToolActive('Pan', {
-    //   mouseButtonMask: 1,
-    // });
-    // cornerstoneTools.setToolOptions('BoundingBoxDrawing', {
-    //   cornerstoneMode: constants.cornerstoneMode.EDITION,
-    //   editionMode: constants.editionMode.NO_TOOL,
-    // });
   }
 
   handleMenuItemClick(type: EditionMode) {

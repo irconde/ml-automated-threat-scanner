@@ -2,6 +2,7 @@ import { cornerstone, cornerstoneTools } from '../csSetup';
 import {
   AnnotationMode,
   CornerstoneMode,
+  EditionMode,
   ToolNames,
 } from '../../enums/cornerstone';
 import { CreatedBoundingBox, PolygonHandles } from '../../models/cornerstone';
@@ -9,7 +10,8 @@ import {
   calculateBoundingBox,
   polygonDataToXYArray,
 } from './detection.utilities';
-import { BoundingBox, Point } from '../../models/detection';
+import { BoundingBox, Detection, Point } from '../../models/detection';
+import { DETECTION_STYLE } from '../../enums/detection-styles';
 
 export const VIEWPORTS_CLASSNAME = 'viewportElement';
 /**
@@ -86,6 +88,56 @@ export const setCornerstoneToolActive = (
 
   cornerstoneTools.setToolActive(toolName, {
     mouseButtonMask: 1,
+  });
+};
+
+export const setBoundingEditToolActive = (selectedDetection: Detection) => {
+  // resetCornerstoneTool()
+  const data = {
+    handles: {
+      start: {
+        x: selectedDetection.boundingBox[0],
+        y: selectedDetection.boundingBox[1],
+      },
+      end: {
+        x: selectedDetection.boundingBox[2],
+        y: selectedDetection.boundingBox[3],
+      },
+      start_prima: {
+        x: selectedDetection.boundingBox[0],
+        y: selectedDetection.boundingBox[3],
+      },
+      end_prima: {
+        x: selectedDetection.boundingBox[2],
+        y: selectedDetection.boundingBox[1],
+      },
+    },
+    uuid: selectedDetection.uuid,
+    algorithm: selectedDetection.algorithm,
+    class: selectedDetection.className,
+    renderColor: DETECTION_STYLE.SELECTED_COLOR,
+    confidence: selectedDetection.confidence,
+    updatingDetection: true,
+    view: selectedDetection.viewpoint,
+    polygonCoords:
+      'polygonMask' in selectedDetection
+        ? selectedDetection.polygonMask
+        : undefined,
+    binaryMask: selectedDetection.binaryMask,
+  };
+
+  const viewport = getViewportByViewpoint(selectedDetection.viewpoint);
+  cornerstoneTools.addToolState(viewport, ToolNames.BoundingBox, data);
+
+  cornerstoneTools.setToolActive(ToolNames.BoundingBox, {
+    mouseButtonMask: 1,
+  });
+  cornerstoneTools.setToolActive(ToolNames.Pan, {
+    mouseButtonMask: 1,
+  });
+  cornerstoneTools.setToolOptions('BoundingBoxDrawing', {
+    cornerstoneMode: CornerstoneMode.Edition,
+    editionMode: EditionMode.NoTool,
   });
 };
 
