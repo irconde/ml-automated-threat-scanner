@@ -100,19 +100,20 @@ export const setBoundingEditToolActive = (selectedDetection: Detection) => {
         y: selectedDetection.boundingBox[1],
       },
       end: {
-        x: selectedDetection.boundingBox[2],
-        y: selectedDetection.boundingBox[3],
+        x: selectedDetection.boundingBox[0] + selectedDetection.boundingBox[2],
+        y: selectedDetection.boundingBox[1] + selectedDetection.boundingBox[3],
       },
       start_prima: {
         x: selectedDetection.boundingBox[0],
-        y: selectedDetection.boundingBox[3],
+        y: selectedDetection.boundingBox[1] + selectedDetection.boundingBox[3],
       },
       end_prima: {
-        x: selectedDetection.boundingBox[2],
+        x: selectedDetection.boundingBox[0] + selectedDetection.boundingBox[2],
         y: selectedDetection.boundingBox[1],
       },
     },
-    uuid: selectedDetection.uuid,
+    id: selectedDetection.uuid,
+    categoryName: selectedDetection.categoryName,
     algorithm: selectedDetection.algorithm,
     class: selectedDetection.className,
     renderColor: DETECTION_STYLE.SELECTED_COLOR,
@@ -135,10 +136,12 @@ export const setBoundingEditToolActive = (selectedDetection: Detection) => {
   cornerstoneTools.setToolActive(ToolNames.Pan, {
     mouseButtonMask: 1,
   });
-  cornerstoneTools.setToolOptions('BoundingBoxDrawing', {
+  cornerstoneTools.setToolOptions(ToolNames.BoundingBox, {
     cornerstoneMode: CornerstoneMode.Edition,
-    editionMode: EditionMode.NoTool,
+    editionMode: EditionMode.Bounding,
   });
+
+  updateCornerstoneViewports();
 };
 
 /**
