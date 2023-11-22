@@ -1,21 +1,41 @@
-import {AfterViewInit, Directive, ElementRef, HostListener, Input,} from '@angular/core';
-import {ViewportData, ViewportsMap} from '../../models/viewport';
-import {Coordinate2D, Detection, Dimension2D} from '../../models/detection';
-import {DETECTION_STYLE} from '../../enums/detection-styles';
-import {displayDetection, getBboxFromHandles, getBoundingBoxArea, pointInRect,} from '../utilities/detection.utilities';
-import {cornerstone} from '../csSetup';
-import {DetectionsService} from '../services/detections/detections.service';
 import {
-    getCreatedBoundingBoxFromTool,
-    getCreatedPolygonFromTool,
-    resetCornerstoneTool,
-    updateCornerstoneViewports,
+  AfterViewInit,
+  Directive,
+  ElementRef,
+  HostListener,
+  Input,
+} from '@angular/core';
+import { ViewportData, ViewportsMap } from '../../models/viewport';
+import { Coordinate2D, Detection, Dimension2D } from '../../models/detection';
+import { DETECTION_STYLE } from '../../enums/detection-styles';
+import {
+  calculatePolygonMask,
+  displayDetection,
+  getBboxFromHandles,
+  getBoundingBoxArea,
+  pointInRect,
+} from '../utilities/detection.utilities';
+import { cornerstone, cornerstoneTools } from '../csSetup';
+import { DetectionsService } from '../services/detections/detections.service';
+import {
+  getCreatedBoundingBoxFromTool,
+  getCreatedPolygonFromTool,
+  resetCornerstoneTool,
+  resetCornerstoneTools,
+  updateCornerstoneViewports,
 } from '../utilities/cornerstone.utilities';
-import {AnnotationMode, CornerstoneMode, CS_EVENTS, EditionMode, ToolNames,} from '../../enums/cornerstone';
-import {CornerstoneService} from '../services/cornerstone/cornerstone.service';
-import {CS_DEFAULT_CONFIGURATION} from '../../models/cornerstone';
-import {renderBboxCrosshair} from '../utilities/drawing.utilities';
-import {SettingsService} from '../services/settings/settings.service';
+import {
+  AnnotationMode,
+  CornerstoneMode,
+  CS_EVENTS,
+  EditionMode,
+  ToolNames,
+} from '../../enums/cornerstone';
+import { CornerstoneService } from '../services/cornerstone/cornerstone.service';
+import { CS_DEFAULT_CONFIGURATION } from '../../models/cornerstone';
+import { renderBboxCrosshair } from '../utilities/drawing.utilities';
+import { SettingsService } from '../services/settings/settings.service';
+import { BoundingEditToolState } from '../../models/cornerstone-tools.types';
 // TODO: get the actual selected category
 const SELECTED_CATEGORY = '';
 // TODO: get the actual edition mode
@@ -64,7 +84,11 @@ export class CornerstoneDirective implements AfterViewInit {
     });
     this.cornerstoneService.getCsConfiguration().subscribe((config) => {
       this.cornerstoneConfig = config;
-      if (config.cornerstoneMode === CornerstoneMode.Annotation) {
+      if (
+        config.cornerstoneMode === CornerstoneMode.Annotation ||
+        config.editionMode === EditionMode.Bounding ||
+        config.editionMode === EditionMode.Polygon
+      ) {
         this.stopListeningToCLicks();
       } else {
         this.listenToClicks();
@@ -179,8 +203,11 @@ export class CornerstoneDirective implements AfterViewInit {
   @HostListener('mouseup', ['$event'])
   @HostListener('touchend')
   onDragEnd() {
+    console.log('onDragEnd');
     if (this.cornerstoneConfig.annotationMode === AnnotationMode.Bounding) {
       this.handleBoundingBoxDetectionCreation();
+    } else if (this.cornerstoneConfig.editionMode === EditionMode.Bounding) {
+      this.handleBoundingBoxDetectionEdition();
     }
   }
 
@@ -340,5 +367,83 @@ export class CornerstoneDirective implements AfterViewInit {
       x: x,
       y: y,
     });
+  }
+
+  private handleBoundingBoxDetectionEdition() {
+    // toolState = cornerstoneTools.getToolState(
+    //   viewportRef.current,
+    //   constants.toolNames.boundingBox
+    // );
+    // if (toolState !== undefined && toolState.data.length > 0) {
+    //   const { data } = toolState;
+    //   const { handles, id, segmentation } = data[0];
+    //   let bbox = Utils.getBboxFromHandles(
+    //     handles.start,
+    //     handles.end
+    //   );
+    //   const newSegmentation = [];
+    //   if (segmentation?.length > 0) {
+    //     segmentation.forEach((segment) => {
+    //       newSegmentation.push(
+    //         Utils.calculatePolygonMask(bbox, segment)
+    //       );
+    //     });
+    //   }
+    //   // Converting from
+    //   // [x_0, y_0, x_f, y_f]
+    //   // to
+    //   // [x_0, y_0, width, height]
+    //   bbox[2] = bbox[2] - bbox[0];
+    //   bbox[3] = bbox[3] - bbox[1];
+    //   dispatch(
+    //     updateEditionMode(constants.editionMode.NO_TOOL)
+    //   );
+    //   dispatch(
+    //     updateCornerstoneMode(
+    //       constants.cornerstoneMode.EDITION
+    //     )
+    //   );
+    //   dispatch(updateAnnotationContextVisibility(true));
+    //   Utils.dispatchAndUpdateImage(
+    //     dispatch,
+    //     updateAnnotationPosition,
+    //     { id, bbox: bbox, segmentation: newSegmentation }
+    //   );
+    //   Utils.resetCornerstoneTools(viewportRef.current);
+    // }
+
+    const toolState: BoundingEditToolState = cornerstoneTools.getToolState(
+      this.element,
+      ToolNames.BoundingBox,
+    );
+    if (toolState === undefined || toolState.data.length === 0) {
+      return;
+    }
+
+    const { handles, id, segmentation } = toolState.data[0];
+
+    const bbox = getBboxFromHandles({ start: handles.start, end: handles.end });
+    const newSegmentation = [];
+    if (segmentation?.length) {
+      segmentation.forEach((segment) => {
+        newSegmentation.push(calculatePolygonMask(bbox, segment));
+      });
+    }
+
+    // Converting from
+    // [x_0, y_0, x_f, y_f]
+    // to
+    // [x_0, y_0, width, height]
+    bbox[2] = bbox[2] - bbox[0];
+    bbox[3] = bbox[3] - bbox[1];
+
+    this.cornerstoneService.setCsConfiguration({
+      cornerstoneMode: CornerstoneMode.Selection,
+      editionMode: EditionMode.NoTool,
+      annotationMode: AnnotationMode.NoTool,
+    });
+
+    // TODO: update selected detection here
+    resetCornerstoneTools(this.element);
   }
 }

@@ -5,7 +5,7 @@ import {
   Point,
   PolygonData,
 } from '../../models/detection';
-import { CornerstoneBboxHandles, PolygonPoint } from '../../models/cornerstone';
+import { PolygonPoint } from '../../models/cornerstone';
 import { EditionMode } from '../../enums/cornerstone';
 import {
   getTextLabelSize,
@@ -497,7 +497,10 @@ export const pointInRect = (point: Coordinate2D, rect: number[]) => {
 export const getBboxFromHandles = ({
   start,
   end,
-}: CornerstoneBboxHandles): BoundingBox => {
+}: {
+  start: Coordinate2D;
+  end: Coordinate2D;
+}): BoundingBox => {
   // Fix flipped rectangle issues
   let bbox: BoundingBox;
   if (start.x > end.x && start.y > end.y) {
