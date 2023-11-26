@@ -182,13 +182,13 @@ export class DetectionsService {
     updateCornerstoneViewports();
   }
 
-  public updateDetection(
-    uuid: string,
+  public updateSelectedDetection(
     boundingBox: BoundingBox,
     polygonMask: Point[] | undefined,
   ) {
+    if (this.selectedDetection.value === null) return;
     this.allDetections.some((det) => {
-      const isFound = det.uuid === uuid;
+      const isFound = det.uuid === this.selectedDetection.value?.uuid;
       if (isFound) {
         det.boundingBox = boundingBox;
         if ('polygonMask' in det) {

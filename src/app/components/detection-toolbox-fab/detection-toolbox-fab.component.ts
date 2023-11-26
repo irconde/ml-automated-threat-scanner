@@ -19,22 +19,19 @@ import { setCornerstoneToolActive } from '../../utilities/cornerstone.utilities'
 })
 export class DetectionToolboxFabComponent implements OnInit {
   private annotationMode = AnnotationMode.NoTool;
+  protected disabled = false;
 
   constructor(
     private cornerstoneService: CornerstoneService,
     private detectionsService: DetectionsService,
   ) {}
 
-  get disabled() {
-    return (
-      this.annotationMode === AnnotationMode.Bounding ||
-      this.annotationMode === AnnotationMode.Polygon
-    );
-  }
-
   ngOnInit() {
     this.cornerstoneService.getCsConfiguration().subscribe((config) => {
       this.annotationMode = config.annotationMode;
+      this.disabled =
+        config.annotationMode !== AnnotationMode.NoTool ||
+        config.editionMode !== EditionMode.NoTool;
     });
   }
 

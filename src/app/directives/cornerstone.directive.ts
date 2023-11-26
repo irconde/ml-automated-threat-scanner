@@ -41,8 +41,6 @@ import { CS_DEFAULT_CONFIGURATION } from '../../models/cornerstone';
 import { renderBboxCrosshair } from '../utilities/drawing.utilities';
 import { SettingsService } from '../services/settings/settings.service';
 import { BoundingEditToolState } from '../../models/cornerstone-tools.types';
-// TODO: get the actual edition mode
-const CURRENT_EDITION_MODE = EditionMode.NoTool;
 
 @Directive({
   selector: '[csDirective]',
@@ -51,7 +49,7 @@ const CURRENT_EDITION_MODE = EditionMode.NoTool;
 export class CornerstoneDirective implements AfterViewInit {
   element: HTMLElement;
   @Input() viewportName: keyof ViewportsMap | null = null;
-  private cornerstoneConfig = CS_DEFAULT_CONFIGURATION;
+  private csConfig = CS_DEFAULT_CONFIGURATION;
   private mousePosition: Coordinate2D = { x: 0, y: 0 };
   private imageDimensions: Dimension2D = { width: 0, height: 0 };
   private context: CanvasRenderingContext2D | null | undefined = undefined;
@@ -86,7 +84,7 @@ export class CornerstoneDirective implements AfterViewInit {
       this.handleExitingAnnotationMode();
     });
     this.cornerstoneService.getCsConfiguration().subscribe((config) => {
-      this.cornerstoneConfig = config;
+      this.csConfig = config;
       if (
         config.cornerstoneMode === CornerstoneMode.Annotation ||
         config.editionMode === EditionMode.Bounding ||
@@ -210,9 +208,9 @@ export class CornerstoneDirective implements AfterViewInit {
   @HostListener('touchend')
   onDragEnd() {
     console.log('onDragEnd');
-    if (this.cornerstoneConfig.annotationMode === AnnotationMode.Bounding) {
+    if (this.csConfig.annotationMode === AnnotationMode.Bounding) {
       this.handleBoundingBoxDetectionCreation();
-    } else if (this.cornerstoneConfig.editionMode === EditionMode.Bounding) {
+    } else if (this.csConfig.editionMode === EditionMode.Bounding) {
       this.handleBoundingBoxDetectionEdition();
     }
   }
@@ -276,9 +274,7 @@ export class CornerstoneDirective implements AfterViewInit {
    * @private
    */
   private isAnnotating(): boolean {
-    return (
-      this.cornerstoneConfig.cornerstoneMode === CornerstoneMode.Annotation
-    );
+    return this.csConfig.cornerstoneMode === CornerstoneMode.Annotation;
   }
 
   private shouldShowCrosshair(): boolean {
@@ -286,7 +282,7 @@ export class CornerstoneDirective implements AfterViewInit {
       // if annotating on a NON mobile device
       (this.isAnnotating() && !this.settingsService.isMobile) ||
       // if annotating a bounding box on mobile
-      (this.cornerstoneConfig.annotationMode === AnnotationMode.Bounding &&
+      (this.csConfig.annotationMode === AnnotationMode.Bounding &&
         this.settingsService.isMobile)
     );
   }
@@ -315,7 +311,7 @@ export class CornerstoneDirective implements AfterViewInit {
             context,
             det,
             anyDetectionsSelected,
-            CURRENT_EDITION_MODE,
+            this.csConfig.editionMode,
             zoom,
           ),
         );
@@ -385,7 +381,7 @@ export class CornerstoneDirective implements AfterViewInit {
       return;
     }
 
-    const { handles, id, segmentation } = toolState.data[0];
+    const { handles, segmentation } = toolState.data[0];
     console.log(segmentation);
     const bbox = getBboxFromHandles({ start: handles.start, end: handles.end });
     const newSegmentation: Point[][] = [];
@@ -398,15 +394,15 @@ export class CornerstoneDirective implements AfterViewInit {
 
     console.log(newSegmentation);
 
-    this.detectionsService.updateDetection(id, bbox, undefined);
+    this.detectionsService.updateSelectedDetection(bbox, undefined);
+
+    resetCornerstoneTools(this.element);
+    cornerstone.updateImage(this.element, false);
 
     this.cornerstoneService.setCsConfiguration({
       cornerstoneMode: CornerstoneMode.Selection,
       editionMode: EditionMode.NoTool,
       annotationMode: AnnotationMode.NoTool,
     });
-
-    resetCornerstoneTools(this.element);
-    cornerstone.updateImage(this.element, false);
   }
 }
