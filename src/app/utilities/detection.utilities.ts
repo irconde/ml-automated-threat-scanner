@@ -98,7 +98,7 @@ export const polygonDataToXYArray = (
 ): Point[] => {
   const xDist = boundingBox[2] - boundingBox[0];
   const yDist = boundingBox[3] - boundingBox[1];
-  const points = [];
+  const points: Point[] = [];
   for (const index in polygonData) {
     points.push({
       x: polygonData[index].x,

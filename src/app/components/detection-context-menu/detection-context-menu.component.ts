@@ -101,6 +101,7 @@ export class DetectionContextMenuComponent {
 
   private enableBoundingDetectionEdition() {
     if (this.selectedDetection === null) return;
+    // the tool will be deactivated in the 'cornerstone.directive' in the onDragEnd event handler
     setBoundingEditToolActive(this.selectedDetection);
     this.csService.setCsConfiguration({
       cornerstoneMode: CornerstoneMode.Edition,

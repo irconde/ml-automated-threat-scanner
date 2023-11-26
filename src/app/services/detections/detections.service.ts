@@ -182,6 +182,24 @@ export class DetectionsService {
     updateCornerstoneViewports();
   }
 
+  public updateDetection(
+    uuid: string,
+    boundingBox: BoundingBox,
+    polygonMask: Point[] | undefined,
+  ) {
+    this.allDetections.some((det) => {
+      const isFound = det.uuid === uuid;
+      if (isFound) {
+        det.boundingBox = boundingBox;
+        if ('polygonMask' in det) {
+          det.polygonMask = polygonMask;
+        }
+        this.selectedDetection.next(det);
+      }
+      return isFound;
+    });
+  }
+
   getSelectedDetection(): Observable<Detection | null> {
     return this.selectedDetection.asObservable();
   }

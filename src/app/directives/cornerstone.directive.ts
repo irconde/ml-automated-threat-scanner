@@ -6,7 +6,12 @@ import {
   Input,
 } from '@angular/core';
 import { ViewportData, ViewportsMap } from '../../models/viewport';
-import { Coordinate2D, Detection, Dimension2D } from '../../models/detection';
+import {
+  Coordinate2D,
+  Detection,
+  Dimension2D,
+  Point,
+} from '../../models/detection';
 import { DETECTION_STYLE } from '../../enums/detection-styles';
 import {
   calculatePolygonMask,
@@ -36,8 +41,6 @@ import { CS_DEFAULT_CONFIGURATION } from '../../models/cornerstone';
 import { renderBboxCrosshair } from '../utilities/drawing.utilities';
 import { SettingsService } from '../services/settings/settings.service';
 import { BoundingEditToolState } from '../../models/cornerstone-tools.types';
-// TODO: get the actual selected category
-const SELECTED_CATEGORY = '';
 // TODO: get the actual edition mode
 const CURRENT_EDITION_MODE = EditionMode.NoTool;
 
@@ -176,6 +179,7 @@ export class CornerstoneDirective implements AfterViewInit {
    */
   @HostListener(CS_EVENTS.POLYGON_MASK_CREATED, ['$event'])
   onPolygonEnd(event: Event) {
+    console.log('Polygon created');
     const createdPolygon = getCreatedPolygonFromTool(this.element);
     this.cornerstoneService.setCsConfiguration({
       cornerstoneMode: CornerstoneMode.Edition,
@@ -188,9 +192,11 @@ export class CornerstoneDirective implements AfterViewInit {
       return;
     }
     event.stopPropagation();
+    console.log(createdPolygon);
     this.detectionsService.addDetection(
       this.viewportName!,
       createdPolygon.bbox,
+      // @ts-ignore
       createdPolygon.polygonMask,
     );
     updateCornerstoneViewports();
@@ -242,6 +248,7 @@ export class CornerstoneDirective implements AfterViewInit {
   }
 
   private handleBoundingBoxDetectionCreation() {
+    console.log('handleBoundingBoxDetectionCreation');
     const createdBoundingBox = getCreatedBoundingBoxFromTool(this.element);
     if (createdBoundingBox === undefined) return;
 
@@ -370,48 +377,6 @@ export class CornerstoneDirective implements AfterViewInit {
   }
 
   private handleBoundingBoxDetectionEdition() {
-    // toolState = cornerstoneTools.getToolState(
-    //   viewportRef.current,
-    //   constants.toolNames.boundingBox
-    // );
-    // if (toolState !== undefined && toolState.data.length > 0) {
-    //   const { data } = toolState;
-    //   const { handles, id, segmentation } = data[0];
-    //   let bbox = Utils.getBboxFromHandles(
-    //     handles.start,
-    //     handles.end
-    //   );
-    //   const newSegmentation = [];
-    //   if (segmentation?.length > 0) {
-    //     segmentation.forEach((segment) => {
-    //       newSegmentation.push(
-    //         Utils.calculatePolygonMask(bbox, segment)
-    //       );
-    //     });
-    //   }
-    //   // Converting from
-    //   // [x_0, y_0, x_f, y_f]
-    //   // to
-    //   // [x_0, y_0, width, height]
-    //   bbox[2] = bbox[2] - bbox[0];
-    //   bbox[3] = bbox[3] - bbox[1];
-    //   dispatch(
-    //     updateEditionMode(constants.editionMode.NO_TOOL)
-    //   );
-    //   dispatch(
-    //     updateCornerstoneMode(
-    //       constants.cornerstoneMode.EDITION
-    //     )
-    //   );
-    //   dispatch(updateAnnotationContextVisibility(true));
-    //   Utils.dispatchAndUpdateImage(
-    //     dispatch,
-    //     updateAnnotationPosition,
-    //     { id, bbox: bbox, segmentation: newSegmentation }
-    //   );
-    //   Utils.resetCornerstoneTools(viewportRef.current);
-    // }
-
     const toolState: BoundingEditToolState = cornerstoneTools.getToolState(
       this.element,
       ToolNames.BoundingBox,
@@ -421,21 +386,19 @@ export class CornerstoneDirective implements AfterViewInit {
     }
 
     const { handles, id, segmentation } = toolState.data[0];
-
+    console.log(segmentation);
     const bbox = getBboxFromHandles({ start: handles.start, end: handles.end });
-    const newSegmentation = [];
+    const newSegmentation: Point[][] = [];
+    // TODO: fix segmentation type issue
     if (segmentation?.length) {
       segmentation.forEach((segment) => {
         newSegmentation.push(calculatePolygonMask(bbox, segment));
       });
     }
 
-    // Converting from
-    // [x_0, y_0, x_f, y_f]
-    // to
-    // [x_0, y_0, width, height]
-    bbox[2] = bbox[2] - bbox[0];
-    bbox[3] = bbox[3] - bbox[1];
+    console.log(newSegmentation);
+
+    this.detectionsService.updateDetection(id, bbox, undefined);
 
     this.cornerstoneService.setCsConfiguration({
       cornerstoneMode: CornerstoneMode.Selection,
@@ -443,7 +406,7 @@ export class CornerstoneDirective implements AfterViewInit {
       annotationMode: AnnotationMode.NoTool,
     });
 
-    // TODO: update selected detection here
     resetCornerstoneTools(this.element);
+    cornerstone.updateImage(this.element, false);
   }
 }
