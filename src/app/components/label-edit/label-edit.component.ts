@@ -7,7 +7,7 @@ import {
   updateCornerstoneViewports,
 } from '../../utilities/cornerstone.utilities';
 import { NgIf, NgStyle } from '@angular/common';
-import { Coordinate2D, DetectionClass } from '../../../models/detection';
+import { Coordinate2D, Detection } from '../../../models/detection';
 import { FormsModule } from '@angular/forms';
 import { LabelListComponent } from './label-edit-list/label-list.component';
 import {
@@ -26,7 +26,7 @@ import { CornerstoneService } from '../../services/cornerstone/cornerstone.servi
   imports: [MatIconModule, NgStyle, FormsModule, NgIf, LabelListComponent],
 })
 export class LabelEditComponent implements AfterViewInit {
-  selectedDetection: DetectionClass | null = null;
+  selectedDetection: Detection | null = null;
   zoomLevel: number = 1;
   size: { width: number; height: number } = { width: 0, height: 30 };
   position: Coordinate2D | null = { x: 0, y: 0 };

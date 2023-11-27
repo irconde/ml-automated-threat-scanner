@@ -9,7 +9,7 @@ import { KeyValuePipe, NgClass, NgForOf, NgIf, NgStyle } from '@angular/common';
 import { DetectionToolboxFabComponent } from '../detection-toolbox-fab/detection-toolbox-fab.component';
 import { ViewportsMap } from '../../../models/viewport';
 import { DetectionsService } from '../../services/detections/detections.service';
-import { DetectionClass } from '../../../models/detection';
+import { Detection } from '../../../models/detection';
 import { CornerstoneMode } from '../../../enums/cornerstone';
 import { cornerstoneTools } from '../../csSetup';
 import BoundingBoxDrawingTool from '../../utilities/cornerstone-tools/BoundingBoxDrawingTool';
@@ -108,7 +108,7 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
             this.csService.getImageData(pixelData).subscribe((imageData) => {
               const detectionData = parsedFile.detectionData
                 .filter((detect) => detect.viewpoint === viewpoint)
-                .map((det) => new DetectionClass(det));
+                .map((det) => new Detection(det));
               this.viewportsData[viewpoint] = {
                 imageData,
                 detectionData: [],

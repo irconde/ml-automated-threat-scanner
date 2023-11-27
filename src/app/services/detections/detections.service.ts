@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import {
   BoundingBox,
+  Detection,
   DetectionAlgorithm,
-  DetectionClass,
   DetectionGroupMetaData,
   DetectionGroups,
   Point,
@@ -13,8 +13,8 @@ import { v4 as guid } from 'uuid';
 import { updateCornerstoneViewports } from '../../utilities/cornerstone.utilities';
 
 export interface DetectionsMap {
-  top: DetectionClass[];
-  side: DetectionClass[];
+  top: Detection[];
+  side: Detection[];
 }
 
 @Injectable({
@@ -23,8 +23,8 @@ export interface DetectionsMap {
 export class DetectionsService {
   private detectionData: BehaviorSubject<DetectionsMap> =
     new BehaviorSubject<DetectionsMap>({ top: [], side: [] });
-  private selectedDetection: BehaviorSubject<DetectionClass | null> =
-    new BehaviorSubject<DetectionClass | null>(null);
+  private selectedDetection: BehaviorSubject<Detection | null> =
+    new BehaviorSubject<Detection | null>(null);
   public labels: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
   private detectionsGroupsMetadata: BehaviorSubject<DetectionGroups> =
     new BehaviorSubject({});
@@ -176,7 +176,7 @@ export class DetectionsService {
     updateCornerstoneViewports();
   }
 
-  getSelectedDetection(): Observable<DetectionClass | null> {
+  getSelectedDetection(): Observable<Detection | null> {
     return this.selectedDetection.asObservable();
   }
 
@@ -202,8 +202,8 @@ export class DetectionsService {
     viewpoint: keyof DetectionsMap,
     boundingBox: BoundingBox,
     polygonMask: Point[] | undefined,
-  ): DetectionClass {
-    const newDetection: DetectionClass = new DetectionClass({
+  ): Detection {
+    const newDetection: Detection = new Detection({
       viewpoint,
       polygonMask,
       boundingBox,
@@ -245,7 +245,7 @@ export class DetectionsService {
    * Toggles the visibility of a single detection
    * @param detection
    */
-  toggleDetectionVisibility(detection: DetectionClass) {
+  toggleDetectionVisibility(detection: Detection) {
     let detectionGroupName = '';
 
     // Loop through detections to find the given detection by id and update its visibility

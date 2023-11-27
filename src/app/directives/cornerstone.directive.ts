@@ -6,14 +6,9 @@ import {
   Input,
 } from '@angular/core';
 import { ViewportData, ViewportsMap } from '../../models/viewport';
-import {
-  Coordinate2D,
-  DetectionClass,
-  Dimension2D,
-} from '../../models/detection';
+import { Coordinate2D, Detection, Dimension2D } from '../../models/detection';
 import { DETECTION_STYLE } from '../../enums/detection-styles';
 import {
-  displayDetection,
   getBboxFromHandles,
   getBoundingBoxArea,
   pointInRect,
@@ -51,7 +46,7 @@ export class CornerstoneDirective implements AfterViewInit {
   private mousePosition: Coordinate2D = { x: 0, y: 0 };
   private imageDimensions: Dimension2D = { width: 0, height: 0 };
   private context: CanvasRenderingContext2D | null | undefined = undefined;
-  private detections: DetectionClass[] = [];
+  private detections: Detection[] = [];
   private isClickListenerActive = false;
 
   constructor(
@@ -296,9 +291,8 @@ export class CornerstoneDirective implements AfterViewInit {
         );
 
         this.detections.forEach((det) =>
-          displayDetection(
+          det.display(
             context,
-            det,
             anyDetectionsSelected,
             CURRENT_EDITION_MODE,
             zoom,

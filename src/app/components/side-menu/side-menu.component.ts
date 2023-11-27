@@ -5,10 +5,7 @@ import {
   DetectionsMap,
   DetectionsService,
 } from '../../services/detections/detections.service';
-import {
-  DetectionClass,
-  DetectionGroupMetaData,
-} from '../../../models/detection';
+import { Detection, DetectionGroupMetaData } from '../../../models/detection';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
@@ -20,7 +17,7 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class SideMenuComponent {
   public isOpen: boolean = false;
-  public detectionsGroups: Record<string, DetectionClass[]> = {};
+  public detectionsGroups: Record<string, Detection[]> = {};
   public detectionsGroupMetaData: Record<string, DetectionGroupMetaData> = {};
 
   constructor(
@@ -45,7 +42,7 @@ export class SideMenuComponent {
     return Object.keys(this.detectionsGroups);
   }
 
-  public handleDetectionClick(detection: DetectionClass) {
+  public handleDetectionClick(detection: Detection) {
     if (!detection.visible) return;
     const groupName = detection.groupName;
     if (
@@ -63,18 +60,19 @@ export class SideMenuComponent {
 
   private setDetectionsGroups(detections: DetectionsMap) {
     const allDetections = [...detections.side, ...detections.top];
-    this.detectionsGroups = allDetections.reduce<
-      Record<string, DetectionClass[]>
-    >((map, currentDetection) => {
-      const groupName = currentDetection.groupName;
-      if (map[groupName]) {
-        map[groupName].push(currentDetection);
-      } else {
-        map[groupName] = [currentDetection];
-      }
+    this.detectionsGroups = allDetections.reduce<Record<string, Detection[]>>(
+      (map, currentDetection) => {
+        const groupName = currentDetection.groupName;
+        if (map[groupName]) {
+          map[groupName].push(currentDetection);
+        } else {
+          map[groupName] = [currentDetection];
+        }
 
-      return map;
-    }, {});
+        return map;
+      },
+      {},
+    );
   }
 
   handleGroupChevronClick(event: MouseEvent, groupName: string) {
@@ -93,7 +91,7 @@ export class SideMenuComponent {
     }
   }
 
-  handleDetectionEyeClick(event: MouseEvent, detection: DetectionClass) {
+  handleDetectionEyeClick(event: MouseEvent, detection: Detection) {
     event.stopPropagation();
     this.detectionsService.toggleDetectionVisibility(detection);
   }

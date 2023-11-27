@@ -1,18 +1,10 @@
 import {
   BoundingBox,
   Coordinate2D,
-  DetectionClass,
   Point,
   PolygonData,
 } from '../../models/detection';
 import { CornerstoneBboxHandles, PolygonPoint } from '../../models/cornerstone';
-import { EditionMode } from '../../enums/cornerstone';
-import {
-  getTextLabelSize,
-  hexToCssRgba,
-  limitCharCount,
-} from './text.utilities';
-import { DETECTION_STYLE } from '../../enums/detection-styles';
 
 /**
  * Converts COCO bbox to a bounding box
@@ -519,82 +511,6 @@ export const getBboxFromHandles = ({
  */
 export const getBoundingBoxArea = (bbox: BoundingBox): number => {
   return bbox[2] * bbox[3];
-};
-
-export const displayDetection = (
-  context: CanvasRenderingContext2D,
-  detection: DetectionClass,
-  anyDetectionSelected: boolean,
-  editionMode: EditionMode,
-  zoom: number,
-) => {
-  if (
-    !detection.visible ||
-    (detection.selected && editionMode !== EditionMode.NoTool)
-  ) {
-    return;
-  }
-
-  const renderColor = getDetectionRenderColor(detection, anyDetectionSelected);
-  context.strokeStyle = renderColor;
-  context.fillStyle = renderColor;
-
-  const [x, y, w, h] = detection.boundingBox;
-
-  context.strokeRect(x, y, w, h);
-
-  context.globalAlpha = 0.5;
-  if ('polygonMask' in detection && detection.polygonMask?.length) {
-    renderPolygonMasks(context, detection.polygonMask);
-  } else if (detection.binaryMask) {
-    renderBinaryMasks(detection.binaryMask, context, zoom);
-  }
-
-  context.globalAlpha = 1.0;
-
-  renderDetectionLabel(context, detection, zoom);
-};
-
-/**
- * Draws the detection label with the font size based on the zoom level
- */
-export const renderDetectionLabel = (
-  context: CanvasRenderingContext2D,
-  detection: DetectionClass,
-  zoom: number,
-) => {
-  const labelText = limitCharCount(detection.className);
-  const { LABEL_PADDING, LABEL_HEIGHT } = DETECTION_STYLE;
-  const { width, height } = getTextLabelSize(
-    context,
-    labelText,
-    LABEL_PADDING.LEFT,
-    zoom,
-    LABEL_HEIGHT,
-  );
-
-  const [x, y] = detection.boundingBox;
-  context.fillRect(x - context.lineWidth / 2, y - height, width, height);
-  context.fillStyle = DETECTION_STYLE.LABEL_TEXT_COLOR;
-  context.fillText(
-    labelText,
-    x + (LABEL_PADDING.LEFT - 1) / zoom,
-    y - LABEL_PADDING.BOTTOM / zoom,
-  );
-};
-
-/**
- * Returns the detection color based on whether it's selected, or another detection is selected
- */
-export const getDetectionRenderColor = (
-  detection: DetectionClass,
-  anyDetectionSelected: boolean,
-): string => {
-  if (detection.selected) {
-    return DETECTION_STYLE.SELECTED_COLOR;
-  } else if (anyDetectionSelected) {
-    return hexToCssRgba(detection.color);
-  } else return detection.color;
 };
 
 /**

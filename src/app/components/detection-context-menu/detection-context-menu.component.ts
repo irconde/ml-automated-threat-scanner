@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Coordinate2D, DetectionClass } from '../../../models/detection';
+import { Coordinate2D, Detection } from '../../../models/detection';
 import { DetectionsService } from '../../services/detections/detections.service';
 import { cornerstone } from '../../csSetup';
 import { getViewportByViewpoint } from '../../utilities/cornerstone.utilities';
@@ -60,7 +60,7 @@ export class DetectionContextMenuComponent {
     });
   }
 
-  updatePosition(selectedDetection: DetectionClass | null) {
+  updatePosition(selectedDetection: Detection | null) {
     if (selectedDetection === null) {
       this.position = null;
       return;

@@ -15,7 +15,6 @@ export const DETECTION_STYLE = {
     LEFT: 10,
     BOTTOM: 8,
   },
-  LABEL_FONT: 'bold 13px Noto Sans JP',
   FONT_DETAILS: {
     FAMILY: 'Noto Sans JP',
     SIZE: 13,
@@ -28,5 +27,3 @@ export const DETECTION_STYLE = {
   LABEL_TEXT_COLOR: COLORS.WHITE,
   BORDER_WIDTH: 2,
 } as const;
-
-

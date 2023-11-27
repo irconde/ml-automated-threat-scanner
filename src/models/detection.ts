@@ -1,4 +1,14 @@
-import { CommonDetections } from '../enums/cornerstone';
+import { CommonDetections, EditionMode } from '../enums/cornerstone';
+import {
+  getTextLabelSize,
+  hexToCssRgba,
+  limitCharCount,
+} from '../app/utilities/text.utilities';
+import { DETECTION_STYLE } from '../enums/detection-styles';
+import {
+  renderBinaryMasks,
+  renderPolygonMasks,
+} from '../app/utilities/detection.utilities';
 
 export type BoundingBox = number[];
 export type Coordinate2D = { x: number; y: number };
@@ -52,7 +62,7 @@ export type DetectionGroupMetaData = {
 
 export type DetectionGroups = Record<string, DetectionGroupMetaData>;
 
-export class DetectionClass {
+export class Detection {
   algorithm: string;
   className: string;
   confidence: number;
@@ -94,4 +104,69 @@ export class DetectionClass {
   public get groupName() {
     return this.algorithm || this.categoryName;
   }
+
+  public display = (
+    context: CanvasRenderingContext2D,
+    anyDetectionSelected: boolean,
+    editionMode: EditionMode,
+    zoom: number,
+  ) => {
+    if (
+      !this.visible ||
+      (this.selected && editionMode !== EditionMode.NoTool)
+    ) {
+      return;
+    }
+
+    const renderColor = this.getRenderColor(anyDetectionSelected);
+    context.strokeStyle = renderColor;
+    context.fillStyle = renderColor;
+
+    const [x, y, w, h] = this.boundingBox;
+
+    context.strokeRect(x, y, w, h);
+
+    context.globalAlpha = 0.5;
+    if ('polygonMask' in this && this.polygonMask?.length) {
+      renderPolygonMasks(context, this.polygonMask);
+    } else if (this.binaryMask) {
+      renderBinaryMasks(this.binaryMask, context, zoom);
+    }
+
+    context.globalAlpha = 1.0;
+
+    this.renderLabel(context, zoom);
+  };
+
+  /**
+   * Draws the detection label with the font size based on the zoom level
+   */
+  private renderLabel = (context: CanvasRenderingContext2D, zoom: number) => {
+    const labelText = limitCharCount(this.className);
+    const { LABEL_PADDING, LABEL_HEIGHT } = DETECTION_STYLE;
+    const { width, height } = getTextLabelSize(
+      context,
+      labelText,
+      LABEL_PADDING.LEFT,
+      zoom,
+      LABEL_HEIGHT,
+    );
+
+    const [x, y] = this.boundingBox;
+    context.fillRect(x - context.lineWidth / 2, y - height, width, height);
+    context.fillStyle = DETECTION_STYLE.LABEL_TEXT_COLOR;
+    context.fillText(
+      labelText,
+      x + (LABEL_PADDING.LEFT - 1) / zoom,
+      y - LABEL_PADDING.BOTTOM / zoom,
+    );
+  };
+
+  private getRenderColor = (anyDetectionSelected: boolean): string => {
+    if (this.selected) {
+      return DETECTION_STYLE.SELECTED_COLOR;
+    } else if (anyDetectionSelected) {
+      return hexToCssRgba(this.color);
+    } else return this.color;
+  };
 }
