@@ -13,6 +13,7 @@ import {
   limitCharCount,
 } from './text.utilities';
 import { DETECTION_STYLE } from '../../enums/detection-styles';
+import { isModeAnyOf } from './cornerstone.utilities';
 
 /**
  * Converts COCO bbox to a bounding box
@@ -533,7 +534,13 @@ export const displayDetection = (
 ) => {
   if (
     !detection.visible ||
-    (detection.selected && editionMode !== EditionMode.NoTool)
+    (detection.selected &&
+      isModeAnyOf(
+        editionMode,
+        EditionMode.Bounding,
+        EditionMode.Polygon,
+        EditionMode.Move,
+      ))
   ) {
     return;
   }

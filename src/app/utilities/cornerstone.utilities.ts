@@ -190,3 +190,10 @@ export const getViewportByViewpoint = (viewpoint: string): HTMLElement => {
   if (viewport) return viewport;
   else throw Error(`Viewpoint ${viewpoint} is unknown`);
 };
+
+/**
+ * Given a variable as a first argument, it returns true if any of the rest of arguments match the first argument
+ * @param mode
+ * @param args
+ */
+export const isModeAnyOf = <T>(mode: T, ...args: T[]) => args.includes(mode);

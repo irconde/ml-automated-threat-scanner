@@ -46,13 +46,27 @@ export class DetectionContextMenuComponent {
   showPolygonIcon = false;
   detectionColor = '#ffffff';
   selectedDetection: Detection | null = null;
-  show: boolean = false;
+  visible: boolean = false;
+  editionMode: EditionMode = EditionMode.NoTool;
   readonly yGap = 5;
 
   constructor(
     private detectionService: DetectionsService,
     private csService: CornerstoneService,
   ) {
+    this.csService.getCsConfiguration().subscribe((config) => {
+      const hideMenuMode = this.isEditionBoundOrPoly(config.editionMode);
+
+      // if menu is visible and edition mode is changed to bounding or polygon
+      if (this.visible && hideMenuMode) {
+        this.hideMenu();
+      }
+      // the current mode is bounding or polygon, and it just got updated to something else
+      else if (this.isEditionBoundOrPoly(this.editionMode) && !hideMenuMode) {
+        this.visible = true;
+      }
+      this.editionMode = config.editionMode;
+    });
     this.detectionService
       .getSelectedDetection()
       .subscribe((selectedDetection) => {
@@ -68,8 +82,12 @@ export class DetectionContextMenuComponent {
   }
 
   private hideMenu() {
-    this.show = false;
+    this.visible = false;
     this.position = null;
+  }
+
+  private isEditionBoundOrPoly(mode: EditionMode) {
+    return mode === EditionMode.Bounding || mode === EditionMode.Polygon;
   }
 
   updatePosition(selectedDetection: Detection | null) {
@@ -96,7 +114,7 @@ export class DetectionContextMenuComponent {
     });
 
     this.position = { x: x + viewportOffset, y: y + this.yGap };
-    this.show = true;
+    this.visible = true;
   }
 
   private enableBoundingDetectionEdition() {
