@@ -1,3 +1,5 @@
+import { CommonDetections } from '../enums/cornerstone';
+
 export type BoundingBox = number[];
 export type Coordinate2D = { x: number; y: number };
 export type Dimension2D = { width: number; height: number };
@@ -33,18 +35,6 @@ export interface RawCocoDetection extends RawGeneralDetection {
 
 export type RawDetection = RawCocoDetection | RawDicosDetection;
 
-interface DetectionStateProps {
-  selected: boolean;
-  visible: boolean;
-  color: string;
-  categorySelected: boolean;
-  id: string;
-  iscrowd: 1 | 0;
-  categoryName: string;
-}
-
-export type Detection = RawDetection & DetectionStateProps;
-
 export interface DetectionAlgorithm
   extends Partial<{
     name: string;
@@ -53,14 +43,6 @@ export interface DetectionAlgorithm
     series: string;
     study: string;
   }> {}
-
-export interface CornerstoneClickEvent extends Event {
-  detail?: {
-    currentPoints?: {
-      canvas?: Coordinate2D;
-    };
-  };
-}
 
 export type DetectionGroupMetaData = {
   selected: boolean;
@@ -87,7 +69,7 @@ export class DetectionClass {
   polygonMask?: Point[] = undefined;
   imageId?: string;
 
-  constructor(detection: Detection) {
+  constructor(detection: RawDetection) {
     this.algorithm = detection.algorithm;
     this.className = detection.className;
     this.confidence = detection.confidence;
@@ -96,17 +78,17 @@ export class DetectionClass {
     this.uuid = detection.uuid;
     this.detectionFromFile = detection.detectionFromFile;
     this.boundingBox = detection.boundingBox;
-    this.selected = false;
-    this.visible = true;
-    this.color = detection.color;
-    this.iscrowd = detection.iscrowd;
-    this.categoryName = detection.categoryName;
     if ('polygonMask' in detection) {
       this.polygonMask = detection.polygonMask;
     }
     if ('imageId' in detection) {
       this.imageId = detection.imageId;
     }
+    this.selected = false;
+    this.visible = true;
+    this.color = 'orange';
+    this.iscrowd = 0;
+    this.categoryName = CommonDetections.Operator;
   }
 
   public get groupName() {

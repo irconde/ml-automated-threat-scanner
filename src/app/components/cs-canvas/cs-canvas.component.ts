@@ -9,7 +9,7 @@ import { KeyValuePipe, NgClass, NgForOf, NgIf, NgStyle } from '@angular/common';
 import { DetectionToolboxFabComponent } from '../detection-toolbox-fab/detection-toolbox-fab.component';
 import { ViewportsMap } from '../../../models/viewport';
 import { DetectionsService } from '../../services/detections/detections.service';
-import { DetectionClass, RawDetection } from '../../../models/detection';
+import { DetectionClass } from '../../../models/detection';
 import { CornerstoneMode } from '../../../enums/cornerstone';
 import { cornerstoneTools } from '../../csSetup';
 import BoundingBoxDrawingTool from '../../utilities/cornerstone-tools/BoundingBoxDrawingTool';
@@ -108,7 +108,7 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
             this.csService.getImageData(pixelData).subscribe((imageData) => {
               const detectionData = parsedFile.detectionData
                 .filter((detect) => detect.viewpoint === viewpoint)
-                .map(this.getDetection);
+                .map((det) => new DetectionClass(det));
               this.viewportsData[viewpoint] = {
                 imageData,
                 detectionData: [],
@@ -142,22 +142,5 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
     cornerstoneTools.addTool(BoundingBoxDrawingTool);
     cornerstoneTools.addTool(PolygonDrawingTool);
     cornerstoneTools.addTool(AnnotationMovementTool);
-  }
-
-  /**
-   * Converts a raw detection to a detection for the application to use
-   */
-  private getDetection(rawDetection: RawDetection): DetectionClass {
-    return new DetectionClass({
-      ...rawDetection,
-      // TODO: set these values to something that makes sense
-      selected: false,
-      categorySelected: false,
-      visible: true,
-      id: '',
-      iscrowd: 0,
-      color: 'orange',
-      categoryName: rawDetection.className,
-    });
   }
 }

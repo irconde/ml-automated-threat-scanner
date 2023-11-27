@@ -207,20 +207,12 @@ export class DetectionsService {
       viewpoint,
       polygonMask,
       boundingBox,
-      selected: false,
-      categorySelected: false,
-      visible: true,
-      iscrowd: 0,
       detectionFromFile: false,
       className: CommonDetections.Unknown,
-      color: 'orange',
       uuid: guid(),
-      // TODO: update below properties to the default
       confidence: 0,
       imageId: '',
-      id: '',
       algorithm: '',
-      categoryName: CommonDetections.Operator,
     });
     this.setDetectionData({
       ...this.detectionData.value,
