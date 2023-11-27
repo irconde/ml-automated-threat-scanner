@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Coordinate2D, Detection } from '../../../models/detection';
+import { Coordinate2D, DetectionClass } from '../../../models/detection';
 import { DetectionsService } from '../../services/detections/detections.service';
 import { cornerstone } from '../../csSetup';
 import { getViewportByViewpoint } from '../../utilities/cornerstone.utilities';
@@ -60,15 +60,12 @@ export class DetectionContextMenuComponent {
     });
   }
 
-  updatePosition(selectedDetection: Detection | null) {
+  updatePosition(selectedDetection: DetectionClass | null) {
     if (selectedDetection === null) {
       this.position = null;
       return;
     }
-    this.showPolygonIcon = Boolean(
-      'polygonMask' in selectedDetection &&
-        selectedDetection?.polygonMask?.length,
-    );
+    this.showPolygonIcon = Boolean(selectedDetection?.polygonMask?.length);
     const GAP = 5;
     const width = selectedDetection.boundingBox[2];
     const height = selectedDetection.boundingBox[3];

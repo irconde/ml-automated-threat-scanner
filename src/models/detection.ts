@@ -70,6 +70,46 @@ export type DetectionGroupMetaData = {
 
 export type DetectionGroups = Record<string, DetectionGroupMetaData>;
 
-// TODO: move these methods to Detections class
-export const getDetectionGroupName = (detection: Detection) =>
-  detection.algorithm || detection.categoryName;
+export class DetectionClass {
+  algorithm: string;
+  className: string;
+  confidence: number;
+  viewpoint: string;
+  binaryMask?: number[][];
+  uuid: string;
+  detectionFromFile: boolean;
+  boundingBox: BoundingBox;
+  selected: boolean;
+  visible: boolean;
+  color: string;
+  iscrowd: 1 | 0;
+  categoryName: string;
+  polygonMask?: Point[] = undefined;
+  imageId?: string;
+
+  constructor(detection: Detection) {
+    this.algorithm = detection.algorithm;
+    this.className = detection.className;
+    this.confidence = detection.confidence;
+    this.binaryMask = detection.binaryMask;
+    this.viewpoint = detection.viewpoint;
+    this.uuid = detection.uuid;
+    this.detectionFromFile = detection.detectionFromFile;
+    this.boundingBox = detection.boundingBox;
+    this.selected = false;
+    this.visible = true;
+    this.color = detection.color;
+    this.iscrowd = detection.iscrowd;
+    this.categoryName = detection.categoryName;
+    if ('polygonMask' in detection) {
+      this.polygonMask = detection.polygonMask;
+    }
+    if ('imageId' in detection) {
+      this.imageId = detection.imageId;
+    }
+  }
+
+  public get groupName() {
+    return this.algorithm || this.categoryName;
+  }
+}

@@ -9,7 +9,7 @@ import { KeyValuePipe, NgClass, NgForOf, NgIf, NgStyle } from '@angular/common';
 import { DetectionToolboxFabComponent } from '../detection-toolbox-fab/detection-toolbox-fab.component';
 import { ViewportsMap } from '../../../models/viewport';
 import { DetectionsService } from '../../services/detections/detections.service';
-import { Detection, RawDetection } from '../../../models/detection';
+import { DetectionClass, RawDetection } from '../../../models/detection';
 import { CornerstoneMode } from '../../../enums/cornerstone';
 import { cornerstoneTools } from '../../csSetup';
 import BoundingBoxDrawingTool from '../../utilities/cornerstone-tools/BoundingBoxDrawingTool';
@@ -147,8 +147,8 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
   /**
    * Converts a raw detection to a detection for the application to use
    */
-  private getDetection(rawDetection: RawDetection): Detection {
-    return {
+  private getDetection(rawDetection: RawDetection): DetectionClass {
+    return new DetectionClass({
       ...rawDetection,
       // TODO: set these values to something that makes sense
       selected: false,
@@ -158,6 +158,6 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
       iscrowd: 0,
       color: 'orange',
       categoryName: rawDetection.className,
-    };
+    });
   }
 }

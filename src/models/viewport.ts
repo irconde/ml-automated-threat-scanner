@@ -1,9 +1,9 @@
 import { cornerstone } from '../app/csSetup';
-import { Detection } from './detection';
+import { DetectionClass } from './detection';
 
 export interface ViewportData {
   imageData: cornerstone.Image | null;
-  detectionData: Detection[];
+  detectionData: DetectionClass[];
 }
 
 export interface ViewportsMap {

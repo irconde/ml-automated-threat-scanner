@@ -1,7 +1,7 @@
 import {
   BoundingBox,
   Coordinate2D,
-  Detection,
+  DetectionClass,
   Point,
   PolygonData,
 } from '../../models/detection';
@@ -523,7 +523,7 @@ export const getBoundingBoxArea = (bbox: BoundingBox): number => {
 
 export const displayDetection = (
   context: CanvasRenderingContext2D,
-  detection: Detection,
+  detection: DetectionClass,
   anyDetectionSelected: boolean,
   editionMode: EditionMode,
   zoom: number,
@@ -560,7 +560,7 @@ export const displayDetection = (
  */
 export const renderDetectionLabel = (
   context: CanvasRenderingContext2D,
-  detection: Detection,
+  detection: DetectionClass,
   zoom: number,
 ) => {
   const labelText = limitCharCount(detection.className);
@@ -587,7 +587,7 @@ export const renderDetectionLabel = (
  * Returns the detection color based on whether it's selected, or another detection is selected
  */
 export const getDetectionRenderColor = (
-  detection: Detection,
+  detection: DetectionClass,
   anyDetectionSelected: boolean,
 ): string => {
   if (detection.selected) {

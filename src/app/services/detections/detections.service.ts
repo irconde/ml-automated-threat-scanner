@@ -1,25 +1,20 @@
 import { Injectable } from '@angular/core';
 import {
   BoundingBox,
-  Detection,
   DetectionAlgorithm,
+  DetectionClass,
   DetectionGroupMetaData,
   DetectionGroups,
-  getDetectionGroupName,
   Point,
 } from '../../../models/detection';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { CommonDetections } from '../../../enums/cornerstone';
 import { v4 as guid } from 'uuid';
-import {
-  getViewportByViewpoint,
-  updateCornerstoneViewports,
-} from '../../utilities/cornerstone.utilities';
-import { cornerstone } from '../../csSetup';
+import { updateCornerstoneViewports } from '../../utilities/cornerstone.utilities';
 
 export interface DetectionsMap {
-  top: Detection[];
-  side: Detection[];
+  top: DetectionClass[];
+  side: DetectionClass[];
 }
 
 @Injectable({
@@ -28,8 +23,8 @@ export interface DetectionsMap {
 export class DetectionsService {
   private detectionData: BehaviorSubject<DetectionsMap> =
     new BehaviorSubject<DetectionsMap>({ top: [], side: [] });
-  private selectedDetection: BehaviorSubject<Detection | null> =
-    new BehaviorSubject<Detection | null>(null);
+  private selectedDetection: BehaviorSubject<DetectionClass | null> =
+    new BehaviorSubject<DetectionClass | null>(null);
   public labels: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
   private detectionsGroupsMetadata: BehaviorSubject<DetectionGroups> =
     new BehaviorSubject({});
@@ -108,8 +103,7 @@ export class DetectionsService {
       ) {
         if (prop === 'selected') this.clearDetectionsSelection();
         this.allDetections.forEach((det) => {
-          const detectionGroupName = getDetectionGroupName(det);
-          if (detectionGroupName === groupName) {
+          if (det.groupName === groupName) {
             det[prop] = propNewValue;
             if (prop === 'visible') det.selected = false;
           }
@@ -138,7 +132,7 @@ export class DetectionsService {
   private setDetectionsGroupsMetadata() {
     const detectionGroups = this.allDetections.reduce<DetectionGroups>(
       (result, detection) => {
-        const groupName = getDetectionGroupName(detection);
+        const groupName = detection.groupName;
         if (!result[groupName]) {
           // get the current values for the groups
           const { collapsed, visible } = this.detectionsGroupsMetadata.value[
@@ -182,13 +176,8 @@ export class DetectionsService {
     updateCornerstoneViewports();
   }
 
-  getSelectedDetection(): Observable<Detection | null> {
+  getSelectedDetection(): Observable<DetectionClass | null> {
     return this.selectedDetection.asObservable();
-  }
-
-  getZoomLevel(selectedDetection: Detection) {
-    const viewport = getViewportByViewpoint(selectedDetection.viewpoint);
-    return cornerstone.getViewport(viewport)?.scale;
   }
 
   getLabels(): Observable<string[]> {
@@ -213,8 +202,8 @@ export class DetectionsService {
     viewpoint: keyof DetectionsMap,
     boundingBox: BoundingBox,
     polygonMask: Point[] | undefined,
-  ): Detection {
-    const newDetection: Detection = {
+  ): DetectionClass {
+    const newDetection: DetectionClass = new DetectionClass({
       viewpoint,
       polygonMask,
       boundingBox,
@@ -232,7 +221,7 @@ export class DetectionsService {
       id: '',
       algorithm: '',
       categoryName: CommonDetections.Operator,
-    };
+    });
     this.setDetectionData({
       ...this.detectionData.value,
       [viewpoint]: [...this.detectionData.value[viewpoint], newDetection],
@@ -241,7 +230,7 @@ export class DetectionsService {
     this.selectDetection(newDetection.uuid, viewpoint);
 
     // upon detection creation, ensure the group name is visible
-    const groupName = getDetectionGroupName(newDetection);
+    const groupName = newDetection.groupName;
     if (!this.detectionsGroupsMetadata.value[groupName].visible) {
       this.toggleDetectionGroupProp(groupName, 'visible', false);
     }
@@ -264,14 +253,14 @@ export class DetectionsService {
    * Toggles the visibility of a single detection
    * @param detection
    */
-  toggleDetectionVisibility(detection: Detection) {
+  toggleDetectionVisibility(detection: DetectionClass) {
     let detectionGroupName = '';
 
     // Loop through detections to find the given detection by id and update its visibility
     for (const det of this.allDetections) {
       if (det.uuid === detection.uuid) {
         det.visible = !det.visible;
-        detectionGroupName = getDetectionGroupName(det); // Get the group name
+        detectionGroupName = det.groupName; // Get the group name
         if (det.uuid === this.selectedDetection.value?.uuid) {
           det.selected = false;
           this.selectedDetection.next(null);
@@ -282,8 +271,7 @@ export class DetectionsService {
 
     // Determine the group visibility based on the updated detection
     const groupVisible = this.allDetections.some((det) => {
-      const groupName = getDetectionGroupName(det);
-      return groupName === detectionGroupName && det.visible;
+      return det.groupName === detectionGroupName && det.visible;
     });
 
     this.toggleDetectionGroupProp(
