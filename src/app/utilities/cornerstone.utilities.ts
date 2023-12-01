@@ -133,11 +133,11 @@ export const setBoundingEditToolActive = (selectedDetection: Detection) => {
       },
       start_prima: {
         x: selectedDetection.boundingBox[0],
-        y: selectedDetection.boundingBox[1] + selectedDetection.boundingBox[3],
+        y: selectedDetection.boundingBox[1],
       },
       end_prima: {
         x: selectedDetection.boundingBox[0] + selectedDetection.boundingBox[2],
-        y: selectedDetection.boundingBox[1],
+        y: selectedDetection.boundingBox[1] + selectedDetection.boundingBox[3],
       },
     },
     id: selectedDetection.uuid,
