@@ -6,15 +6,9 @@ import {
   Input,
 } from '@angular/core';
 import { ViewportData, ViewportsMap } from '../../models/viewport';
-import {
-  Coordinate2D,
-  Detection,
-  Dimension2D,
-  Point,
-} from '../../models/detection';
+import { Coordinate2D, Detection, Dimension2D } from '../../models/detection';
 import { DETECTION_STYLE } from '../../enums/detection-styles';
 import {
-  calculatePolygonMask,
   displayDetection,
   getBboxFromHandles,
   getBoundingBoxArea,
@@ -381,20 +375,20 @@ export class CornerstoneDirective implements AfterViewInit {
       return;
     }
 
+    console.log(structuredClone(toolState));
     const { handles, segmentation } = toolState.data[0];
-    console.log(segmentation);
     const bbox = getBboxFromHandles({ start: handles.start, end: handles.end });
-    const newSegmentation: Point[][] = [];
-    // TODO: fix segmentation type issue
-    if (segmentation?.length) {
-      segmentation.forEach((segment) => {
-        newSegmentation.push(calculatePolygonMask(bbox, segment));
-      });
-    }
+    // const newSegmentation = segmentation
+    //   ? calculatePolygonMask(bbox, segmentation)uh
+    //   : undefined;
+    // // TODO: fix segmentation type issue
+    // if (segmentation?.length) {
+    //   segmentation.forEach((segment) => {
+    //     newSegmentation.push(calculatePolygonMask(bbox, segment));
+    //   });
+    // }
 
-    console.log(newSegmentation);
-
-    this.detectionsService.updateSelectedDetection(bbox, undefined);
+    this.detectionsService.updateSelectedDetection(bbox, segmentation);
 
     resetCornerstoneTools(this.element);
     cornerstone.updateImage(this.element, false);

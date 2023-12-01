@@ -148,9 +148,9 @@ export const setBoundingEditToolActive = (selectedDetection: Detection) => {
     confidence: selectedDetection.confidence,
     updatingDetection: true,
     view: selectedDetection.viewpoint,
-    polygonCoords:
+    segmentation:
       'polygonMask' in selectedDetection
-        ? selectedDetection.polygonMask
+        ? structuredClone(selectedDetection.polygonMask)
         : undefined,
     binaryMask: selectedDetection.binaryMask,
   };

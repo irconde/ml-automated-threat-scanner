@@ -23,7 +23,7 @@ interface BoundingEditUpdate {
   uuid: string;
   active: boolean;
   invalidated: boolean;
-  segmentation?: Array<Point[]>;
+  segmentation?: Point[];
 }
 
 export type BoundingEditToolState =
