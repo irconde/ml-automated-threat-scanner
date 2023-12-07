@@ -122,27 +122,28 @@ export const resetCornerstoneTools = (viewport: HTMLElement) => {
 export const setBoundingEditToolActive = (selectedDetection: Detection) => {
   // resetCornerstoneTool()
   // bbox = [x_0, y_0, w, h]
+  const [x_0, y_0, width, height] = selectedDetection.boundingBox;
   const data = {
     handles: {
       // Top left
       start: {
-        x: selectedDetection.boundingBox[0],
-        y: selectedDetection.boundingBox[1],
+        x: x_0,
+        y: y_0,
       },
       // Bottom Right
       end: {
-        x: selectedDetection.boundingBox[0] + selectedDetection.boundingBox[2],
-        y: selectedDetection.boundingBox[1] + selectedDetection.boundingBox[3],
-      },
-      // Top right
-      start_prima: {
-        x: selectedDetection.boundingBox[0] + selectedDetection.boundingBox[2],
-        y: selectedDetection.boundingBox[1],
+        x: x_0 + width,
+        y: y_0 + height,
       },
       // Bottom Left
+      start_prima: {
+        x: x_0,
+        y: y_0 + height,
+      },
+      // Top Right
       end_prima: {
-        x: selectedDetection.boundingBox[0],
-        y: selectedDetection.boundingBox[3] + selectedDetection.boundingBox[1],
+        x: x_0 + width,
+        y: y_0,
       },
     },
     id: selectedDetection.uuid,
@@ -159,11 +160,7 @@ export const setBoundingEditToolActive = (selectedDetection: Detection) => {
         : undefined,
     binaryMask: selectedDetection.binaryMask,
   };
-  console.log('Data');
-  console.log(data);
-  console.log('------------------------------------------------------------');
-  console.log('Bounding Box');
-  console.log(selectedDetection.boundingBox);
+  console.log({ polygonPassed: data.segmentation });
 
   const viewport = getViewportByViewpoint(selectedDetection.viewpoint);
   cornerstoneTools.addToolState(viewport, ToolNames.BoundingBox, data);

@@ -395,7 +395,6 @@ export const calculatePolygonMask = (
   polygonData: Array<Point>,
 ): Array<Point> => {
   let newPolygonData = JSON.parse(JSON.stringify(polygonData)) as Array<Point>;
-  console.log({ newPolygonData });
   const xDist = boundingBox[2] - boundingBox[0];
   const yDist = boundingBox[3] - boundingBox[1];
   newPolygonData.forEach((point) => {
