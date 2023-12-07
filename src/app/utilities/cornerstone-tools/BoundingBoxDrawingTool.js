@@ -224,7 +224,6 @@ export default class BoundingBoxDrawingTool extends BaseAnnotationTool {
         // First check if it exists, new detections may not have this field built yet
         if (data.segmentation) {
           // Make sure it is non-empty, not all detections will have a mask
-          // for (let z = 0; z < data.segmentation.length; z++) {
 
           const pixelStart = cornerstone.pixelToCanvas(element, {
             x: data.handles.start.x,
@@ -264,9 +263,6 @@ export default class BoundingBoxDrawingTool extends BaseAnnotationTool {
             ];
           }
 
-          const [x_0, y_0, x_f, y_f] = flippedCoords;
-          context.strokeRect(x_0, y_0, x_f - x_0, y_f - y_0);
-
           data.segmentation = calculatePolygonMask(
             flippedCoords,
             data.segmentation,
@@ -277,7 +273,6 @@ export default class BoundingBoxDrawingTool extends BaseAnnotationTool {
 
           renderPolygonMasks(context, data.segmentation);
           context.globalAlpha = 1.0;
-          // }
         }
       }
     });
