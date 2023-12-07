@@ -9,6 +9,7 @@ import { ViewportData, ViewportsMap } from '../../models/viewport';
 import { Coordinate2D, Detection, Dimension2D } from '../../models/detection';
 import { DETECTION_STYLE } from '../../enums/detection-styles';
 import {
+  calculatePolygonMask,
   displayDetection,
   getBboxFromHandles,
   getBoundingBoxArea,
@@ -376,17 +377,15 @@ export class CornerstoneDirective implements AfterViewInit {
     }
 
     console.log(structuredClone(toolState));
-    const { handles, segmentation } = toolState.data[0];
+    let { handles, segmentation } = toolState.data[0];
     const bbox = getBboxFromHandles({ start: handles.start, end: handles.end });
-    // const newSegmentation = segmentation
-    //   ? calculatePolygonMask(bbox, segmentation)uh
-    //   : undefined;
-    // // TODO: fix segmentation type issue
-    // if (segmentation?.length) {
-    //   segmentation.forEach((segment) => {
-    //     newSegmentation.push(calculatePolygonMask(bbox, segment));
-    //   });
-    // }
+
+    if (segmentation !== undefined) {
+      segmentation = calculatePolygonMask(
+        [bbox[0], bbox[1], bbox[0] + bbox[2], bbox[1] + bbox[3]],
+        segmentation,
+      );
+    }
 
     this.detectionsService.updateSelectedDetection(bbox, segmentation);
 
