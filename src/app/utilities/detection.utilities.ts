@@ -1,19 +1,9 @@
-import {
-  BoundingBox,
-  Coordinate2D,
-  Detection,
-  Point,
-  PolygonData,
-} from '../../models/detection';
-import { PolygonPoint } from '../../models/cornerstone';
-import { EditionMode } from '../../enums/cornerstone';
-import {
-  getTextLabelSize,
-  hexToCssRgba,
-  limitCharCount,
-} from './text.utilities';
-import { DETECTION_STYLE } from '../../enums/detection-styles';
-import { isModeAnyOf } from './cornerstone.utilities';
+import {BoundingBox, Coordinate2D, Detection, Point, PolygonData,} from '../../models/detection';
+import {PolygonPoint} from '../../models/cornerstone';
+import {EditionMode} from '../../enums/cornerstone';
+import {getTextLabelSize, hexToCssRgba, limitCharCount,} from './text.utilities';
+import {DETECTION_STYLE} from '../../enums/detection-styles';
+import {isModeAnyOf} from './cornerstone.utilities';
 
 /**
  * Converts COCO bbox to a bounding box
@@ -97,8 +87,8 @@ export const polygonDataToXYArray = (
   polygonData: PolygonPoint[],
   boundingBox: BoundingBox,
 ): Point[] => {
-  const xDist = boundingBox[2] - boundingBox[0];
-  const yDist = boundingBox[3] - boundingBox[1];
+  const xDist = boundingBox[2];
+  const yDist = boundingBox[3];
   const points: Point[] = [];
   for (const index in polygonData) {
     points.push({
@@ -611,7 +601,7 @@ export const getDetectionRenderColor = (
  * Calculates the coordinates of the bounding box enclosing a given polygon
  *
  * @param polygonData - List of handles, i.e., the vertices, of a polygon
- * @returns bounding box - New bounding box coordinates in form of [x_min, y_min, x_max, y_max].
+ * @returns bounding box - New bounding box coordinates in form of [x_min, y_min, width, height].
  */
 export const calculateBoundingBox = (
   polygonData: PolygonPoint[],

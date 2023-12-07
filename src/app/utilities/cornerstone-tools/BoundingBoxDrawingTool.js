@@ -241,50 +241,41 @@ export default class BoundingBoxDrawingTool extends BaseAnnotationTool {
             pixelEnd.y,
           ];
           // Fix flipped rectangle issues
-          // if (pixelStart.x > pixelEnd.x && pixelStart.y > pixelEnd.y) {
-          //   flippedCoords = [
-          //     pixelEnd.x,
-          //     pixelEnd.y,
-          //     pixelStart.x,
-          //     pixelStart.y,
-          //   ];
-          // } else if (pixelStart.x > pixelEnd.x) {
-          //   flippedCoords = [
-          //     pixelEnd.x,
-          //     pixelStart.y,
-          //     pixelStart.x,
-          //     pixelEnd.y,
-          //   ];
-          // } else if (pixelStart.y > pixelEnd.y) {
-          //   flippedCoords = [
-          //     pixelStart.x,
-          //     pixelEnd.y,
-          //     pixelEnd.x,
-          //     pixelStart.y,
-          //   ];
-          // }
+          if (pixelStart.x > pixelEnd.x && pixelStart.y > pixelEnd.y) {
+            flippedCoords = [
+              pixelEnd.x,
+              pixelEnd.y,
+              pixelStart.x,
+              pixelStart.y,
+            ];
+          } else if (pixelStart.x > pixelEnd.x) {
+            flippedCoords = [
+              pixelEnd.x,
+              pixelStart.y,
+              pixelStart.x,
+              pixelEnd.y,
+            ];
+          } else if (pixelStart.y > pixelEnd.y) {
+            flippedCoords = [
+              pixelStart.x,
+              pixelEnd.y,
+              pixelEnd.x,
+              pixelStart.y,
+            ];
+          }
 
           const [x_0, y_0, x_f, y_f] = flippedCoords;
           context.strokeRect(x_0, y_0, x_f - x_0, y_f - y_0);
 
-          let polygonCanvasPoints = data.segmentation.map((segment) => {
-            const { x, y } = cornerstone.pixelToCanvas(element, {
-              x: segment.x,
-              y: segment.y,
-            });
-            return { ...segment, x, y };
-          });
-
-          polygonCanvasPoints = calculatePolygonMask(
+          data.segmentation = calculatePolygonMask(
             flippedCoords,
-            polygonCanvasPoints,
+            data.segmentation,
           );
           context.strokeStyle = DETECTION_STYLE.SELECTED_COLOR;
           context.fillStyle = DETECTION_STYLE.SELECTED_COLOR;
           context.globalAlpha = 0.5;
-          console.log({ polygonInTool: data.segmentation });
 
-          renderPolygonMasks(context, polygonCanvasPoints);
+          renderPolygonMasks(context, data.segmentation);
           context.globalAlpha = 1.0;
           // }
         }
