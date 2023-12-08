@@ -2,6 +2,7 @@ import { cornerstone, cornerstoneTools } from '../csSetup';
 import {
   AnnotationMode,
   CornerstoneMode,
+  EditionMode,
   ToolNames,
 } from '../../enums/cornerstone';
 import { CreatedBoundingBox, PolygonHandles } from '../../models/cornerstone';
@@ -9,7 +10,8 @@ import {
   calculateBoundingBox,
   polygonDataToXYArray,
 } from './detection.utilities';
-import { BoundingBox, Point } from '../../models/detection';
+import { BoundingBox, Detection, Point } from '../../models/detection';
+import { DETECTION_STYLE } from '../../enums/detection-styles';
 
 export const VIEWPORTS_CLASSNAME = 'viewportElement';
 /**
@@ -89,6 +91,94 @@ export const setCornerstoneToolActive = (
   });
 };
 
+export const resetCornerstoneTools = (viewport: HTMLElement) => {
+  cornerstoneTools.setToolDisabled(ToolNames.BoundingBox);
+  cornerstoneTools.setToolDisabled(ToolNames.Polygon);
+  cornerstoneTools.setToolDisabled(ToolNames.AnnotationMovement);
+
+  cornerstoneTools.clearToolState(viewport, ToolNames.BoundingBox);
+  cornerstoneTools.clearToolState(viewport, ToolNames.Polygon);
+  cornerstoneTools.clearToolState(viewport, ToolNames.AnnotationMovement);
+
+  cornerstoneTools.setToolOptions(ToolNames.BoundingBox, {
+    cornerstoneMode: CornerstoneMode.Selection,
+    temporaryLabel: undefined,
+  });
+  cornerstoneTools.setToolOptions(ToolNames.Polygon, {
+    cornerstoneMode: CornerstoneMode.Selection,
+    temporaryLabel: undefined,
+    updatingAnnotation: false,
+  });
+  cornerstoneTools.setToolOptions(ToolNames.AnnotationMovement, {
+    cornerstoneMode: CornerstoneMode.Annotation,
+    temporaryLabel: undefined,
+  });
+
+  cornerstoneTools.setToolActive(ToolNames.Pan, { mouseButtonMask: 1 });
+  cornerstoneTools.setToolActive(ToolNames.ZoomMouseWheel, {});
+  cornerstoneTools.setToolActive(ToolNames.ZoomTouchPinch, {});
+};
+
+export const setBoundingEditToolActive = (selectedDetection: Detection) => {
+  // resetCornerstoneTool()
+  // bbox = [x_0, y_0, w, h]
+  const [x_0, y_0, width, height] = selectedDetection.boundingBox;
+  const data = {
+    handles: {
+      // Top left
+      start: {
+        x: x_0,
+        y: y_0,
+      },
+      // Bottom Right
+      end: {
+        x: x_0 + width,
+        y: y_0 + height,
+      },
+      // Bottom Left
+      start_prima: {
+        x: x_0,
+        y: y_0 + height,
+      },
+      // Top Right
+      end_prima: {
+        x: x_0 + width,
+        y: y_0,
+      },
+    },
+    id: selectedDetection.uuid,
+    categoryName: selectedDetection.categoryName,
+    algorithm: selectedDetection.algorithm,
+    class: selectedDetection.className,
+    renderColor: DETECTION_STYLE.SELECTED_COLOR,
+    confidence: selectedDetection.confidence,
+    updatingDetection: true,
+    view: selectedDetection.viewpoint,
+    segmentation:
+      'polygonMask' in selectedDetection
+        ? structuredClone(selectedDetection.polygonMask)
+        : undefined,
+    binaryMask: selectedDetection.binaryMask,
+  };
+  console.log({ polygonPassed: data.segmentation });
+
+  const viewport = getViewportByViewpoint(selectedDetection.viewpoint);
+  cornerstoneTools.addToolState(viewport, ToolNames.BoundingBox, data);
+
+  cornerstoneTools.setToolActive(ToolNames.BoundingBox, {
+    mouseButtonMask: 1,
+  });
+  cornerstoneTools.setToolActive(ToolNames.Pan, {
+    mouseButtonMask: 1,
+  });
+  cornerstoneTools.setToolOptions(ToolNames.BoundingBox, {
+    cornerstoneMode: CornerstoneMode.Edition,
+    editionMode: EditionMode.Bounding,
+  });
+
+  updateCornerstoneViewports();
+};
+
 /**
  * Called when the side menu visibility is toggled to resize the viewports
  */
@@ -107,3 +197,10 @@ export const getViewportByViewpoint = (viewpoint: string): HTMLElement => {
   if (viewport) return viewport;
   else throw Error(`Viewpoint ${viewpoint} is unknown`);
 };
+
+/**
+ * Given a variable as a first argument, it returns true if any of the rest of arguments match the first argument
+ * @param mode
+ * @param args
+ */
+export const isModeAnyOf = <T>(mode: T, ...args: T[]) => args.includes(mode);
