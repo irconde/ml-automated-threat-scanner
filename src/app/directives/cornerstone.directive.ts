@@ -20,6 +20,7 @@ import { DetectionsService } from '../services/detections/detections.service';
 import {
   getCreatedBoundingBoxFromTool,
   getCreatedPolygonFromTool,
+  isModeAnyOf,
   resetCornerstoneTool,
   resetCornerstoneTools,
   updateCornerstoneViewports,
@@ -82,8 +83,11 @@ export class CornerstoneDirective implements AfterViewInit {
       this.csConfig = config;
       if (
         config.cornerstoneMode === CornerstoneMode.Annotation ||
-        config.editionMode === EditionMode.Bounding ||
-        config.editionMode === EditionMode.Polygon
+        isModeAnyOf(
+          config.editionMode,
+          EditionMode.Bounding,
+          EditionMode.Polygon,
+        )
       ) {
         this.stopListeningToCLicks();
       } else {
