@@ -10,8 +10,9 @@ import {
   calculateBoundingBox,
   polygonDataToXYArray,
 } from './detection.utilities';
-import { BoundingBox, Detection, Point } from '../../models/detection';
+import { Detection } from '../../models/detection';
 import { DETECTION_STYLE } from '../../enums/detection-styles';
+import { PolygonToolPayload } from '../../models/cornerstone-tools.types';
 
 export const VIEWPORTS_CLASSNAME = 'viewportElement';
 /**
@@ -29,14 +30,9 @@ export const updateCornerstoneViewports = () => {
   }
 };
 
-export const getCreatedPolygonFromTool = (
+export const getPolygonFromTool = (
   viewport: HTMLElement,
-):
-  | {
-      bbox: BoundingBox;
-      polygonMask: Point[];
-    }
-  | undefined => {
+): PolygonToolPayload | undefined => {
   const state = cornerstoneTools.getToolState(viewport, ToolNames.Polygon);
   if (!state?.data[0]) return undefined;
   const handles: PolygonHandles = state?.data[0].handles;

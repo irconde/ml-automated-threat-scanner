@@ -19,7 +19,7 @@ import { cornerstone, cornerstoneTools } from '../csSetup';
 import { DetectionsService } from '../services/detections/detections.service';
 import {
   getCreatedBoundingBoxFromTool,
-  getCreatedPolygonFromTool,
+  getPolygonFromTool,
   resetCornerstoneTool,
   resetCornerstoneTools,
   updateCornerstoneViewports,
@@ -35,7 +35,10 @@ import { CornerstoneService } from '../services/cornerstone/cornerstone.service'
 import { CS_DEFAULT_CONFIGURATION } from '../../models/cornerstone';
 import { renderBboxCrosshair } from '../utilities/drawing.utilities';
 import { SettingsService } from '../services/settings/settings.service';
-import { BoundingEditToolState } from '../../models/cornerstone-tools.types';
+import {
+  BoundingEditToolState,
+  PolygonToolPayload,
+} from '../../models/cornerstone-tools.types';
 
 @Directive({
   selector: '[csDirective]',
@@ -167,31 +170,44 @@ export class CornerstoneDirective implements AfterViewInit {
     }
   };
 
+  private handlePolygonCreation(createdPolygon: PolygonToolPayload) {
+    console.log('Polygon created');
+    this.detectionsService.addDetection(
+      this.viewportName!,
+      createdPolygon.bbox,
+      createdPolygon.polygonMask,
+    );
+  }
+
+  private handlePolygonEdition(editedPolygon: PolygonToolPayload) {
+    console.log('Polygon edition');
+    this.detectionsService.updateSelectedDetection(
+      editedPolygon.bbox,
+      editedPolygon.polygonMask,
+    );
+  }
+
   /**
    * Runs when a polygon mask has been fully drawn. This event is triggered by the PolygonDrawingTool
    */
   @HostListener(CS_EVENTS.POLYGON_MASK_CREATED, ['$event'])
   onPolygonEnd(event: Event) {
-    console.log('Polygon created');
-    const createdPolygon = getCreatedPolygonFromTool(this.element);
+    event.stopPropagation();
+    const polygonToolPayload = getPolygonFromTool(this.element);
+    if (polygonToolPayload === undefined) {
+      console.warn('Polygon tool state is undefined');
+    } else if (this.csConfig.annotationMode === AnnotationMode.Polygon) {
+      this.handlePolygonCreation(polygonToolPayload);
+    } else {
+      this.handlePolygonEdition(polygonToolPayload);
+    }
+
     this.cornerstoneService.setCsConfiguration({
       cornerstoneMode: CornerstoneMode.Edition,
       annotationMode: AnnotationMode.NoTool,
       editionMode: EditionMode.NoTool,
     });
 
-    if (createdPolygon === undefined) {
-      console.warn('Polygon tool state is undefined');
-      return;
-    }
-    event.stopPropagation();
-    console.log(createdPolygon);
-    this.detectionsService.addDetection(
-      this.viewportName!,
-      createdPolygon.bbox,
-      // @ts-ignore
-      createdPolygon.polygonMask,
-    );
     updateCornerstoneViewports();
     resetCornerstoneTool(ToolNames.Polygon, this.element);
   }
