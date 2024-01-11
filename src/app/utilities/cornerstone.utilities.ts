@@ -119,6 +119,34 @@ export const resetCornerstoneTools = (viewport: HTMLElement) => {
   cornerstoneTools.setToolActive(ToolNames.ZoomTouchPinch, {});
 };
 
+export const setPolygonEditToolActive = (
+  selectedDetection: Detection,
+): false | void => {
+  const hasPolygon =
+    'polygonMask' in selectedDetection &&
+    selectedDetection.polygonMask !== undefined;
+  if (!hasPolygon) return false;
+  const viewport = getViewportByViewpoint(selectedDetection.viewpoint);
+  const toolState = {
+    handles: {
+      points: selectedDetection.polygonMask,
+    },
+    id: selectedDetection.id,
+    renderColor: DETECTION_STYLE.SELECTED_COLOR,
+    updatingAnnotation: true,
+  };
+  cornerstoneTools.addToolState(viewport, ToolNames.Polygon, toolState);
+  cornerstoneTools.setToolOptions(ToolNames.Polygon, {
+    cornerstoneMode: CornerstoneMode.Edition,
+    editionMode: EditionMode.Polygon,
+    updatingDetection: true,
+  });
+  cornerstoneTools.setToolActive(ToolNames.Polygon, {
+    mouseButtonMask: 1,
+  });
+  updateCornerstoneViewports();
+};
+
 export const setBoundingEditToolActive = (selectedDetection: Detection) => {
   // resetCornerstoneTool()
   // bbox = [x_0, y_0, w, h]
@@ -160,7 +188,6 @@ export const setBoundingEditToolActive = (selectedDetection: Detection) => {
         : undefined,
     binaryMask: selectedDetection.binaryMask,
   };
-  console.log({ polygonPassed: data.segmentation });
 
   const viewport = getViewportByViewpoint(selectedDetection.viewpoint);
   cornerstoneTools.addToolState(viewport, ToolNames.BoundingBox, data);
