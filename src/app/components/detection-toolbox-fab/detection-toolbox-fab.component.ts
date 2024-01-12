@@ -3,6 +3,7 @@ import { MatIconModule } from '@angular/material/icon';
 import {
   AnnotationMode,
   CornerstoneMode,
+  EditionMode,
   ToolNames,
 } from '../../../enums/cornerstone';
 import { CornerstoneService } from '../../services/cornerstone/cornerstone.service';
@@ -18,22 +19,19 @@ import { setCornerstoneToolActive } from '../../utilities/cornerstone.utilities'
 })
 export class DetectionToolboxFabComponent implements OnInit {
   private annotationMode = AnnotationMode.NoTool;
+  protected disabled = false;
 
   constructor(
     private cornerstoneService: CornerstoneService,
     private detectionsService: DetectionsService,
   ) {}
 
-  get disabled() {
-    return (
-      this.annotationMode === AnnotationMode.Bounding ||
-      this.annotationMode === AnnotationMode.Polygon
-    );
-  }
-
   ngOnInit() {
     this.cornerstoneService.getCsConfiguration().subscribe((config) => {
       this.annotationMode = config.annotationMode;
+      this.disabled =
+        config.annotationMode !== AnnotationMode.NoTool ||
+        config.editionMode !== EditionMode.NoTool;
     });
   }
 
@@ -51,6 +49,7 @@ export class DetectionToolboxFabComponent implements OnInit {
     const csConfiguration = {
       cornerstoneMode: CornerstoneMode.Annotation,
       annotationMode: setup.annotationMode,
+      editionMode: EditionMode.NoTool,
     };
     setCornerstoneToolActive(setup.toolName, {
       ...csConfiguration,

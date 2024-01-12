@@ -10,7 +10,7 @@ import { DetectionToolboxFabComponent } from '../detection-toolbox-fab/detection
 import { ViewportsMap } from '../../../models/viewport';
 import { DetectionsService } from '../../services/detections/detections.service';
 import { Detection, RawDetection } from '../../../models/detection';
-import { CornerstoneMode } from '../../../enums/cornerstone';
+import { CornerstoneMode, ToolNames } from '../../../enums/cornerstone';
 import { cornerstoneTools } from '../../csSetup';
 import BoundingBoxDrawingTool from '../../utilities/cornerstone-tools/BoundingBoxDrawingTool';
 import PolygonDrawingTool from '../../utilities/cornerstone-tools/PolygonDrawingTool';
@@ -18,6 +18,7 @@ import AnnotationMovementTool from '../../utilities/cornerstone-tools/Annotation
 import { UiService } from '../../services/ui/ui.service';
 import { resizeCornerstoneViewports } from '../../utilities/cornerstone.utilities';
 import { DetectionContextMenuComponent } from '../detection-context-menu/detection-context-menu.component';
+import { AlgorithmInfoComponent } from '../algorithm-info/algorithm-info.component';
 
 @Component({
   selector: 'app-cs-canvas',
@@ -34,6 +35,7 @@ import { DetectionContextMenuComponent } from '../detection-context-menu/detecti
     NgStyle,
     NgClass,
     DetectionContextMenuComponent,
+    AlgorithmInfoComponent,
   ],
 })
 export class CsCanvasComponent implements OnInit, AfterViewInit {
@@ -88,6 +90,10 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
             '--------------------------------------------------------',
           );
 
+          if (parsedFile.algorithms) {
+            this.detectionsService.setAlgorithms(parsedFile.algorithms);
+          }
+
           Object.keys(this.viewportsData).forEach((key): void => {
             const viewpoint = key as keyof ViewportsMap;
             const pixelData = parsedFile.imageData.find(
@@ -123,15 +129,17 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     const PanTool = cornerstoneTools.PanTool;
     cornerstoneTools.addTool(PanTool);
-    cornerstoneTools.setToolActive('Pan', { mouseButtonMask: 1 });
+    cornerstoneTools.setToolActive(ToolNames.Pan, { mouseButtonMask: 1 });
 
     const ZoomMouseWheelTool = cornerstoneTools.ZoomMouseWheelTool;
     cornerstoneTools.addTool(ZoomMouseWheelTool);
-    cornerstoneTools.setToolActive('ZoomMouseWheel', {});
+    cornerstoneTools.setToolActive(ToolNames.ZoomMouseWheel, {});
 
     const ZoomTouchPinchTool = cornerstoneTools.ZoomTouchPinchTool;
     cornerstoneTools.addTool(ZoomTouchPinchTool);
-    cornerstoneTools.setToolActive('ZoomTouchPinch', { mouseButtonMask: 1 });
+    cornerstoneTools.setToolActive(ToolNames.ZoomTouchPinch, {
+      mouseButtonMask: 1,
+    });
 
     cornerstoneTools.addTool(BoundingBoxDrawingTool);
     cornerstoneTools.addTool(PolygonDrawingTool);

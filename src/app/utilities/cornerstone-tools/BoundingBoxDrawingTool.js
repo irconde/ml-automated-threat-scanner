@@ -224,56 +224,55 @@ export default class BoundingBoxDrawingTool extends BaseAnnotationTool {
         // First check if it exists, new detections may not have this field built yet
         if (data.segmentation) {
           // Make sure it is non-empty, not all detections will have a mask
-          for (let z = 0; z < data.segmentation.length; z++) {
-            const pixelStart = cornerstone.pixelToCanvas(element, {
-              x: data.handles.start.x,
-              y: data.handles.start.y,
-            });
-            const pixelEnd = cornerstone.pixelToCanvas(element, {
-              x: data.handles.end.x,
-              y: data.handles.end.y,
-            });
-            let flippedCoords = [];
-            // Fix flipped rectangle issues
-            if (pixelStart.x > pixelEnd.x && pixelStart.y > pixelEnd.y) {
-              flippedCoords = [
-                pixelEnd.x,
-                pixelEnd.y,
-                pixelStart.x,
-                pixelStart.y,
-              ];
-            } else if (pixelStart.x > pixelEnd.x) {
-              flippedCoords = [
-                pixelEnd.x,
-                pixelStart.y,
-                pixelStart.x,
-                pixelEnd.y,
-              ];
-            } else if (pixelStart.y > pixelEnd.y) {
-              flippedCoords = [
-                pixelStart.x,
-                pixelEnd.y,
-                pixelEnd.x,
-                pixelStart.y,
-              ];
-            } else {
-              flippedCoords = [
-                pixelStart.x,
-                pixelStart.y,
-                pixelEnd.x,
-                pixelEnd.y,
-              ];
-            }
-            data.segmentation[z] = calculatePolygonMask(
-              flippedCoords,
-              data.segmentation[z],
-            );
-            context.strokeStyle = DETECTION_STYLE.SELECTED_COLOR;
-            context.fillStyle = DETECTION_STYLE.SELECTED_COLOR;
-            context.globalAlpha = 0.5;
-            renderPolygonMasks(context, data.segmentation[z]);
-            context.globalAlpha = 1.0;
+
+          const pixelStart = cornerstone.pixelToCanvas(element, {
+            x: data.handles.start.x,
+            y: data.handles.start.y,
+          });
+          const pixelEnd = cornerstone.pixelToCanvas(element, {
+            x: data.handles.end.x,
+            y: data.handles.end.y,
+          });
+          let flippedCoords = [
+            pixelStart.x,
+            pixelStart.y,
+            pixelEnd.x,
+            pixelEnd.y,
+          ];
+          // Fix flipped rectangle issues
+          if (pixelStart.x > pixelEnd.x && pixelStart.y > pixelEnd.y) {
+            flippedCoords = [
+              pixelEnd.x,
+              pixelEnd.y,
+              pixelStart.x,
+              pixelStart.y,
+            ];
+          } else if (pixelStart.x > pixelEnd.x) {
+            flippedCoords = [
+              pixelEnd.x,
+              pixelStart.y,
+              pixelStart.x,
+              pixelEnd.y,
+            ];
+          } else if (pixelStart.y > pixelEnd.y) {
+            flippedCoords = [
+              pixelStart.x,
+              pixelEnd.y,
+              pixelEnd.x,
+              pixelStart.y,
+            ];
           }
+
+          data.segmentation = calculatePolygonMask(
+            flippedCoords,
+            data.segmentation,
+          );
+          context.strokeStyle = DETECTION_STYLE.SELECTED_COLOR;
+          context.fillStyle = DETECTION_STYLE.SELECTED_COLOR;
+          context.globalAlpha = 0.5;
+
+          renderPolygonMasks(context, data.segmentation);
+          context.globalAlpha = 1.0;
         }
       }
     });

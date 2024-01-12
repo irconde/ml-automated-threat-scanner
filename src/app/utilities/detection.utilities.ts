@@ -1,18 +1,9 @@
-import {
-  BoundingBox,
-  Coordinate2D,
-  Detection,
-  Point,
-  PolygonData,
-} from '../../models/detection';
-import { CornerstoneBboxHandles, PolygonPoint } from '../../models/cornerstone';
-import { EditionMode } from '../../enums/cornerstone';
-import {
-  getTextLabelSize,
-  hexToCssRgba,
-  limitCharCount,
-} from './text.utilities';
-import { DETECTION_STYLE } from '../../enums/detection-styles';
+import {BoundingBox, Coordinate2D, Detection, Point, PolygonData,} from '../../models/detection';
+import {PolygonPoint} from '../../models/cornerstone';
+import {EditionMode} from '../../enums/cornerstone';
+import {getTextLabelSize, hexToCssRgba, limitCharCount,} from './text.utilities';
+import {DETECTION_STYLE} from '../../enums/detection-styles';
+import {isModeAnyOf} from './cornerstone.utilities';
 
 /**
  * Converts COCO bbox to a bounding box
@@ -96,9 +87,9 @@ export const polygonDataToXYArray = (
   polygonData: PolygonPoint[],
   boundingBox: BoundingBox,
 ): Point[] => {
-  const xDist = boundingBox[2] - boundingBox[0];
-  const yDist = boundingBox[3] - boundingBox[1];
-  const points = [];
+  const xDist = boundingBox[2];
+  const yDist = boundingBox[3];
+  const points: Point[] = [];
   for (const index in polygonData) {
     points.push({
       x: polygonData[index].x,
@@ -497,7 +488,10 @@ export const pointInRect = (point: Coordinate2D, rect: number[]) => {
 export const getBboxFromHandles = ({
   start,
   end,
-}: CornerstoneBboxHandles): BoundingBox => {
+}: {
+  start: Coordinate2D;
+  end: Coordinate2D;
+}): BoundingBox => {
   // Fix flipped rectangle issues
   let bbox: BoundingBox;
   if (start.x > end.x && start.y > end.y) {
@@ -530,7 +524,13 @@ export const displayDetection = (
 ) => {
   if (
     !detection.visible ||
-    (detection.selected && editionMode !== EditionMode.NoTool)
+    (detection.selected &&
+      isModeAnyOf(
+        editionMode,
+        EditionMode.Bounding,
+        EditionMode.Polygon,
+        EditionMode.Move,
+      ))
   ) {
     return;
   }
@@ -601,7 +601,7 @@ export const getDetectionRenderColor = (
  * Calculates the coordinates of the bounding box enclosing a given polygon
  *
  * @param polygonData - List of handles, i.e., the vertices, of a polygon
- * @returns bounding box - New bounding box coordinates in form of [x_min, y_min, x_max, y_max].
+ * @returns bounding box - New bounding box coordinates in form of [x_min, y_min, width, height].
  */
 export const calculateBoundingBox = (
   polygonData: PolygonPoint[],

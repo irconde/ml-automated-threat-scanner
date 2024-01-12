@@ -13,8 +13,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ApplicationSettings } from '../../services/settings/models/Settings';
 import { TopBarComponent } from '../top-bar/top-bar.component';
-import { DetectionContextMenuComponent } from "../detection-context-menu/detection-context-menu.component";
-import { SideMenuComponent } from "../side-menu/side-menu.component";
+import { DetectionContextMenuComponent } from '../detection-context-menu/detection-context-menu.component';
+import { SideMenuComponent } from '../side-menu/side-menu.component';
+import { LabelEditComponent } from '../label-edit/label-edit.component';
 
 @Component({
   selector: 'app-main',
@@ -33,6 +34,7 @@ import { SideMenuComponent } from "../side-menu/side-menu.component";
     TopBarComponent,
     DetectionContextMenuComponent,
     SideMenuComponent,
+    LabelEditComponent,
   ],
 })
 export class AppMain {

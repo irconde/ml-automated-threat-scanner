@@ -1,0 +1,28 @@
+.algorithm-info {
+  position: absolute;
+  top: 1.625rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding-inline: 1rem;
+  background-color: rgba(38, 38, 38, 0.5);
+  border-radius: 2rem;
+  text-align: left;
+  color: rgb(255, 255, 255);
+  width: max-content;
+  display: flex;
+  align-items: center;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.attribute-container {
+  margin: 0.6rem;
+  color: white;
+}
+
+.slash {
+  color: rgb(54, 127, 255);
+}
+
+
+
+

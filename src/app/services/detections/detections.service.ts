@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {
   BoundingBox,
   Detection,
+  DetectionAlgorithm,
   DetectionGroupMetaData,
   DetectionGroups,
   getDetectionGroupName,
@@ -10,7 +11,11 @@ import {
 import { BehaviorSubject, Observable } from 'rxjs';
 import { CommonDetections } from '../../../enums/cornerstone';
 import { v4 as guid } from 'uuid';
-import { updateCornerstoneViewports } from '../../utilities/cornerstone.utilities';
+import {
+  getViewportByViewpoint,
+  updateCornerstoneViewports,
+} from '../../utilities/cornerstone.utilities';
+import { cornerstone } from '../../csSetup';
 
 export interface DetectionsMap {
   top: Detection[];
@@ -25,14 +30,24 @@ export class DetectionsService {
     new BehaviorSubject<DetectionsMap>({ top: [], side: [] });
   private selectedDetection: BehaviorSubject<Detection | null> =
     new BehaviorSubject<Detection | null>(null);
+  public labels: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
   private detectionsGroupsMetadata: BehaviorSubject<DetectionGroups> =
     new BehaviorSubject({});
+  private selectedAlgorithm = new BehaviorSubject<DetectionAlgorithm | null>(
+    null,
+  );
 
   public get allDetections() {
     return [...this.detectionData.value.side, ...this.detectionData.value.top];
   }
 
+  private algorithms: Record<string, DetectionAlgorithm> | null = null;
+
   constructor() {}
+
+  public getSelectedAlgorithm() {
+    return this.selectedAlgorithm.asObservable();
+  }
 
   getDetectionData(): Observable<DetectionsMap> {
     return this.detectionData.asObservable();
@@ -79,7 +94,9 @@ export class DetectionsService {
         ...this.detectionsGroupsMetadata.value,
         [groupName]: {
           ...groupMetaData,
-          ...(prop === 'visible' ? { selected: false } : {}),
+          ...(prop === 'visible' && shouldUpdateDetections
+            ? { selected: false }
+            : {}),
           [prop]: propNewValue,
         },
       };
@@ -98,6 +115,11 @@ export class DetectionsService {
           }
         });
         this.selectedDetection.next(null);
+        if (prop === 'selected') {
+          this.updateSelectedAlgorithm(groupName, propNewValue);
+        } else {
+          this.updateSelectedAlgorithm(groupName, false);
+        }
       }
       this.detectionsGroupsMetadata.next(updatedGroupMetaData);
       if (prop !== 'collapsed') updateCornerstoneViewports();
@@ -136,6 +158,10 @@ export class DetectionsService {
     this.detectionsGroupsMetadata.next(detectionGroups);
   }
 
+  public setAlgorithms(algorithms: Record<string, DetectionAlgorithm>) {
+    this.algorithms = algorithms;
+  }
+
   selectDetection(detectionID: string, viewpoint: string): void {
     // TODO select by viewpoint
 
@@ -156,8 +182,49 @@ export class DetectionsService {
     updateCornerstoneViewports();
   }
 
+  public updateSelectedDetection(
+    boundingBox: BoundingBox,
+    polygonMask: Point[] | undefined,
+  ) {
+    if (this.selectedDetection.value === null) return;
+    this.allDetections.some((det) => {
+      const isFound = det.uuid === this.selectedDetection.value?.uuid;
+      if (isFound) {
+        det.boundingBox = boundingBox;
+        if ('polygonMask' in det) {
+          det.polygonMask = polygonMask;
+        }
+        this.selectedDetection.next(det);
+      }
+      return isFound;
+    });
+  }
+
   getSelectedDetection(): Observable<Detection | null> {
     return this.selectedDetection.asObservable();
+  }
+
+  getZoomLevel(selectedDetection: Detection) {
+    const viewport = getViewportByViewpoint(selectedDetection.viewpoint);
+    return cornerstone.getViewport(viewport)?.scale;
+  }
+
+  getLabels(): Observable<string[]> {
+    const labels: string[] = this.allDetections
+      .map((detection) => detection.className.toLowerCase())
+      .filter((label, index, array) => array.indexOf(label) === index)
+      .map((label) => label.toLowerCase())
+      .filter((label) => label !== CommonDetections.Unknown.toLowerCase());
+
+    this.labels.next(labels);
+
+    return this.labels.asObservable();
+  }
+
+  setDetectionLabel(label: string) {
+    if (!this.selectedDetection.value) return;
+    this.selectedDetection.value.className = label;
+    this.setDetectionData(this.detectionData.value);
   }
 
   addDetection(
@@ -190,6 +257,12 @@ export class DetectionsService {
     });
 
     this.selectDetection(newDetection.uuid, viewpoint);
+
+    // upon detection creation, ensure the group name is visible
+    const groupName = getDetectionGroupName(newDetection);
+    if (!this.detectionsGroupsMetadata.value[groupName].visible) {
+      this.toggleDetectionGroupProp(groupName, 'visible', false);
+    }
 
     return newDetection;
   }
@@ -245,5 +318,33 @@ export class DetectionsService {
       this.detectionsGroupsMetadata.value[groupName].selected = false;
     }
     this.detectionsGroupsMetadata.next(this.detectionsGroupsMetadata.value);
+    this.selectedAlgorithm.next(null);
+  }
+
+  private updateSelectedAlgorithm(groupName: string, selected: boolean) {
+    let algorithm: DetectionAlgorithm | null = null;
+    if (selected && this.algorithms && this.algorithms[groupName]) {
+      algorithm = this.algorithms[groupName];
+    }
+    this.selectedAlgorithm.next(algorithm);
+  }
+
+  public deleteSelectedDetection() {
+    if (this.selectedDetection.value === null) return;
+
+    const currentValue = this.detectionData.value;
+    const uuidToDelete = this.selectedDetection.value.uuid;
+
+    const [updatedTopArray, updatedSideArray] = [
+      currentValue.top,
+      currentValue.side,
+    ].map((detectionList) =>
+      detectionList.filter(({ uuid }) => uuid !== uuidToDelete),
+    );
+
+    // Update the BehaviorSubject with the modified DetectionsMap
+    this.detectionData.next({ top: updatedTopArray, side: updatedSideArray });
+
+    this.selectedDetection.next(null);
   }
 }

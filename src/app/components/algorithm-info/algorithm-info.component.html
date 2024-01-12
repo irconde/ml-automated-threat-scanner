@@ -1,0 +1,22 @@
+<div class="algorithm-info" *ngIf="algorithm">
+  <mat-icon>info</mat-icon>
+  <p class="attribute-container">
+    <span>Detector Type: </span>
+    <span>{{algorithm.detectorType}}</span>
+  </p>
+  <p class="slash">/</p>
+  <p class="attribute-container">
+    <span>Detector Configuration: </span>
+    <span>{{algorithm.detectorConfiguration}}</span>
+  </p>
+  <p class="slash">/</p>
+  <p class="attribute-container">
+    <span>Series: </span>
+    <span>{{algorithm.series}}</span>
+  </p>
+  <p class="slash">/</p>
+  <p class="attribute-container">
+    <span>Study: </span>
+    <span>{{algorithm.study}}</span>
+  </p>
+</div>

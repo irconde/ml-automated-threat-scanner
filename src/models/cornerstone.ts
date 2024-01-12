@@ -1,14 +1,20 @@
-import { AnnotationMode, CornerstoneMode } from '../enums/cornerstone';
+import {
+  AnnotationMode,
+  CornerstoneMode,
+  EditionMode,
+} from '../enums/cornerstone';
 import { Coordinate2D } from './detection';
 
 export interface CornerstoneConfiguration {
   cornerstoneMode: CornerstoneMode;
   annotationMode: AnnotationMode;
+  editionMode: EditionMode;
 }
 
 export const CS_DEFAULT_CONFIGURATION: CornerstoneConfiguration = {
   cornerstoneMode: CornerstoneMode.Selection,
   annotationMode: AnnotationMode.NoTool,
+  editionMode: EditionMode.NoTool,
 } as const;
 
 export interface CornerstoneBboxHandles {
