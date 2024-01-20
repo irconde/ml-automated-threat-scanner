@@ -1,0 +1,35 @@
+.color-picker {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  background-color: #aeaeae;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  // CSS Variables
+  --swatch-size: 2rem;
+  --swatch-margin: 0.35rem;
+
+  .row {
+    display: flex;
+    align-items: center;
+    padding: 0.25rem;
+  }
+
+  .swatch {
+    min-width: var(--swatch-size);
+    height: var(--swatch-size);
+    margin: var(--swatch-margin);
+    border: 1px solid #ccc;
+    cursor: pointer;
+  }
+
+  input {
+    height: 30px;
+    width: calc((var(--swatch-size) * 4) + (var(--swatch-margin) * 6));
+    margin: var(--swatch-margin);
+    padding: 5px;
+    background-color: #fff;
+  }
+}

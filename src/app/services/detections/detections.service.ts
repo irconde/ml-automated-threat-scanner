@@ -227,6 +227,12 @@ export class DetectionsService {
     this.setDetectionData(this.detectionData.value);
   }
 
+  setDetectionColor(color: string) {
+    if (!this.selectedDetection.value) return;
+    this.selectedDetection.value.color = color;
+    this.setDetectionData(this.detectionData.value);
+  }
+
   addDetection(
     viewpoint: keyof DetectionsMap,
     boundingBox: BoundingBox,

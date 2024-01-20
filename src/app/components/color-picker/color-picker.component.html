@@ -1,0 +1,13 @@
+<div class="color-picker">
+  <!-- Top Row - 7 square swatches with various colors -->
+  <div class="row">
+    <div class="swatch" *ngFor="let color of topRowColors" [style.background]="color"></div>
+  </div>
+
+  <!-- Bottom Row - 3 swatches aligned with top row and a hex color input -->
+  <div class="row">
+    <div class="swatch" *ngFor="let color of bottomRowColors" [style.background]="color"></div>
+    <input [(ngModel)]="selectedColor" placeholder="Enter hex color"/>
+  </div>
+</div>
+
