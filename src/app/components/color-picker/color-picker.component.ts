@@ -69,15 +69,30 @@ export class ColorPickerComponent implements AfterViewInit {
       x: contextMenuPosition!.x - xOffset,
       y: contextMenuPosition!.y - yOffset,
     };
-    console.log(this.position);
   }
+
+  rgbToHex = (rgbString: string): string => {
+    const match = rgbString.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+
+    if (match) {
+      const [, r, g, b] = match.map(Number);
+
+      const componentToHex = (c: number): string => {
+        const hex = c.toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
+      };
+
+      return componentToHex(r) + componentToHex(g) + componentToHex(b);
+    } else {
+      throw new Error('Invalid RGB string format');
+    }
+  };
 
   handleChange(event: Event) {
-    this.selectedColor = (event.target as HTMLInputElement).value;
-    this.updateDetectionColor(this.selectedColor);
-  }
-
-  updateDetectionColor(color: string): void {
-    console.log(color);
+    this.selectedColor = (
+      event.target as HTMLInputElement
+    ).style.backgroundColor;
+    this.selectedColor = this.rgbToHex(this.selectedColor);
+    this.detectionService.setDetectionColor('#' + this.selectedColor);
   }
 }
