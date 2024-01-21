@@ -1,7 +1,11 @@
 import { AfterViewInit, Component } from '@angular/core';
 import { NgForOf, NgIf, NgStyle } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { EditionMode } from '../../../enums/cornerstone';
+import {
+  AnnotationMode,
+  CornerstoneMode,
+  EditionMode,
+} from '../../../enums/cornerstone';
 import { DetectionsService } from '../../services/detections/detections.service';
 import { CornerstoneService } from '../../services/cornerstone/cornerstone.service';
 import { Coordinate2D, Detection } from '../../../models/detection';
@@ -82,7 +86,11 @@ export class ColorPickerComponent implements AfterViewInit {
         return hex.length === 1 ? '0' + hex : hex;
       };
 
-      return componentToHex(r) + componentToHex(g) + componentToHex(b);
+      return (
+        componentToHex(r) +
+        componentToHex(g) +
+        componentToHex(b)
+      ).toUpperCase();
     } else {
       throw new Error('Invalid RGB string format');
     }
@@ -93,12 +101,32 @@ export class ColorPickerComponent implements AfterViewInit {
       event.target as HTMLInputElement
     ).style.backgroundColor;
     this.selectedColor = this.rgbToHex(this.selectedColor);
-    this.detectionService.setDetectionColor('#' + this.selectedColor);
+    this.updateDetectionColor();
   }
 
   onKeyDown(key: string) {
     if (key === 'Enter') {
-      this.detectionService.setDetectionColor('#' + this.selectedColor);
+      this.updateDetectionColor();
     }
   }
+
+  updateDetectionColor() {
+    this.detectionService.setDetectionColor('#' + this.selectedColor);
+    this.csService.setCsConfiguration({
+      cornerstoneMode: CornerstoneMode.Selection,
+      annotationMode: AnnotationMode.NoTool,
+      editionMode: EditionMode.NoTool,
+    });
+  }
 }
+
+/*
+* //TODO
+*
+* Make 2nd click close the menu
+*
+* Make the clicked swatch highlight blue
+*
+* Figure out how to make the menu stay inside the viewport
+*
+* */
