@@ -207,6 +207,8 @@ export class CornerstoneDirective implements AfterViewInit {
       this.handleBoundingBoxDetectionCreation();
     } else if (this.csConfig.editionMode === EditionMode.Bounding) {
       this.handleBoundingBoxDetectionEdition();
+    } else if (this.csConfig.editionMode === EditionMode.Move) {
+      this.handleDetectionMovement();
     }
   }
 
@@ -397,5 +399,9 @@ export class CornerstoneDirective implements AfterViewInit {
       editionMode: EditionMode.NoTool,
       annotationMode: AnnotationMode.NoTool,
     });
+  }
+
+  private handleDetectionMovement() {
+    console.log('MOVED');
   }
 }

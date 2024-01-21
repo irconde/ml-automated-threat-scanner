@@ -5,6 +5,7 @@ import { cornerstone } from '../../csSetup';
 import {
   getViewportByViewpoint,
   setBoundingEditToolActive,
+  setMovementToolActive,
 } from '../../utilities/cornerstone.utilities';
 import { NgIf, NgStyle } from '@angular/common';
 import { ColorComponent } from '../svgs/color-svg/color-svg.component';
@@ -145,8 +146,7 @@ export class DetectionContextMenuComponent {
         console.log('Polygon Mask Edit');
         break;
       case EditionMode.Move:
-        console.log('Move');
-        break;
+        return this.enableMovementTool();
       case EditionMode.Delete:
         console.log('Delete');
         break;
@@ -156,4 +156,15 @@ export class DetectionContextMenuComponent {
   }
 
   protected readonly EditionMode = EditionMode;
+
+  private enableMovementTool() {
+    if (this.selectedDetection === null) return;
+
+    setMovementToolActive(this.selectedDetection);
+    this.csService.setCsConfiguration({
+      cornerstoneMode: CornerstoneMode.Edition,
+      annotationMode: AnnotationMode.NoTool,
+      editionMode: EditionMode.Move,
+    });
+  }
 }

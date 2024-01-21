@@ -31,3 +31,21 @@ export type BoundingEditToolState =
       data: BoundingEditUpdate[];
     }
   | undefined;
+
+export type MovementToolState = {
+  handles: {
+    start: {
+      x: number;
+      y: number;
+    };
+    end: {
+      x: number;
+      y: number;
+    };
+  };
+  id: string;
+  renderColor: string;
+  categoryName: string;
+  updatingAnnotation: boolean;
+  polygonCoords: Point[][];
+};

@@ -10,8 +10,14 @@ import {
   calculateBoundingBox,
   polygonDataToXYArray,
 } from './detection.utilities';
-import { BoundingBox, Detection, Point } from '../../models/detection';
+import {
+  BoundingBox,
+  Detection,
+  getDetectionPolygon,
+  Point,
+} from '../../models/detection';
 import { DETECTION_STYLE } from '../../enums/detection-styles';
+import { MovementToolState } from '../../models/cornerstone-tools.types';
 
 export const VIEWPORTS_CLASSNAME = 'viewportElement';
 /**
@@ -94,11 +100,11 @@ export const setCornerstoneToolActive = (
 export const resetCornerstoneTools = (viewport: HTMLElement) => {
   cornerstoneTools.setToolDisabled(ToolNames.BoundingBox);
   cornerstoneTools.setToolDisabled(ToolNames.Polygon);
-  cornerstoneTools.setToolDisabled(ToolNames.AnnotationMovement);
+  cornerstoneTools.setToolDisabled(ToolNames.Movement);
 
   cornerstoneTools.clearToolState(viewport, ToolNames.BoundingBox);
   cornerstoneTools.clearToolState(viewport, ToolNames.Polygon);
-  cornerstoneTools.clearToolState(viewport, ToolNames.AnnotationMovement);
+  cornerstoneTools.clearToolState(viewport, ToolNames.Movement);
 
   cornerstoneTools.setToolOptions(ToolNames.BoundingBox, {
     cornerstoneMode: CornerstoneMode.Selection,
@@ -109,7 +115,7 @@ export const resetCornerstoneTools = (viewport: HTMLElement) => {
     temporaryLabel: undefined,
     updatingAnnotation: false,
   });
-  cornerstoneTools.setToolOptions(ToolNames.AnnotationMovement, {
+  cornerstoneTools.setToolOptions(ToolNames.Movement, {
     cornerstoneMode: CornerstoneMode.Annotation,
     temporaryLabel: undefined,
   });
@@ -117,6 +123,40 @@ export const resetCornerstoneTools = (viewport: HTMLElement) => {
   cornerstoneTools.setToolActive(ToolNames.Pan, { mouseButtonMask: 1 });
   cornerstoneTools.setToolActive(ToolNames.ZoomMouseWheel, {});
   cornerstoneTools.setToolActive(ToolNames.ZoomTouchPinch, {});
+};
+
+export const setMovementToolActive = (selectedDetection: Detection) => {
+  const polygonMask = getDetectionPolygon(selectedDetection);
+  const toolState: MovementToolState = {
+    handles: {
+      start: {
+        x: selectedDetection.boundingBox[0],
+        y: selectedDetection.boundingBox[1],
+      },
+      end: {
+        x: selectedDetection.boundingBox[0] + selectedDetection.boundingBox[2],
+        y: selectedDetection.boundingBox[1] + selectedDetection.boundingBox[3],
+      },
+    },
+    id: selectedDetection.id,
+    renderColor: DETECTION_STYLE.SELECTED_COLOR,
+    categoryName: selectedDetection.categoryName,
+    updatingAnnotation: true,
+    polygonCoords: polygonMask ? [structuredClone(polygonMask)] : [],
+  };
+  const viewport = getViewportByViewpoint(selectedDetection.viewpoint);
+  cornerstoneTools.addToolState(viewport, ToolNames.Movement, toolState);
+
+  cornerstoneTools.setToolOptions(ToolNames.Movement, {
+    cornerstoneMode: CornerstoneMode.Edition,
+    editionMode: EditionMode.Move,
+  });
+
+  cornerstoneTools.setToolActive(ToolNames.Movement, {
+    mouseButtonMask: 1,
+  });
+
+  cornerstone.updateImage(viewport, true);
 };
 
 export const setBoundingEditToolActive = (selectedDetection: Detection) => {
