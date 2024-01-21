@@ -123,8 +123,6 @@ export class ColorPickerComponent implements AfterViewInit {
 /*
 * //TODO
 *
-* Make 2nd click close the menu
-*
 * Make the clicked swatch highlight blue
 *
 * Figure out how to make the menu stay inside the viewport
