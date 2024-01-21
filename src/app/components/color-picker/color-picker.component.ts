@@ -54,7 +54,7 @@ export class ColorPickerComponent implements AfterViewInit {
 
   private updateContent(): void {
     if (!this.selectedDetection) return;
-    this.selectedColor = this.selectedDetection.color;
+    this.selectedColor = this.selectedDetection.color.replace(/^#/, '');
   }
 
   private updatePosition() {
@@ -94,5 +94,11 @@ export class ColorPickerComponent implements AfterViewInit {
     ).style.backgroundColor;
     this.selectedColor = this.rgbToHex(this.selectedColor);
     this.detectionService.setDetectionColor('#' + this.selectedColor);
+  }
+
+  onKeyDown(key: string) {
+    if (key === 'Enter') {
+      this.detectionService.setDetectionColor('#' + this.selectedColor);
+    }
   }
 }

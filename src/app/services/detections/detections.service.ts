@@ -238,10 +238,6 @@ export class DetectionsService {
     return this.contextMenuPosition;
   }
 
-  getDetectionColor(): string {
-    return this.selectedDetection.value?.color || '';
-  }
-
   setDetectionColor(color: string) {
     if (!this.selectedDetection.value) return;
     this.selectedDetection.value.color = color;
