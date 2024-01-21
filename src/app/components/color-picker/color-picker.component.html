@@ -1,13 +1,19 @@
-<div class="color-picker">
-  <!-- Top Row - 7 square swatches with various colors -->
-  <div class="row">
-    <div class="swatch" *ngFor="let color of topRowColors" [style.background]="color"></div>
-  </div>
+<div id="color-picker-container">
+  <!--  Option for needing arrow to appear on top-->
+  <!--  <div id="color-picker-arrow-up"></div>-->
 
-  <!-- Bottom Row - 3 swatches aligned with top row and a hex color input -->
-  <div class="row">
-    <div class="swatch" *ngFor="let color of bottomRowColors" [style.background]="color"></div>
-    <input [(ngModel)]="selectedColor" placeholder="Enter hex color"/>
+  <div class="color-picker">
+    <!-- Top Row - 7 square swatches with various colors -->
+    <div class="row">
+      <div class="swatch" *ngFor="let color of topRowColors" [style.background]="color"></div>
+    </div>
+
+    <!-- Bottom Row - 3 swatches aligned with top row and a hex color input -->
+    <div class="row">
+      <div class="swatch" *ngFor="let color of bottomRowColors" [style.background]="color"></div>
+      <input type="text" [(ngModel)]="selectedColor" placeholder="Enter hex color"/>
+    </div>
   </div>
+  <div id="color-picker-arrow-down"></div>
 </div>
 
