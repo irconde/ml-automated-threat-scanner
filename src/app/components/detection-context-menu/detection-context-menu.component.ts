@@ -122,6 +122,7 @@ export class DetectionContextMenuComponent {
 
     this.position = { x: x + viewportOffset, y: y + this.yGap };
     this.visible = true;
+    this.detectionService.setContextMenuPosition(this.position);
   }
 
   private enableBoundingDetectionEdition() {
@@ -144,7 +145,6 @@ export class DetectionContextMenuComponent {
           editionMode: EditionMode.Label,
         });
       case EditionMode.Color:
-        console.log('Color Edit');
         return this.csService.setCsConfiguration({
           cornerstoneMode: CornerstoneMode.Edition,
           annotationMode: AnnotationMode.NoTool,

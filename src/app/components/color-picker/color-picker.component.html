@@ -1,4 +1,6 @@
-<div id="color-picker-container">
+<div id="color-picker-container"
+     [ngStyle]="{'top': position!.y + 'px', 'left': position!.x + 'px'}"
+     *ngIf="isShown">
   <!--  Option for needing arrow to appear on top-->
   <!--  <div id="color-picker-arrow-up"></div>-->
 
