@@ -5,8 +5,6 @@ import { EditionMode } from '../../../enums/cornerstone';
 import { DetectionsService } from '../../services/detections/detections.service';
 import { CornerstoneService } from '../../services/cornerstone/cornerstone.service';
 import { Coordinate2D, Detection } from '../../../models/detection';
-import { getViewportByViewpoint } from '../../utilities/cornerstone.utilities';
-import { cornerstone } from '../../csSetup';
 
 @Component({
   selector: 'app-color-picker',
@@ -29,7 +27,6 @@ export class ColorPickerComponent implements AfterViewInit {
   selectedColor: string = '';
   selectedDetection: Detection | null = null;
   position: Coordinate2D | null = { x: 0, y: 0 };
-  enablePositionOffset = false;
   isShown: boolean = false;
 
   constructor(
@@ -62,31 +59,17 @@ export class ColorPickerComponent implements AfterViewInit {
 
   private updatePosition() {
     if (!this.selectedDetection) return;
-    // const width = this.selectedDetection.boundingBox[2];
-    const viewport: HTMLElement = getViewportByViewpoint(
-      this.selectedDetection.viewpoint,
-    );
-    // const viewportOffset =
-    //   this.selectedDetection.viewpoint === 'side' && this.enablePositionOffset
-    //     ? viewport.clientWidth
-    //     : viewport.offsetLeft;
-    const { x, y } = cornerstone.pixelToCanvas(viewport, {
-      x: this.selectedDetection.boundingBox[0],
-      y: this.selectedDetection.boundingBox[1],
-      _pixelCoordinateBrand: '',
-    });
 
     const yOffset = 55;
     const xOffset = 305;
 
     const contextMenuPosition = this.detectionService.getContextMenuPosition();
 
-    // this.position = { x: x + viewportOffset, y: y };
-    //this.position = { x: x - xOffset, y: y + yOffset };
     this.position = {
       x: contextMenuPosition!.x - xOffset,
       y: contextMenuPosition!.y - yOffset,
     };
+    console.log(this.position);
   }
 
   handleChange(event: Event) {
