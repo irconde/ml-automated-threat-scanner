@@ -10,7 +10,7 @@
       <div class="swatch" *ngFor="let color of topRowColors" [style.background]="color"
            (click)="handleChange($event)"></div>
     </div>
-    
+
     <!-- Bottom Row - 3 swatches aligned with top row and a hex color input -->
     <div class="row">
       <div class="swatch" *ngFor="let color of bottomRowColors" [style.background]="color"
@@ -21,7 +21,8 @@
           type="text"
           [(ngModel)]="selectedColor"
           (keydown)="onKeyDown($event.key)"
-          placeholder="Enter hex color"/>
+          [ngStyle]="{'': ''}"
+          placeholder="ffffff"/>
       </div>
     </div>
   </div>

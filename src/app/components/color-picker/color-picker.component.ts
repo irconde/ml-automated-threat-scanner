@@ -58,7 +58,22 @@ export class ColorPickerComponent implements AfterViewInit {
 
   private updateContent(): void {
     if (!this.selectedDetection) return;
-    this.selectedColor = this.selectedDetection.color.replace(/^#/, '');
+
+    const colorString = this.selectedDetection.color;
+
+    // Check if the color string starts with '#'
+    if (colorString.startsWith('#')) {
+      // If it starts with '#', remove the '#' symbol
+      this.selectedColor = colorString.replace(/^#/, '').toUpperCase();
+    } else {
+      // If it doesn't start with '#', assume it's a color name and convert to hex
+      const hexColor = this.colorNameToHex(colorString);
+      if (hexColor !== null) {
+        this.selectedColor = hexColor.toUpperCase();
+      } else {
+        console.error('Invalid color name:', colorString);
+      }
+    }
   }
 
   private updatePosition() {
@@ -96,6 +111,24 @@ export class ColorPickerComponent implements AfterViewInit {
     }
   };
 
+  colorNameToHex = (colorName: string): string | null => {
+    const colorNamesMap: Record<string, string> = {
+      red: '#FF0000',
+      orange: '#FFA500',
+      yellow: '#FFFF00',
+      green: '#008000',
+      blue: '#0000FF',
+      purple: '#800080',
+      pink: '#FFC0CB',
+      brown: '#A52A2A',
+      gray: '#808080',
+      black: '#000000',
+      white: '#FFFFFF',
+    };
+
+    return colorNamesMap[colorName] || null;
+  };
+
   handleChange(event: Event) {
     this.selectedColor = (
       event.target as HTMLInputElement
@@ -117,13 +150,12 @@ export class ColorPickerComponent implements AfterViewInit {
       annotationMode: AnnotationMode.NoTool,
       editionMode: EditionMode.NoTool,
     });
+    this.detectionService.clearDetectionsSelection();
   }
 }
 
 /*
 * //TODO
-*
-* Make the clicked swatch highlight blue
 *
 * Figure out how to make the menu stay inside the viewport
 *
