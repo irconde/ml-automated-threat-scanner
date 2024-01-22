@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import {
   BoundingBox,
-  Coordinate2D,
   Detection,
   DetectionAlgorithm,
   DetectionGroupMetaData,
@@ -27,7 +26,6 @@ export interface DetectionsMap {
   providedIn: 'root',
 })
 export class DetectionsService {
-  public contextMenuPosition: Coordinate2D | null = null;
   private detectionData: BehaviorSubject<DetectionsMap> =
     new BehaviorSubject<DetectionsMap>({ top: [], side: [] });
   private selectedDetection: BehaviorSubject<Detection | null> =
@@ -229,14 +227,19 @@ export class DetectionsService {
     this.setDetectionData(this.detectionData.value);
   }
 
-  setContextMenuPosition(position: Coordinate2D | null) {
-    if (position === null) return;
-    this.contextMenuPosition = position;
-  }
-
   setDetectionColor(color: string) {
     if (!this.selectedDetection.value) return;
     this.selectedDetection.value.color = color;
+    const viewportNames = Object.keys(this.detectionData.value);
+    viewportNames.forEach((viewportName) => {
+      const detections =
+        this.detectionData.value[viewportName as keyof DetectionsMap];
+      detections.forEach((det) => {
+        if (det.categoryName === this.selectedDetection.value?.categoryName) {
+          det.color = color;
+        }
+      });
+    });
     this.setDetectionData(this.detectionData.value);
   }
 

@@ -122,7 +122,6 @@ export class DetectionContextMenuComponent {
 
     this.position = { x: x + viewportOffset, y: y + this.yGap };
     this.visible = true;
-    this.detectionService.setContextMenuPosition(this.position);
   }
 
   private enableBoundingDetectionEdition() {
