@@ -8,7 +8,7 @@ import {
 } from '../../../enums/cornerstone';
 import { DetectionsService } from '../../services/detections/detections.service';
 import { CornerstoneService } from '../../services/cornerstone/cornerstone.service';
-import { Coordinate2D, Detection } from '../../../models/detection';
+import { Detection } from '../../../models/detection';
 
 @Component({
   selector: 'app-color-picker',
@@ -30,7 +30,6 @@ export class ColorPickerComponent implements AfterViewInit {
   bottomRowColors: string[] = ['#eb144c', '#f78da7', '#9900ef'];
   selectedColor: string = '';
   selectedDetection: Detection | null = null;
-  position: Coordinate2D | null = { x: 0, y: 0 };
   isShown: boolean = false;
 
   constructor(
@@ -45,7 +44,6 @@ export class ColorPickerComponent implements AfterViewInit {
           .getSelectedDetection()
           .subscribe((det) => {
             this.selectedDetection = det;
-            this.updatePosition();
             this.updateContent();
             this.isShown = true;
           });
@@ -74,20 +72,6 @@ export class ColorPickerComponent implements AfterViewInit {
         console.error('Invalid color name:', colorString);
       }
     }
-  }
-
-  private updatePosition() {
-    if (!this.selectedDetection) return;
-
-    const yOffset = 55;
-    const xOffset = 305;
-
-    const contextMenuPosition = this.detectionService.getContextMenuPosition();
-
-    this.position = {
-      x: contextMenuPosition!.x - xOffset,
-      y: contextMenuPosition!.y - yOffset,
-    };
   }
 
   rgbToHex = (rgbString: string): string => {

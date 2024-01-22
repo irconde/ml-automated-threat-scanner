@@ -1,8 +1,9 @@
 <div id="color-picker-container"
-     [ngStyle]="{'top': position!.y + 'px', 'left': position!.x + 'px'}"
      *ngIf="isShown">
+  <!--     [ngStyle]="{'top': position!.y + 'px', 'left': position!.x + 'px'}"-->
+
   <!--  Option for needing arrow to appear on top-->
-  <!--  <div id="color-picker-arrow-up"></div>-->
+  <div id="color-picker-arrow-up"></div>
 
   <div class="color-picker">
     <!-- Top Row - 7 square swatches with various colors -->
@@ -26,6 +27,6 @@
       </div>
     </div>
   </div>
-  <div id="color-picker-arrow-down"></div>
+  <!--  <div id="color-picker-arrow-down"></div>-->
 </div>
 

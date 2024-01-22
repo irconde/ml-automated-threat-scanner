@@ -11,6 +11,7 @@
   --arrow-size: 0.75rem;
 
   position: absolute;
+  transform: translate(12.5%, 17%);
   z-index: 500;
 
   .color-picker {
@@ -81,7 +82,7 @@
 
   #color-picker-arrow-up {
     position: absolute;
-    right: 1rem;
+    transform: translate(1rem, -100%);
     width: 0;
     height: 0;
     border-left: var(--arrow-size) solid transparent;
