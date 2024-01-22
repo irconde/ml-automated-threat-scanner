@@ -5,6 +5,7 @@ import { cornerstone } from '../../csSetup';
 import {
   getViewportByViewpoint,
   setBoundingEditToolActive,
+  setPolygonEditToolActive,
   updateCornerstoneViewports,
 } from '../../utilities/cornerstone.utilities';
 import { NgIf, NgStyle } from '@angular/common';
@@ -135,6 +136,16 @@ export class DetectionContextMenuComponent {
     });
   }
 
+  private enablePolygonDetectionEdition() {
+    if (this.selectedDetection === null) return;
+    setPolygonEditToolActive(this.selectedDetection);
+    this.csService.setCsConfiguration({
+      cornerstoneMode: CornerstoneMode.Edition,
+      annotationMode: AnnotationMode.NoTool,
+      editionMode: EditionMode.Polygon,
+    });
+  }
+
   handleMenuItemClick(type: EditionMode) {
     switch (type) {
       case EditionMode.Label:
@@ -152,8 +163,7 @@ export class DetectionContextMenuComponent {
       case EditionMode.Bounding:
         return this.enableBoundingDetectionEdition();
       case EditionMode.Polygon:
-        console.log('Polygon Mask Edit');
-        break;
+        return this.enablePolygonDetectionEdition();
       case EditionMode.Move:
         console.log('Move');
         break;
