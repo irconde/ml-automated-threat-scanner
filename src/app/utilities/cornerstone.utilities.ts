@@ -135,7 +135,7 @@ export const setPolygonEditToolActive = (
   cornerstoneTools.setToolOptions(ToolNames.Polygon, {
     cornerstoneMode: CornerstoneMode.Edition,
     editionMode: EditionMode.Polygon,
-    updatingDetection: true,
+    updatingAnnotation: true,
   });
   cornerstoneTools.setToolActive(ToolNames.Polygon, {
     mouseButtonMask: 1,
