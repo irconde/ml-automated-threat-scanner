@@ -10,8 +10,9 @@ import {
   calculateBoundingBox,
   polygonDataToXYArray,
 } from './detection.utilities';
-import { BoundingBox, Detection, Point } from '../../models/detection';
+import { Detection } from '../../models/detection';
 import { DETECTION_STYLE } from '../../enums/detection-styles';
+import { PolygonToolPayload } from '../../models/cornerstone-tools.types';
 
 export const VIEWPORTS_CLASSNAME = 'viewportElement';
 /**
@@ -29,14 +30,9 @@ export const updateCornerstoneViewports = () => {
   }
 };
 
-export const getCreatedPolygonFromTool = (
+export const getPolygonFromTool = (
   viewport: HTMLElement,
-):
-  | {
-      bbox: BoundingBox;
-      polygonMask: Point[];
-    }
-  | undefined => {
+): PolygonToolPayload | undefined => {
   const state = cornerstoneTools.getToolState(viewport, ToolNames.Polygon);
   if (!state?.data[0]) return undefined;
   const handles: PolygonHandles = state?.data[0].handles;
@@ -119,6 +115,34 @@ export const resetCornerstoneTools = (viewport: HTMLElement) => {
   cornerstoneTools.setToolActive(ToolNames.ZoomTouchPinch, {});
 };
 
+export const setPolygonEditToolActive = (
+  selectedDetection: Detection,
+): false | void => {
+  const hasPolygon =
+    'polygonMask' in selectedDetection &&
+    selectedDetection.polygonMask !== undefined;
+  if (!hasPolygon) return false;
+  const viewport = getViewportByViewpoint(selectedDetection.viewpoint);
+  const toolState = {
+    handles: {
+      points: selectedDetection.polygonMask,
+    },
+    id: selectedDetection.id,
+    renderColor: DETECTION_STYLE.SELECTED_COLOR,
+    updatingAnnotation: true,
+  };
+  cornerstoneTools.addToolState(viewport, ToolNames.Polygon, toolState);
+  cornerstoneTools.setToolOptions(ToolNames.Polygon, {
+    cornerstoneMode: CornerstoneMode.Edition,
+    editionMode: EditionMode.Polygon,
+    updatingAnnotation: true,
+  });
+  cornerstoneTools.setToolActive(ToolNames.Polygon, {
+    mouseButtonMask: 1,
+  });
+  updateCornerstoneViewports();
+};
+
 export const setBoundingEditToolActive = (selectedDetection: Detection) => {
   // resetCornerstoneTool()
   // bbox = [x_0, y_0, w, h]
@@ -160,7 +184,6 @@ export const setBoundingEditToolActive = (selectedDetection: Detection) => {
         : undefined,
     binaryMask: selectedDetection.binaryMask,
   };
-  console.log({ polygonPassed: data.segmentation });
 
   const viewport = getViewportByViewpoint(selectedDetection.viewpoint);
   cornerstoneTools.addToolState(viewport, ToolNames.BoundingBox, data);
