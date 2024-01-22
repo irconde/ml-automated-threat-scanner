@@ -20,6 +20,7 @@ import { DetectionsService } from '../services/detections/detections.service';
 import {
   getCreatedBoundingBoxFromTool,
   getPolygonFromTool,
+  isModeAnyOf,
   resetCornerstoneTool,
   resetCornerstoneTools,
   updateCornerstoneViewports,
@@ -86,8 +87,11 @@ export class CornerstoneDirective implements AfterViewInit {
       const isEditingPolygon = config.editionMode === EditionMode.Polygon;
       if (
         config.cornerstoneMode === CornerstoneMode.Annotation ||
-        config.editionMode === EditionMode.Bounding ||
-        isEditingPolygon
+        isModeAnyOf(
+          config.editionMode,
+          EditionMode.Bounding,
+          EditionMode.Polygon,
+        )
       ) {
         this.stopListeningToCLicks();
         if (isEditingPolygon) {
@@ -143,7 +147,6 @@ export class CornerstoneDirective implements AfterViewInit {
   }
 
   private onPolygonRender = () => {
-    console.log('RENDER POLY');
     cornerstone.updateImage(this.element, true);
   };
 
@@ -274,7 +277,6 @@ export class CornerstoneDirective implements AfterViewInit {
   }
 
   private handleBboxCreation() {
-    console.log('handleBboxCreation');
     const createdBoundingBox = getCreatedBoundingBoxFromTool(this.element);
     if (createdBoundingBox === undefined) return;
 

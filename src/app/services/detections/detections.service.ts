@@ -328,4 +328,23 @@ export class DetectionsService {
     }
     this.selectedAlgorithm.next(algorithm);
   }
+
+  public deleteSelectedDetection() {
+    if (this.selectedDetection.value === null) return;
+
+    const currentValue = this.detectionData.value;
+    const uuidToDelete = this.selectedDetection.value.uuid;
+
+    const [updatedTopArray, updatedSideArray] = [
+      currentValue.top,
+      currentValue.side,
+    ].map((detectionList) =>
+      detectionList.filter(({ uuid }) => uuid !== uuidToDelete),
+    );
+
+    // Update the BehaviorSubject with the modified DetectionsMap
+    this.detectionData.next({ top: updatedTopArray, side: updatedSideArray });
+
+    this.selectedDetection.next(null);
+  }
 }
