@@ -6,6 +6,7 @@ import {
   getViewportByViewpoint,
   setBoundingEditToolActive,
   setMovementToolActive,
+  updateCornerstoneViewports,
 } from '../../utilities/cornerstone.utilities';
 import { NgIf, NgStyle } from '@angular/common';
 import { ColorComponent } from '../svgs/color-svg/color-svg.component';
@@ -148,8 +149,7 @@ export class DetectionContextMenuComponent {
       case EditionMode.Move:
         return this.enableMovementTool();
       case EditionMode.Delete:
-        console.log('Delete');
-        break;
+        return this.handleDetectionDeletion();
       default:
         break;
     }
@@ -166,5 +166,17 @@ export class DetectionContextMenuComponent {
       annotationMode: AnnotationMode.NoTool,
       editionMode: EditionMode.Move,
     });
+  }
+
+  private handleDetectionDeletion() {
+    this.detectionService.deleteSelectedDetection();
+    // update the cs configuration to remove detection widgets if any are open
+    this.csService.setCsConfiguration({
+      editionMode: EditionMode.NoTool,
+      annotationMode: AnnotationMode.NoTool,
+      cornerstoneMode: CornerstoneMode.Selection,
+    });
+    // rerender the ports to remove the detection
+    updateCornerstoneViewports();
   }
 }
