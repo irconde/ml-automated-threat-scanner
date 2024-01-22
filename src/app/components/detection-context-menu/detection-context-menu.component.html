@@ -29,7 +29,8 @@
       </button>
       <button (click)="handleMenuItemClick(EditionMode.Move)" aria-label="Move Icon"
               type="button"
-              class="context-menu-button">
+              class="context-menu-button"
+              [ngStyle]="{'background-color': editionMode === EditionMode.Move ? '#b5b5b5' : ''}">
         <app-movement-svg/>
       </button>
 

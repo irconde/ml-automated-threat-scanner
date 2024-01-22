@@ -140,7 +140,7 @@ export const setMovementToolActive = (selectedDetection: Detection) => {
     },
     id: selectedDetection.id,
     renderColor: DETECTION_STYLE.SELECTED_COLOR,
-    categoryName: selectedDetection.categoryName,
+    categoryName: selectedDetection.className,
     updatingAnnotation: true,
     polygonCoords: polygonMask ? [structuredClone(polygonMask)] : [],
   };

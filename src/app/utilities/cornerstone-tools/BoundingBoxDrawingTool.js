@@ -293,6 +293,7 @@ export default class BoundingBoxDrawingTool extends BaseAnnotationTool {
       );
       return;
     }
+
     return {
       visible: true,
       active: true,

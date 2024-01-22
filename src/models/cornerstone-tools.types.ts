@@ -49,3 +49,20 @@ export type MovementToolState = {
   updatingAnnotation: boolean;
   polygonCoords: Point[][];
 };
+
+export type MovementToolOutput = {
+  data: {
+    active: boolean;
+    categoryName: string;
+    handles: {
+      end: { x: number; y: number };
+      start: { x: number; y: number };
+    };
+    id: string;
+    invalidated: boolean;
+    polygonCoords: Point[][];
+    renderColor: string;
+    updatingAnnotation: boolean;
+    uuid: string;
+  }[];
+};
