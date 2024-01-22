@@ -234,10 +234,6 @@ export class DetectionsService {
     this.contextMenuPosition = position;
   }
 
-  getContextMenuPosition() {
-    return this.contextMenuPosition;
-  }
-
   setDetectionColor(color: string) {
     if (!this.selectedDetection.value) return;
     this.selectedDetection.value.color = color;

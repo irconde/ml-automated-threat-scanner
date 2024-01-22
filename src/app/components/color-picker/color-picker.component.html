@@ -1,32 +1,27 @@
 <div id="color-picker-container"
      *ngIf="isShown">
-  <!--     [ngStyle]="{'top': position!.y + 'px', 'left': position!.x + 'px'}"-->
-
-  <!--  Option for needing arrow to appear on top-->
   <div id="color-picker-arrow-up"></div>
 
   <div class="color-picker">
     <!-- Top Row - 7 square swatches with various colors -->
     <div class="row">
-      <div class="swatch" *ngFor="let color of topRowColors" [style.background]="color"
-           (click)="handleChange($event)"></div>
+      <button class="swatch" *ngFor="let color of topRowColors" [style.background]="color"
+              (click)="handleColorClick(color)"></button>
     </div>
 
     <!-- Bottom Row - 3 swatches aligned with top row and a hex color input -->
     <div class="row">
-      <div class="swatch" *ngFor="let color of bottomRowColors" [style.background]="color"
-           (click)="handleChange($event)"></div>
+      <button class="swatch" *ngFor="let color of bottomRowColors" [style.background]="color"
+              (click)="handleColorClick(color)"></button>
       <div id="color-input-container">
         <div id="hex-color-prefix">#</div>
         <input
           type="text"
-          [(ngModel)]="selectedColor"
+          [(ngModel)]="inputColor"
           (keydown)="onKeyDown($event.key)"
-          [ngStyle]="{'': ''}"
           placeholder="ffffff"/>
       </div>
     </div>
   </div>
-  <!--  <div id="color-picker-arrow-down"></div>-->
 </div>
 

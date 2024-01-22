@@ -29,8 +29,22 @@ export class ColorPickerComponent implements AfterViewInit {
   ];
   bottomRowColors: string[] = ['#eb144c', '#f78da7', '#9900ef'];
   selectedColor: string = '';
+  inputColor: string = '';
   selectedDetection: Detection | null = null;
   isShown: boolean = false;
+  readonly colorNamesMap: Record<string, string> = {
+    red: '#FF0000',
+    orange: '#FFA500',
+    yellow: '#FFFF00',
+    green: '#008000',
+    blue: '#0000FF',
+    purple: '#800080',
+    pink: '#FFC0CB',
+    brown: '#A52A2A',
+    gray: '#808080',
+    black: '#000000',
+    white: '#FFFFFF',
+  };
 
   constructor(
     private detectionService: DetectionsService,
@@ -62,16 +76,21 @@ export class ColorPickerComponent implements AfterViewInit {
     // Check if the color string starts with '#'
     if (colorString.startsWith('#')) {
       // If it starts with '#', remove the '#' symbol
-      this.selectedColor = colorString.replace(/^#/, '').toUpperCase();
+      this.updateColor(colorString);
     } else {
       // If it doesn't start with '#', assume it's a color name and convert to hex
       const hexColor = this.colorNameToHex(colorString);
       if (hexColor !== null) {
-        this.selectedColor = hexColor.toUpperCase();
+        this.updateColor(hexColor.toUpperCase());
       } else {
         console.error('Invalid color name:', colorString);
       }
     }
+  }
+
+  updateColor(color: string) {
+    this.selectedColor = color;
+    this.inputColor = color.slice(1);
   }
 
   rgbToHex = (rgbString: string): string => {
@@ -96,51 +115,27 @@ export class ColorPickerComponent implements AfterViewInit {
   };
 
   colorNameToHex = (colorName: string): string | null => {
-    const colorNamesMap: Record<string, string> = {
-      red: '#FF0000',
-      orange: '#FFA500',
-      yellow: '#FFFF00',
-      green: '#008000',
-      blue: '#0000FF',
-      purple: '#800080',
-      pink: '#FFC0CB',
-      brown: '#A52A2A',
-      gray: '#808080',
-      black: '#000000',
-      white: '#FFFFFF',
-    };
-
-    return colorNamesMap[colorName] || null;
+    return this.colorNamesMap[colorName] || null;
   };
 
-  handleChange(event: Event) {
-    this.selectedColor = (
-      event.target as HTMLInputElement
-    ).style.backgroundColor;
-    this.selectedColor = this.rgbToHex(this.selectedColor);
-    this.updateDetectionColor();
+  handleColorClick(color: string) {
+    this.updateDetectionColor(color);
   }
 
   onKeyDown(key: string) {
     if (key === 'Enter') {
-      this.updateDetectionColor();
+      this.updateDetectionColor('#' + this.inputColor);
     }
   }
 
-  updateDetectionColor() {
-    this.detectionService.setDetectionColor('#' + this.selectedColor);
+  updateDetectionColor(color: string) {
+    this.detectionService.setDetectionColor(color);
     this.csService.setCsConfiguration({
       cornerstoneMode: CornerstoneMode.Selection,
       annotationMode: AnnotationMode.NoTool,
       editionMode: EditionMode.NoTool,
     });
     this.detectionService.clearDetectionsSelection();
+    this.updateColor(color);
   }
 }
-
-/*
-* //TODO
-*
-* Figure out how to make the menu stay inside the viewport
-*
-* */
