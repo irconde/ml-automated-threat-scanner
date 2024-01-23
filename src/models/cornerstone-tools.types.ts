@@ -1,4 +1,4 @@
-import { Coordinate2D, Point } from './detection';
+import { BoundingBox, Coordinate2D, Point } from './detection';
 
 interface BoundingEditUpdate {
   handles: {
@@ -25,6 +25,11 @@ interface BoundingEditUpdate {
   invalidated: boolean;
   segmentation?: Point[];
 }
+
+export type PolygonToolPayload = {
+  bbox: BoundingBox;
+  polygonMask: Point[];
+};
 
 export type BoundingEditToolState =
   | {

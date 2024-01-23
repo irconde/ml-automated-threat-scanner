@@ -24,7 +24,7 @@ import { cornerstone, cornerstoneTools } from '../csSetup';
 import { DetectionsService } from '../services/detections/detections.service';
 import {
   getCreatedBoundingBoxFromTool,
-  getCreatedPolygonFromTool,
+  getPolygonFromTool,
   isModeAnyOf,
   resetCornerstoneTool,
   resetCornerstoneTools,
@@ -44,7 +44,9 @@ import { SettingsService } from '../services/settings/settings.service';
 import {
   BoundingEditToolState,
   MovementToolOutput,
+  PolygonToolPayload,
 } from '../../models/cornerstone-tools.types';
+
 
 @Directive({
   selector: '[csDirective]',
@@ -89,6 +91,7 @@ export class CornerstoneDirective implements AfterViewInit {
     });
     this.csService.getCsConfiguration().subscribe((config) => {
       this.csConfig = config;
+      const isEditingPolygon = config.editionMode === EditionMode.Polygon;
       if (
         config.cornerstoneMode === CornerstoneMode.Annotation ||
         isModeAnyOf(
@@ -99,6 +102,13 @@ export class CornerstoneDirective implements AfterViewInit {
         )
       ) {
         this.stopListeningToCLicks();
+        if (isEditingPolygon) {
+          // cornerstone polygon tool doesn't rerender the image when a polygon is being edited
+          this.element.addEventListener(
+            CS_EVENTS.POLYGON_RENDER,
+            this.onPolygonRender,
+          );
+        }
       } else {
         this.listenToClicks();
       }
@@ -144,6 +154,10 @@ export class CornerstoneDirective implements AfterViewInit {
     this.isClickListenerActive = false;
   }
 
+  private onPolygonRender = () => {
+    cornerstone.updateImage(this.element, true);
+  };
+
   /**
    * Runs after onDragEnd event
    * @param event
@@ -180,30 +194,48 @@ export class CornerstoneDirective implements AfterViewInit {
     }
   };
 
+  private handlePolygonCreation(createdPolygon: PolygonToolPayload) {
+    console.log('Polygon created');
+    this.detectionsService.addDetection(
+      this.viewportName!,
+      createdPolygon.bbox,
+      createdPolygon.polygonMask,
+    );
+  }
+
+  private handlePolygonEdition(editedPolygon: PolygonToolPayload) {
+    console.log('Polygon edition');
+    this.detectionsService.updateSelectedDetection(
+      editedPolygon.bbox,
+      editedPolygon.polygonMask,
+    );
+    this.element.removeEventListener(
+      CS_EVENTS.POLYGON_RENDER,
+      this.onPolygonRender,
+    );
+  }
+
   /**
    * Runs when a polygon mask has been fully drawn. This event is triggered by the PolygonDrawingTool
    */
   @HostListener(CS_EVENTS.POLYGON_MASK_CREATED, ['$event'])
   onPolygonEnd(event: Event) {
-    console.log('Polygon created');
-    const createdPolygon = getCreatedPolygonFromTool(this.element);
+    event.stopPropagation();
+    const polygonToolPayload = getPolygonFromTool(this.element);
+    if (polygonToolPayload === undefined) {
+      console.warn('Polygon tool state is undefined');
+    } else if (this.csConfig.annotationMode === AnnotationMode.Polygon) {
+      this.handlePolygonCreation(polygonToolPayload);
+    } else {
+      this.handlePolygonEdition(polygonToolPayload);
+    }
+
     this.csService.setCsConfiguration({
       cornerstoneMode: CornerstoneMode.Edition,
       annotationMode: AnnotationMode.NoTool,
       editionMode: EditionMode.NoTool,
     });
 
-    if (createdPolygon === undefined) {
-      console.warn('Polygon tool state is undefined');
-      return;
-    }
-    event.stopPropagation();
-    console.log(createdPolygon);
-    this.detectionsService.addDetection(
-      this.viewportName!,
-      createdPolygon.bbox,
-      createdPolygon.polygonMask,
-    );
     updateCornerstoneViewports();
     resetCornerstoneTool(ToolNames.Polygon, this.element);
   }
@@ -216,9 +248,9 @@ export class CornerstoneDirective implements AfterViewInit {
   onDragEnd() {
     console.log('onDragEnd');
     if (this.csConfig.annotationMode === AnnotationMode.Bounding) {
-      this.handleBoundingBoxDetectionCreation();
+      this.handleBboxCreation();
     } else if (this.csConfig.editionMode === EditionMode.Bounding) {
-      this.handleBoundingBoxDetectionEdition();
+      this.handleBboxEdition();
     } else if (this.csConfig.editionMode === EditionMode.Move) {
       this.handleDetectionMovement();
     }
@@ -254,8 +286,7 @@ export class CornerstoneDirective implements AfterViewInit {
     cornerstone.displayImage(this.element, image);
   }
 
-  private handleBoundingBoxDetectionCreation() {
-    console.log('handleBoundingBoxDetectionCreation');
+  private handleBboxCreation() {
     const createdBoundingBox = getCreatedBoundingBoxFromTool(this.element);
     if (createdBoundingBox === undefined) return;
 
@@ -381,7 +412,7 @@ export class CornerstoneDirective implements AfterViewInit {
     });
   }
 
-  private handleBoundingBoxDetectionEdition() {
+  private handleBboxEdition() {
     const toolState: BoundingEditToolState = cornerstoneTools.getToolState(
       this.element,
       ToolNames.BoundingBox,

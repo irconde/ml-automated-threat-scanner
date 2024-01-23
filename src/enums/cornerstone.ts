@@ -46,4 +46,5 @@ export const CS_EVENTS = {
   CLICK: 'cornerstonetoolsmouseclick',
   POLYGON_MASK_CREATED: 'polygon_mask_created',
   POLYGON_MASK_MODIFIED: 'polygon_mask_modified',
+  POLYGON_RENDER: 'cornerstonetoolsmousedrag',
 } as const;

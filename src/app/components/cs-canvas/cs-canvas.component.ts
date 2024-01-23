@@ -14,11 +14,11 @@ import { CornerstoneMode, ToolNames } from '../../../enums/cornerstone';
 import { cornerstoneTools } from '../../csSetup';
 import BoundingBoxDrawingTool from '../../utilities/cornerstone-tools/BoundingBoxDrawingTool';
 import PolygonDrawingTool from '../../utilities/cornerstone-tools/PolygonDrawingTool';
-import AnnotationMovementTool from '../../utilities/cornerstone-tools/AnnotationMovementTool';
 import { UiService } from '../../services/ui/ui.service';
 import { resizeCornerstoneViewports } from '../../utilities/cornerstone.utilities';
 import { DetectionContextMenuComponent } from '../detection-context-menu/detection-context-menu.component';
 import { AlgorithmInfoComponent } from '../algorithm-info/algorithm-info.component';
+import AnnotationMovementTool from '../../utilities/cornerstone-tools/AnnotationMovementTool';
 
 @Component({
   selector: 'app-cs-canvas',
