@@ -16,6 +16,7 @@ import { TopBarComponent } from '../top-bar/top-bar.component';
 import { DetectionContextMenuComponent } from '../detection-context-menu/detection-context-menu.component';
 import { SideMenuComponent } from '../side-menu/side-menu.component';
 import { LabelEditComponent } from '../label-edit/label-edit.component';
+import {ColorPickerComponent} from "../color-picker/color-picker.component";
 
 @Component({
   selector: 'app-main',
@@ -35,6 +36,7 @@ import { LabelEditComponent } from '../label-edit/label-edit.component';
     DetectionContextMenuComponent,
     SideMenuComponent,
     LabelEditComponent,
+    ColorPickerComponent,
   ],
 })
 export class AppMain {

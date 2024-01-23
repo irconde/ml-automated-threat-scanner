@@ -12,8 +12,9 @@
       <button (click)="handleMenuItemClick(EditionMode.Color)"
               aria-label="Color Edition Icon"
               type="button"
-              class="context-menu-button">
-        <app-color-svg [color]="detectionColor"/>
+              class="context-menu-button"
+              id="color-edit-button">
+        <app-color-svg [color]="updateDetectionColor()"/>
       </button>
       <button (click)="handleMenuItemClick(EditionMode.Bounding)"
               aria-label="Bounding Box Edition Icon"
@@ -41,4 +42,5 @@
       <app-delete-svg/>
     </button>
   </div>
+  <app-color-picker/>
 </div>
