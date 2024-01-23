@@ -14,7 +14,7 @@
               type="button"
               class="context-menu-button"
               id="color-edit-button">
-        <app-color-svg [color]="detectionColor"/>
+        <app-color-svg [color]="updateDetectionColor()"/>
       </button>
       <button (click)="handleMenuItemClick(EditionMode.Bounding)"
               aria-label="Bounding Box Edition Icon"

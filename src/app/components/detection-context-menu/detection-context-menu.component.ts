@@ -88,6 +88,10 @@ export class DetectionContextMenuComponent {
     });
   }
 
+  updateDetectionColor() {
+    return this.selectedDetection!.color;
+  }
+
   private hideMenu() {
     this.visible = false;
     this.position = null;

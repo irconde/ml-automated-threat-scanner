@@ -135,7 +135,6 @@ export class ColorPickerComponent implements AfterViewInit {
       annotationMode: AnnotationMode.NoTool,
       editionMode: EditionMode.NoTool,
     });
-    this.detectionService.clearDetectionsSelection();
     this.updateColor(color);
   }
 }
