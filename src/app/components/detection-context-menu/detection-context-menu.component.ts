@@ -23,6 +23,9 @@ import {
   CornerstoneMode,
   EditionMode,
 } from '../../../enums/cornerstone';
+import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
+import { ColorPickerComponent } from '../color-picker/color-picker.component';
 
 @Component({
   selector: 'app-detection-context-menu',
@@ -40,6 +43,9 @@ import {
     DeleteComponent,
     LabelEditComponent,
     SideMenuComponent,
+    MatButtonModule,
+    MatMenuModule,
+    ColorPickerComponent,
   ],
 })
 export class DetectionContextMenuComponent {
@@ -81,6 +87,10 @@ export class DetectionContextMenuComponent {
       this.enablePositionOffset =
         detections.top.length > 0 && detections.side.length > 0;
     });
+  }
+
+  updateDetectionColor() {
+    return this.selectedDetection!.color;
   }
 
   private hideMenu() {
@@ -149,8 +159,11 @@ export class DetectionContextMenuComponent {
           editionMode: EditionMode.Label,
         });
       case EditionMode.Color:
-        console.log('Color Edit');
-        break;
+        return this.csService.setCsConfiguration({
+          cornerstoneMode: CornerstoneMode.Edition,
+          annotationMode: AnnotationMode.NoTool,
+          editionMode: EditionMode.Color,
+        });
       case EditionMode.Bounding:
         return this.enableBoundingDetectionEdition();
       case EditionMode.Polygon:

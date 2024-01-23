@@ -227,6 +227,22 @@ export class DetectionsService {
     this.setDetectionData(this.detectionData.value);
   }
 
+  setDetectionColor(color: string) {
+    if (!this.selectedDetection.value) return;
+    this.selectedDetection.value.color = color;
+    const viewportNames = Object.keys(this.detectionData.value);
+    viewportNames.forEach((viewportName) => {
+      const detections =
+        this.detectionData.value[viewportName as keyof DetectionsMap];
+      detections.forEach((det) => {
+        if (det.categoryName === this.selectedDetection.value?.categoryName) {
+          det.color = color;
+        }
+      });
+    });
+    this.setDetectionData(this.detectionData.value);
+  }
+
   addDetection(
     viewpoint: keyof DetectionsMap,
     boundingBox: BoundingBox,
