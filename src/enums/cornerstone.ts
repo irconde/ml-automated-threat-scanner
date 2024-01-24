@@ -1,7 +1,7 @@
 export enum ToolNames {
   BoundingBox = 'BoundingBoxDrawing',
   Polygon = 'PolygonDrawingTool',
-  AnnotationMovement = 'AnnotationMovementTool',
+  Movement = 'AnnotationMovementTool',
   Pan = 'Pan',
   ZoomMouseWheel = 'ZoomMouseWheel',
   ZoomTouchPinch = 'ZoomTouchPinch',

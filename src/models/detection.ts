@@ -73,3 +73,6 @@ export type DetectionGroups = Record<string, DetectionGroupMetaData>;
 // TODO: move these methods to Detections class
 export const getDetectionGroupName = (detection: Detection) =>
   detection.algorithm || detection.categoryName;
+
+export const getDetectionPolygon = (detection: Detection) =>
+  'polygonMask' in detection ? detection.polygonMask : undefined;

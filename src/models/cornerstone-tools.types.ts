@@ -36,3 +36,40 @@ export type BoundingEditToolState =
       data: BoundingEditUpdate[];
     }
   | undefined;
+
+export type MovementToolInputState = {
+  handles: {
+    start: {
+      x: number;
+      y: number;
+    };
+    end: {
+      x: number;
+      y: number;
+    };
+  };
+  id: string;
+  renderColor: string;
+  categoryName: string;
+  updatingAnnotation: boolean;
+  polygonCoords: Point[][];
+};
+
+type MovementToolStateOutput = {
+  data: {
+    active: boolean;
+    categoryName: string;
+    handles: {
+      end: { x: number; y: number };
+      start: { x: number; y: number };
+    };
+    id: string;
+    invalidated: boolean;
+    polygonCoords: Point[][];
+    renderColor: string;
+    updatingAnnotation: boolean;
+    uuid: string;
+  }[];
+};
+
+export type MovementToolOutput = MovementToolStateOutput | undefined;

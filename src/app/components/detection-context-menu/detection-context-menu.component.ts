@@ -4,7 +4,9 @@ import { DetectionsService } from '../../services/detections/detections.service'
 import { cornerstone } from '../../csSetup';
 import {
   getViewportByViewpoint,
+  resetAllViewportsCsTools,
   setBoundingEditToolActive,
+  setMovementToolActive,
   setPolygonEditToolActive,
   updateCornerstoneViewports,
 } from '../../utilities/cornerstone.utilities';
@@ -26,6 +28,7 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { ColorPickerComponent } from '../color-picker/color-picker.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-detection-context-menu',
@@ -43,6 +46,7 @@ import { ColorPickerComponent } from '../color-picker/color-picker.component';
     DeleteComponent,
     LabelEditComponent,
     SideMenuComponent,
+    MatTooltipModule,
     MatButtonModule,
     MatMenuModule,
     ColorPickerComponent,
@@ -169,8 +173,7 @@ export class DetectionContextMenuComponent {
       case EditionMode.Polygon:
         return this.enablePolygonDetectionEdition();
       case EditionMode.Move:
-        console.log('Move');
-        break;
+        return this.enableMovementTool();
       case EditionMode.Delete:
         return this.handleDetectionDeletion();
       default:
@@ -179,6 +182,31 @@ export class DetectionContextMenuComponent {
   }
 
   protected readonly EditionMode = EditionMode;
+
+  private enableMovementTool() {
+    if (this.selectedDetection === null) return;
+
+    setMovementToolActive(this.selectedDetection);
+    // reset the movement tool if the user clicks
+    // added hear in case user switches tools while the movement tool is activated
+    document.addEventListener(
+      'click',
+      () => {
+        this.csService.setCsConfiguration({
+          cornerstoneMode: CornerstoneMode.Edition,
+          annotationMode: AnnotationMode.NoTool,
+          editionMode: EditionMode.NoTool,
+        });
+        resetAllViewportsCsTools();
+      },
+      { once: true, capture: true },
+    );
+    this.csService.setCsConfiguration({
+      cornerstoneMode: CornerstoneMode.Edition,
+      annotationMode: AnnotationMode.NoTool,
+      editionMode: EditionMode.Move,
+    });
+  }
 
   private handleDetectionDeletion() {
     this.detectionService.deleteSelectedDetection();

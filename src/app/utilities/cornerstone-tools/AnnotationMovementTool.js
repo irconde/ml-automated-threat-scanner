@@ -10,6 +10,7 @@ import { DETECTION_STYLE } from "../../../enums/detection-styles";
 import { getTextLabelSize, limitCharCount } from "../text.utilities";
 import {
   calculatePolygonMask,
+  pointInRect,
   renderPolygonMasks,
 } from "../detection.utilities";
 
@@ -28,7 +29,7 @@ const drawRect = csTools.importInternal("drawing/drawRect");
 export default class AnnotationMovementTool extends BaseAnnotationTool {
   constructor(props = {}) {
     const defaultProps = {
-      name: ToolNames.AnnotationMovement,
+      name: ToolNames.Movement,
       supportedInteractionTypes: ["Mouse", "Touch"],
       configuration: {
         drawHandles: true,
@@ -61,7 +62,7 @@ export default class AnnotationMovementTool extends BaseAnnotationTool {
     const startCanvas = cornerstone.pixelToCanvas(element, data.handles.start);
     const endCanvas = cornerstone.pixelToCanvas(element, data.handles.end);
     const rect = [startCanvas.x, startCanvas.y, endCanvas.x, endCanvas.y];
-    return Utils.pointInRect(coords, rect);
+    return pointInRect(coords, rect);
   }
 
   // Method that overrides the original abstract method in the cornerstone-tools library

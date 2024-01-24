@@ -19,10 +19,11 @@ import { cornerstone, cornerstoneTools } from '../csSetup';
 import { DetectionsService } from '../services/detections/detections.service';
 import {
   getCreatedBoundingBoxFromTool,
+  getMovementToolState,
   getPolygonFromTool,
   isModeAnyOf,
-  resetCornerstoneTool,
-  resetCornerstoneTools,
+  resetCsToolByViewport,
+  resetViewportCsTools,
   updateCornerstoneViewports,
 } from '../utilities/cornerstone.utilities';
 import {
@@ -57,7 +58,7 @@ export class CornerstoneDirective implements AfterViewInit {
 
   constructor(
     public elementRef: ElementRef,
-    private cornerstoneService: CornerstoneService,
+    private csService: CornerstoneService,
     private detectionsService: DetectionsService,
     private settingsService: SettingsService,
   ) {
@@ -82,7 +83,7 @@ export class CornerstoneDirective implements AfterViewInit {
       if (e.key !== 'Escape') return;
       this.handleExitingAnnotationMode();
     });
-    this.cornerstoneService.getCsConfiguration().subscribe((config) => {
+    this.csService.getCsConfiguration().subscribe((config) => {
       this.csConfig = config;
       const isEditingPolygon = config.editionMode === EditionMode.Polygon;
       if (
@@ -91,6 +92,7 @@ export class CornerstoneDirective implements AfterViewInit {
           config.editionMode,
           EditionMode.Bounding,
           EditionMode.Polygon,
+          EditionMode.Move,
         )
       ) {
         this.stopListeningToCLicks();
@@ -176,7 +178,7 @@ export class CornerstoneDirective implements AfterViewInit {
       }
     }
     if (detClicked) {
-      this.cornerstoneService.setCsConfiguration({
+      this.csService.setCsConfiguration({
         cornerstoneMode: CornerstoneMode.Edition,
         annotationMode: AnnotationMode.NoTool,
         editionMode: EditionMode.NoTool,
@@ -222,14 +224,14 @@ export class CornerstoneDirective implements AfterViewInit {
       this.handlePolygonEdition(polygonToolPayload);
     }
 
-    this.cornerstoneService.setCsConfiguration({
+    this.csService.setCsConfiguration({
       cornerstoneMode: CornerstoneMode.Edition,
       annotationMode: AnnotationMode.NoTool,
       editionMode: EditionMode.NoTool,
     });
 
     updateCornerstoneViewports();
-    resetCornerstoneTool(ToolNames.Polygon, this.element);
+    resetCsToolByViewport(ToolNames.Polygon, this.element);
   }
 
   /**
@@ -243,6 +245,8 @@ export class CornerstoneDirective implements AfterViewInit {
       this.handleBboxCreation();
     } else if (this.csConfig.editionMode === EditionMode.Bounding) {
       this.handleBboxEdition();
+    } else if (this.csConfig.editionMode === EditionMode.Move) {
+      this.handleDetectionMovement();
     }
   }
 
@@ -290,13 +294,13 @@ export class CornerstoneDirective implements AfterViewInit {
       updateCornerstoneViewports();
     }
 
-    this.cornerstoneService.setCsConfiguration({
+    this.csService.setCsConfiguration({
       cornerstoneMode: cornerstoneMode,
       annotationMode: AnnotationMode.NoTool,
       editionMode: EditionMode.Label,
     });
 
-    resetCornerstoneTool(ToolNames.BoundingBox, this.element);
+    resetCsToolByViewport(ToolNames.BoundingBox, this.element);
   }
 
   /**
@@ -352,7 +356,7 @@ export class CornerstoneDirective implements AfterViewInit {
 
   private handleEmptyAreaClick() {
     this.detectionsService.clearDetectionsSelection();
-    this.cornerstoneService.setCsConfiguration({
+    this.csService.setCsConfiguration({
       cornerstoneMode: CornerstoneMode.Selection,
       annotationMode: AnnotationMode.NoTool,
       editionMode: EditionMode.NoTool,
@@ -365,12 +369,12 @@ export class CornerstoneDirective implements AfterViewInit {
    */
   private handleExitingAnnotationMode() {
     if (!this.isAnnotating()) return;
-    this.cornerstoneService.setCsConfiguration({
+    this.csService.setCsConfiguration({
       cornerstoneMode: CornerstoneMode.Selection,
       annotationMode: AnnotationMode.NoTool,
       editionMode: EditionMode.NoTool,
     });
-    resetCornerstoneTool(ToolNames.BoundingBox, this.element);
+    resetCsToolByViewport(ToolNames.BoundingBox, this.element);
     cornerstone.updateImage(this.element, false);
   }
 
@@ -411,26 +415,42 @@ export class CornerstoneDirective implements AfterViewInit {
       return;
     }
 
-    console.log(structuredClone(toolState));
-    let { handles, segmentation } = toolState.data[0];
+    const { handles, segmentation } = toolState.data[0];
     const bbox = getBboxFromHandles({ start: handles.start, end: handles.end });
 
-    if (segmentation !== undefined) {
-      segmentation = calculatePolygonMask(
-        [bbox[0], bbox[1], bbox[0] + bbox[2], bbox[1] + bbox[3]],
-        segmentation,
-      );
-    }
+    const calculatedPolygonMask = segmentation
+      ? calculatePolygonMask(
+          [bbox[0], bbox[1], bbox[0] + bbox[2], bbox[1] + bbox[3]],
+          segmentation,
+        )
+      : undefined;
 
-    this.detectionsService.updateSelectedDetection(bbox, segmentation);
+    this.detectionsService.updateSelectedDetection(bbox, calculatedPolygonMask);
 
-    resetCornerstoneTools(this.element);
+    resetViewportCsTools(this.element);
     cornerstone.updateImage(this.element, false);
 
-    this.cornerstoneService.setCsConfiguration({
+    this.csService.setCsConfiguration({
       cornerstoneMode: CornerstoneMode.Selection,
       editionMode: EditionMode.NoTool,
       annotationMode: AnnotationMode.NoTool,
     });
+  }
+
+  private handleDetectionMovement() {
+    const toolState = getMovementToolState(this.element);
+    if (toolState) {
+      this.detectionsService.updateSelectedDetection(
+        toolState.bbox,
+        toolState.polygonMask,
+      );
+    }
+    this.csService.setCsConfiguration({
+      cornerstoneMode: CornerstoneMode.Edition,
+      annotationMode: AnnotationMode.NoTool,
+      editionMode: EditionMode.NoTool,
+    });
+
+    resetViewportCsTools(this.element);
   }
 }
