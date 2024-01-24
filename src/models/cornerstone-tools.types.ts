@@ -37,7 +37,7 @@ export type BoundingEditToolState =
     }
   | undefined;
 
-export type MovementToolState = {
+export type MovementToolInputState = {
   handles: {
     start: {
       x: number;
@@ -55,7 +55,7 @@ export type MovementToolState = {
   polygonCoords: Point[][];
 };
 
-export type MovementToolOutput = {
+type MovementToolStateOutput = {
   data: {
     active: boolean;
     categoryName: string;
@@ -71,3 +71,5 @@ export type MovementToolOutput = {
     uuid: string;
   }[];
 };
+
+export type MovementToolOutput = MovementToolStateOutput | undefined;

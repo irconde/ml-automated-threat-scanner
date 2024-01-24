@@ -6,7 +6,8 @@ export interface ViewportData {
   detectionData: Detection[];
 }
 
-export interface ViewportsMap {
-  top: ViewportData;
-  side: ViewportData;
-}
+export const ViewportNames = ['top', 'side'] as const;
+
+export type ViewportsMap = {
+  [key in (typeof ViewportNames)[number]]: ViewportData;
+};

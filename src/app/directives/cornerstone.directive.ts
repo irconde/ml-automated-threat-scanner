@@ -6,12 +6,7 @@ import {
   Input,
 } from '@angular/core';
 import { ViewportData, ViewportsMap } from '../../models/viewport';
-import {
-  Coordinate2D,
-  Detection,
-  Dimension2D,
-  Point,
-} from '../../models/detection';
+import { Coordinate2D, Detection, Dimension2D } from '../../models/detection';
 import { DETECTION_STYLE } from '../../enums/detection-styles';
 import {
   calculatePolygonMask,
@@ -24,10 +19,11 @@ import { cornerstone, cornerstoneTools } from '../csSetup';
 import { DetectionsService } from '../services/detections/detections.service';
 import {
   getCreatedBoundingBoxFromTool,
+  getMovementToolState,
   getPolygonFromTool,
   isModeAnyOf,
-  resetCornerstoneTool,
-  resetCornerstoneTools,
+  resetCsToolByViewport,
+  resetViewportCsTools,
   updateCornerstoneViewports,
 } from '../utilities/cornerstone.utilities';
 import {
@@ -43,10 +39,8 @@ import { renderBboxCrosshair } from '../utilities/drawing.utilities';
 import { SettingsService } from '../services/settings/settings.service';
 import {
   BoundingEditToolState,
-  MovementToolOutput,
   PolygonToolPayload,
 } from '../../models/cornerstone-tools.types';
-
 
 @Directive({
   selector: '[csDirective]',
@@ -237,7 +231,7 @@ export class CornerstoneDirective implements AfterViewInit {
     });
 
     updateCornerstoneViewports();
-    resetCornerstoneTool(ToolNames.Polygon, this.element);
+    resetCsToolByViewport(ToolNames.Polygon, this.element);
   }
 
   /**
@@ -306,7 +300,7 @@ export class CornerstoneDirective implements AfterViewInit {
       editionMode: EditionMode.Label,
     });
 
-    resetCornerstoneTool(ToolNames.BoundingBox, this.element);
+    resetCsToolByViewport(ToolNames.BoundingBox, this.element);
   }
 
   /**
@@ -380,7 +374,7 @@ export class CornerstoneDirective implements AfterViewInit {
       annotationMode: AnnotationMode.NoTool,
       editionMode: EditionMode.NoTool,
     });
-    resetCornerstoneTool(ToolNames.BoundingBox, this.element);
+    resetCsToolByViewport(ToolNames.BoundingBox, this.element);
     cornerstone.updateImage(this.element, false);
   }
 
@@ -421,20 +415,19 @@ export class CornerstoneDirective implements AfterViewInit {
       return;
     }
 
-    console.log(structuredClone(toolState));
-    let { handles, segmentation } = toolState.data[0];
+    const { handles, segmentation } = toolState.data[0];
     const bbox = getBboxFromHandles({ start: handles.start, end: handles.end });
 
-    if (segmentation !== undefined) {
-      segmentation = calculatePolygonMask(
-        [bbox[0], bbox[1], bbox[0] + bbox[2], bbox[1] + bbox[3]],
-        segmentation,
-      );
-    }
+    const calculatedPolygonMask = segmentation
+      ? calculatePolygonMask(
+          [bbox[0], bbox[1], bbox[0] + bbox[2], bbox[1] + bbox[3]],
+          segmentation,
+        )
+      : undefined;
 
-    this.detectionsService.updateSelectedDetection(bbox, segmentation);
+    this.detectionsService.updateSelectedDetection(bbox, calculatedPolygonMask);
 
-    resetCornerstoneTools(this.element);
+    resetViewportCsTools(this.element);
     cornerstone.updateImage(this.element, false);
 
     this.csService.setCsConfiguration({
@@ -445,33 +438,19 @@ export class CornerstoneDirective implements AfterViewInit {
   }
 
   private handleDetectionMovement() {
-    const toolOutput: MovementToolOutput = cornerstoneTools.getToolState(
-      this.element,
-      ToolNames.Movement,
-    );
-    const { handles, polygonCoords } = toolOutput.data[0];
-    const bbox = [
-      handles.start.x,
-      handles.start.y,
-      handles.end.x - handles.start.x,
-      handles.end.y - handles.start.y,
-    ];
-    const newSegmentation: Point[][] = [];
-    polygonCoords.forEach((segment) => {
-      newSegmentation.push(
-        calculatePolygonMask(
-          [handles.start.x, handles.start.y, handles.end.x, handles.end.y],
-          segment,
-        ),
+    const toolState = getMovementToolState(this.element);
+    if (toolState) {
+      this.detectionsService.updateSelectedDetection(
+        toolState.bbox,
+        toolState.polygonMask,
       );
-    });
-    this.detectionsService.updateSelectedDetection(bbox, newSegmentation[0]);
+    }
     this.csService.setCsConfiguration({
       cornerstoneMode: CornerstoneMode.Edition,
       annotationMode: AnnotationMode.NoTool,
       editionMode: EditionMode.NoTool,
     });
 
-    resetCornerstoneTools(this.element);
+    resetViewportCsTools(this.element);
   }
 }

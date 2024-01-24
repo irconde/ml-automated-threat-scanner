@@ -4,6 +4,7 @@ import { DetectionsService } from '../../services/detections/detections.service'
 import { cornerstone } from '../../csSetup';
 import {
   getViewportByViewpoint,
+  resetAllViewportsCsTools,
   setBoundingEditToolActive,
   setMovementToolActive,
   setPolygonEditToolActive,
@@ -24,6 +25,7 @@ import {
   CornerstoneMode,
   EditionMode,
 } from '../../../enums/cornerstone';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-detection-context-menu',
@@ -41,6 +43,7 @@ import {
     DeleteComponent,
     LabelEditComponent,
     SideMenuComponent,
+    MatTooltipModule,
   ],
 })
 export class DetectionContextMenuComponent {
@@ -171,6 +174,20 @@ export class DetectionContextMenuComponent {
     if (this.selectedDetection === null) return;
 
     setMovementToolActive(this.selectedDetection);
+    // reset the movement tool if the user clicks
+    // added hear in case user switches tools while the movement tool is activated
+    document.addEventListener(
+      'click',
+      () => {
+        this.csService.setCsConfiguration({
+          cornerstoneMode: CornerstoneMode.Edition,
+          annotationMode: AnnotationMode.NoTool,
+          editionMode: EditionMode.NoTool,
+        });
+        resetAllViewportsCsTools();
+      },
+      { once: true, capture: true },
+    );
     this.csService.setCsConfiguration({
       cornerstoneMode: CornerstoneMode.Edition,
       annotationMode: AnnotationMode.NoTool,

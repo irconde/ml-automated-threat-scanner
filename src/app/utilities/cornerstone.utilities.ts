@@ -8,16 +8,17 @@ import {
 import { CreatedBoundingBox, PolygonHandles } from '../../models/cornerstone';
 import {
   calculateBoundingBox,
+  calculatePolygonMask,
   polygonDataToXYArray,
 } from './detection.utilities';
-import {
-  BoundingBox,
-  Detection,
-  getDetectionPolygon,
-  Point,
-} from '../../models/detection';
+import { Detection, getDetectionPolygon, Point } from '../../models/detection';
 import { DETECTION_STYLE } from '../../enums/detection-styles';
-import { MovementToolState, PolygonToolPayload } from '../../models/cornerstone-tools.types';
+import {
+  MovementToolInputState,
+  MovementToolOutput,
+  PolygonToolPayload,
+} from '../../models/cornerstone-tools.types';
+import { ViewportNames } from '../../models/viewport';
 
 export const VIEWPORTS_CLASSNAME = 'viewportElement';
 /**
@@ -66,12 +67,17 @@ export const getCreatedBoundingBoxFromTool = (
   return state?.data[0];
 };
 
-export const resetCornerstoneTool = (
+export const resetCsToolByViewport = (
   toolName: ToolNames,
   viewport: HTMLElement,
 ) => {
   cornerstoneTools.clearToolState(viewport, toolName);
   cornerstoneTools.setToolDisabled(toolName);
+  cornerstoneTools.setToolOptions(toolName, {
+    cornerstoneMode: CornerstoneMode.Selection,
+    temporaryLabel: undefined,
+    updatingAnnotation: false,
+  });
   cornerstoneTools.setToolActive('Pan', { mouseButtonMask: 1 });
   cornerstoneTools.setToolActive('ZoomMouseWheel', {});
   cornerstoneTools.setToolActive('ZoomTouchPinch', {});
@@ -92,32 +98,17 @@ export const setCornerstoneToolActive = (
   });
 };
 
-export const resetCornerstoneTools = (viewport: HTMLElement) => {
-  cornerstoneTools.setToolDisabled(ToolNames.BoundingBox);
-  cornerstoneTools.setToolDisabled(ToolNames.Polygon);
-  cornerstoneTools.setToolDisabled(ToolNames.Movement);
-
-  cornerstoneTools.clearToolState(viewport, ToolNames.BoundingBox);
-  cornerstoneTools.clearToolState(viewport, ToolNames.Polygon);
-  cornerstoneTools.clearToolState(viewport, ToolNames.Movement);
-
-  cornerstoneTools.setToolOptions(ToolNames.BoundingBox, {
-    cornerstoneMode: CornerstoneMode.Selection,
-    temporaryLabel: undefined,
+export const resetAllViewportsCsTools = () => {
+  ViewportNames.forEach((viewpoint) => {
+    const viewport = getViewportByViewpoint(viewpoint);
+    resetViewportCsTools(viewport);
   });
-  cornerstoneTools.setToolOptions(ToolNames.Polygon, {
-    cornerstoneMode: CornerstoneMode.Selection,
-    temporaryLabel: undefined,
-    updatingAnnotation: false,
-  });
-  cornerstoneTools.setToolOptions(ToolNames.Movement, {
-    cornerstoneMode: CornerstoneMode.Annotation,
-    temporaryLabel: undefined,
-  });
+};
 
-  cornerstoneTools.setToolActive(ToolNames.Pan, { mouseButtonMask: 1 });
-  cornerstoneTools.setToolActive(ToolNames.ZoomMouseWheel, {});
-  cornerstoneTools.setToolActive(ToolNames.ZoomTouchPinch, {});
+export const resetViewportCsTools = (viewport: HTMLElement) => {
+  [ToolNames.BoundingBox, ToolNames.Polygon, ToolNames.Movement].forEach(
+    (toolName) => resetCsToolByViewport(toolName, viewport),
+  );
 };
 
 export const setPolygonEditToolActive = (
@@ -150,7 +141,7 @@ export const setPolygonEditToolActive = (
 
 export const setMovementToolActive = (selectedDetection: Detection) => {
   const polygonMask = getDetectionPolygon(selectedDetection);
-  const toolState: MovementToolState = {
+  const toolState: MovementToolInputState = {
     handles: {
       start: {
         x: selectedDetection.boundingBox[0],
@@ -241,6 +232,32 @@ export const setBoundingEditToolActive = (selectedDetection: Detection) => {
   updateCornerstoneViewports();
 };
 
+export const getMovementToolState = (viewport: HTMLElement) => {
+  const toolOutput: MovementToolOutput = cornerstoneTools.getToolState(
+    viewport,
+    ToolNames.Movement,
+  );
+
+  if (!toolOutput) return undefined;
+  const { handles, polygonCoords } = toolOutput.data[0];
+  const bbox = [
+    handles.start.x,
+    handles.start.y,
+    handles.end.x - handles.start.x,
+    handles.end.y - handles.start.y,
+  ];
+  const calculatedMask: Point[][] = [];
+  polygonCoords.forEach((segment) => {
+    calculatedMask.push(
+      calculatePolygonMask(
+        [handles.start.x, handles.start.y, handles.end.x, handles.end.y],
+        segment,
+      ),
+    );
+  });
+
+  return { bbox, polygonMask: calculatedMask[0] };
+};
 /**
  * Called when the side menu visibility is toggled to resize the viewports
  */

@@ -27,10 +27,11 @@
               class="context-menu-button">
         <app-polygon-svg/>
       </button>
-      <button (click)="handleMenuItemClick(EditionMode.Move)" aria-label="Move Icon"
+      <button (click)="handleMenuItemClick(EditionMode.Move)" aria-label="Move Icon" matTooltip="Translate detection"
+              matTooltipShowDelay="250"
               type="button"
               class="context-menu-button"
-              [ngStyle]="{'background-color': editionMode === EditionMode.Move ? '#b5b5b5' : ''}">
+              [ngStyle]="{'background-color': editionMode === EditionMode.Move ? 'rgb(174, 174, 174)' : ''}">
         <app-movement-svg/>
       </button>
 
