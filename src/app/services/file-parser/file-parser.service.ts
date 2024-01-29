@@ -1,6 +1,10 @@
 import { Injectable } from '@angular/core';
 import JSZip from 'jszip';
-import { ParsedORA, PixelData } from '../../../models/file-parser';
+import {
+  FileParserOutput,
+  ParsedORA,
+  PixelData,
+} from '../../../models/file-parser';
 import { v4 as guid } from 'uuid';
 import {
   cocoBoxToBoundingBox,
@@ -15,12 +19,6 @@ import {
 } from '../../../models/detection';
 import dicomParser from 'dicom-parser';
 import * as DICOS from '../../utilities/dicos.utilities';
-
-type FileParserOutput = {
-  detectionData: RawDetection[];
-  imageData: PixelData[];
-  algorithms?: Record<string, DetectionAlgorithm>;
-};
 
 @Injectable({
   providedIn: 'root',

@@ -1,4 +1,7 @@
 import dicomParser from 'dicom-parser';
+import { DetectionType } from '../../models/detection';
+import JSZip from 'jszip';
+import { PixelData } from '../../models/file-parser';
 
 export const DICOS_DICTIONARY = {
   ThreatROIBase: {
@@ -63,7 +66,7 @@ export const DICOS_DICTIONARY = {
  * bounding box is defined by the two end points of the diagonal, and each point is defined by its coordinates x and y.
  */
 export const retrieveBoundingBoxData = (
-  image: dicomParser.Element
+  image: dicomParser.Element,
 ): number[] => {
   const BYTES_PER_FLOAT = 4;
   const B_BOX_POINT_COUNT = 2;
@@ -89,7 +92,7 @@ export const retrieveBoundingBoxData = (
     }
     bBoxCoords[bBoxIndex] = bBoxDataSet.float(
       DICOS_DICTIONARY['BoundingPolygon'].tag,
-      i
+      i,
     );
     bBoxIndex++;
   }
@@ -105,7 +108,7 @@ export const retrieveBoundingBoxData = (
 export const retrieveObjectClass = (image: dicomParser.Element): string => {
   const firstItem = image.dataSet?.elements['x40101038']?.items?.[0];
   const className = firstItem?.dataSet?.string(
-    DICOS_DICTIONARY['ThreatCategoryDescription'].tag
+    DICOS_DICTIONARY['ThreatCategoryDescription'].tag,
   );
   if (className) return className;
   else throw Error("Missing required field 'className'");
@@ -145,7 +148,7 @@ export const retrieveConfidenceLevel = (image: dicomParser.Element): number => {
  */
 export const retrieveMaskData = (
   image: dicomParser.Element,
-  data: dicomParser.DataSet
+  data: dicomParser.DataSet,
 ): undefined | [number[], number[], number[]] => {
   const dataSet = image.dataSet;
   if (dataSet === undefined) return;
@@ -173,7 +176,7 @@ export const retrieveMaskData = (
     }
     baseCoords[bBoxIndex] = baseDataSet.float(
       DICOS_DICTIONARY.ThreatROIBase.tag,
-      i
+      i,
     );
     bBoxIndex++;
   }
@@ -194,7 +197,7 @@ export const retrieveMaskData = (
     }
     extentsCoords[bBoxIndex] = baseDataSet.float(
       DICOS_DICTIONARY.ThreatROIExtents.tag,
-      j
+      j,
     );
     bBoxIndex++;
   }
@@ -205,9 +208,33 @@ export const retrieveMaskData = (
     const pixelData = new Uint8Array(
       data.byteArray.buffer,
       pixelDataElement.dataOffset,
-      pixelDataElement.length
+      pixelDataElement.length,
     );
     arrayPixelData = Array.from(pixelData);
   }
   return [arrayPixelData, baseCoords, extentsCoords];
+};
+
+export const generateDicosOutput = (imageData: PixelData[]) => {
+  const stackXML = document.implementation.createDocument('', '', null);
+  const prolog = '<?xml version="1.0" encoding="utf-8"?>';
+  const imageElem = stackXML.createElement('image');
+  imageElem.setAttribute('format', DetectionType.TDR);
+  const mimeType = new Blob(['image/openraster'], {
+    type: 'text/plain;charset=utf-8',
+  });
+  const newOra = new JSZip();
+  // TODO: figure out if compression should be 'STORE' or 'DEFLATE'
+  newOra.file('mimetype', mimeType, { compression: 'STORE' });
+  const stackCounter = 1;
+  const annotationID = 1;
+  const listOfPromises = [];
+  imageData.forEach((image) => {
+    const stackElem = stackXML.createElement('stack');
+    stackElem.setAttribute('name', `SOP Instance UID #${stackCounter}`);
+    stackElem.setAttribute('view', image.viewpoint);
+    const pixelLayer = stackXML.createElement('layer');
+    // We always know the first element in the stack.blob data is pixel element
+    pixelLayer.setAttribute('src', `data/${image.viewpoint}_pixel_data.dcs`);
+  });
 };
