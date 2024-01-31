@@ -158,7 +158,7 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
       visible: true,
       id: '',
       iscrowd: 0,
-      color: 'orange',
+      color: '#FFA500',
       categoryName: rawDetection.className,
     };
   }
