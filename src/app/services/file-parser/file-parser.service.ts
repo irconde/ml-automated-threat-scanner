@@ -18,7 +18,7 @@ import {
   RawDicosDetection,
 } from '../../../models/detection';
 import dicomParser from 'dicom-parser';
-import * as DICOS from '../../utilities/dicos.utilities';
+import * as DICOS from '../../utilities/dicos/dicos.utilities';
 
 @Injectable({
   providedIn: 'root',
