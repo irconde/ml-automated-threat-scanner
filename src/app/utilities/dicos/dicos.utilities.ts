@@ -220,7 +220,7 @@ export const retrieveMaskData = (
   return [arrayPixelData, baseCoords, extentsCoords];
 };
 
-export const generateDicosOutput = (
+export const generateDicosOutput = async (
   imageData: PixelData[],
   currentFileFormat: DetectionType,
   detections: Detection[],
@@ -235,9 +235,9 @@ export const generateDicosOutput = (
   const newOra = new JSZip();
   // TODO: figure out if compression should be 'STORE' or 'DEFLATE'
   newOra.file('mimetype', mimeType, { compression: 'STORE' });
-  const stackCounter = 1;
-  const annotationID = 1;
-  const listOfPromises = [];
+  let stackCounter = 1;
+  let detectionId = 1;
+  const listOfPromises: Promise<Blob>[] = [];
   imageData.forEach((image) => {
     const stackElem = stackXML.createElement('stack');
     stackElem.setAttribute('name', `SOP Instance UID #${stackCounter}`);
@@ -261,59 +261,53 @@ export const generateDicosOutput = (
     }
     stackElem.appendChild(pixelLayer);
 
-    // const topDetections = getTopDetections(
-    //   this.props.detections
-    // );
-    // for (let j = 0; j < topDetections.length; j++) {
-    //   let threatPromise = Dicos.detectionObjectToBlob(
-    //     topDetections[j],
-    //     image.pixelData,
-    //     this.props.currentFileFormat
-    //   )
-    //     .then((threatBlob) => {
-    //       newOra.file(
-    //         `data/top_threat_detection_${annotationID}.dcs`,
-    //         threatBlob
-    //       );
-    //       let newLayer = stackXML.createElement('layer');
-    //       newLayer.setAttribute(
-    //         'src',
-    //         `data/top_threat_detection_${annotationID}.dcs`
-    //       );
-    //       stackElem.appendChild(newLayer);
-    //       annotationID++;
-    //     })
-    //     .catch((error) => {
-    //       this.handleNextImageError(error);
-    //     });
-    //   listOfPromises.push(threatPromise);
-    // }
     detections.forEach((detection) => {
       const threatPromise = detectionObjectToBlob(
         detection,
-        image.pixelData,
-        currentFileFormat,
+        image.pixelData as Blob,
+        DetectionType.TDR,
       );
       threatPromise
         .then((threatBlob) => {
           newOra.file(
-            `data/top_threat_detection_${annotationID}.dcs`,
+            `data/${detection.viewpoint}_threat_detection_${detectionId}.dcs`,
             threatBlob,
           );
           const newLayer = stackXML.createElement('layer');
           newLayer.setAttribute(
             'src',
-            `data/top_threat_detection_${annotationID}.dcs`,
+            `data/${detection.viewpoint}_threat_detection_${detectionId}.dcs`,
           );
           stackElem.appendChild(newLayer);
-          annotationID++;
+          detectionId++;
         })
         .catch((error) => {
-          this.handleNextImageError(error);
+          // TODO: handle error here
+          console.warn(error);
         });
       listOfPromises.push(threatPromise);
     });
+
+    stackCounter++;
+    imageElem.appendChild(stackElem);
   });
+
+  try {
+    await Promise.all(listOfPromises);
+    stackXML.appendChild(imageElem);
+    newOra.file(
+      'stack.xml',
+      new Blob([prolog + new XMLSerializer().serializeToString(stackXML)], {
+        type: 'application/xml ',
+      }),
+    );
+    const file = await newOra.generateAsync({ type: 'base64' });
+    console.log('SUCCESS');
+    console.log(file);
+  } catch (error) {
+    // TODO: handle error here
+    console.warn(error);
+  }
 };
 
 const pngToDicosPixelData = async (viewport: HTMLElement) => {
