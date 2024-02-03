@@ -186,7 +186,10 @@ export class FileParserService {
     });
 
     await Promise.all(allPromises);
-    const returnValue: FileParserOutput = { detectionData, imageData };
+    const returnValue: FileParserOutput = {
+      detectionData,
+      pixelDataList: imageData,
+    };
     // return the algorithms too if there are any
     if (Object.keys(algorithms).length) {
       returnValue.algorithms = algorithms;

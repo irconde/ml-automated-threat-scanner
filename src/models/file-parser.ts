@@ -21,6 +21,6 @@ export interface PixelData {
 
 export type FileParserOutput = {
   detectionData: RawDetection[];
-  imageData: PixelData[];
+  pixelDataList: PixelData[];
   algorithms?: Record<string, DetectionAlgorithm>;
 };

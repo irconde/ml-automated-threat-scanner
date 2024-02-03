@@ -9,7 +9,11 @@ import { KeyValuePipe, NgClass, NgForOf, NgIf, NgStyle } from '@angular/common';
 import { DetectionToolboxFabComponent } from '../detection-toolbox-fab/detection-toolbox-fab.component';
 import { ViewportsMap } from '../../../models/viewport';
 import { DetectionsService } from '../../services/detections/detections.service';
-import { Detection, RawDetection } from '../../../models/detection';
+import {
+  Detection,
+  DetectionType,
+  RawDetection,
+} from '../../../models/detection';
 import { CornerstoneMode, ToolNames } from '../../../enums/cornerstone';
 import { cornerstoneTools } from '../../csSetup';
 import BoundingBoxDrawingTool from '../../utilities/cornerstone-tools/BoundingBoxDrawingTool';
@@ -19,6 +23,8 @@ import { resizeCornerstoneViewports } from '../../utilities/cornerstone.utilitie
 import { DetectionContextMenuComponent } from '../detection-context-menu/detection-context-menu.component';
 import { AlgorithmInfoComponent } from '../algorithm-info/algorithm-info.component';
 import AnnotationMovementTool from '../../utilities/cornerstone-tools/AnnotationMovementTool';
+import { PixelData } from '../../../models/file-parser';
+import { generateDicosOutput } from '../../utilities/dicos/dicos.utilities';
 
 @Component({
   selector: 'app-cs-canvas',
@@ -45,6 +51,7 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
     side: { imageData: null, detectionData: [] },
   };
   isAnnotating: boolean = false;
+  pixelDataList: PixelData[] = [];
 
   constructor(
     private csService: CornerstoneService,
@@ -93,10 +100,10 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
           if (parsedFile.algorithms) {
             this.detectionsService.setAlgorithms(parsedFile.algorithms);
           }
-
+          this.pixelDataList = parsedFile.pixelDataList;
           Object.keys(this.viewportsData).forEach((key): void => {
             const viewpoint = key as keyof ViewportsMap;
-            const pixelData = parsedFile.imageData.find(
+            const pixelData = parsedFile.pixelDataList.find(
               (img) => img.viewpoint === key,
             );
             if (!pixelData) {
@@ -161,5 +168,17 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
       color: 'orange',
       categoryName: rawDetection.className,
     };
+  }
+
+  handleSaveBtnClick() {
+    const detections = this.detectionsService.allDetections;
+    // TODO: update the currentFileFormat to be the actual one
+    generateDicosOutput(this.pixelDataList, DetectionType.TDR, detections)
+      .then(() => {
+        console.log('It worked');
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 }

@@ -265,7 +265,7 @@ export const generateDicosOutput = async (
       const threatPromise = detectionObjectToBlob(
         detection,
         image.pixelData as Blob,
-        DetectionType.TDR,
+        currentFileFormat,
       );
       threatPromise
         .then((threatBlob) => {
