@@ -185,6 +185,7 @@ export class CornerstoneDirective implements AfterViewInit {
         editionMode: EditionMode.NoTool,
       });
     } else {
+      console.log('Empty area click');
       this.handleEmptyAreaClick();
     }
   };
@@ -456,35 +457,34 @@ export class CornerstoneDirective implements AfterViewInit {
   }
 
   private listenToWheelEvent() {
-    this.listenToEventStartEnd(
-      'wheel',
-      (e) => this.eventBusService.emitWheelEventStart(e),
-      (e) => this.eventBusService.emitWheelEventEnd(e),
-    );
+    // debounceTime enables getting notified of the wheel event
+    // when it hasn't occurred for 200ms
+    const endSub = fromEvent(this.element, 'wheel')
+      .pipe(debounceTime(200))
+      .subscribe((e) => {
+        this.eventBusService.emitWheelEventEnd(e);
+        endSub.unsubscribe();
+        this.listenToWheelEvent();
+      });
+    const subscription = fromEvent(this.element, 'wheel').subscribe((e) => {
+      this.eventBusService.emitWheelEventStart(e);
+      subscription.unsubscribe();
+    });
   }
 
   private listenToDragEvent() {
-    this.listenToEventStartEnd(
+    const subscription = fromEvent(
+      this.element,
       CS_EVENTS.MOUSE_DRAG,
-      (e) => this.eventBusService.emitDragEventStart(e),
-      (e) => this.eventBusService.emitDragEventEnd(e),
-    );
-  }
-
-  private listenToEventStartEnd(
-    eventName: string,
-    onStart: (e: Event) => void,
-    onEnd: (e: Event) => void,
-  ) {
-    const endSub = fromEvent(this.element, eventName)
-      .pipe(debounceTime(200))
-      .subscribe((e) => {
-        onEnd(e);
+    ).subscribe((e) => {
+      this.eventBusService.emitDragEventStart(e);
+      this.stopListeningToCLicks();
+      const endSub = fromEvent(this.element, 'mouseup').subscribe((e) => {
+        this.eventBusService.emitDragEventEnd(e);
         endSub.unsubscribe();
-        this.listenToEventStartEnd(eventName, onStart, onEnd);
+        this.listenToDragEvent();
+        this.listenToClicks();
       });
-    const subscription = fromEvent(this.element, eventName).subscribe((e) => {
-      onStart(e);
       subscription.unsubscribe();
     });
   }
