@@ -16,6 +16,7 @@ import {
   updateCornerstoneViewports,
 } from '../../utilities/cornerstone.utilities';
 import { cornerstone } from '../../csSetup';
+import { generateDetectionColor } from '../../utilities/detection.utilities';
 
 export interface DetectionsMap {
   top: Detection[];
@@ -224,6 +225,7 @@ export class DetectionsService {
   setDetectionLabel(label: string) {
     if (!this.selectedDetection.value) return;
     this.selectedDetection.value.className = label;
+    this.selectedDetection.value.color = generateDetectionColor(label);
     this.setDetectionData(this.detectionData.value);
   }
 
@@ -258,7 +260,7 @@ export class DetectionsService {
       iscrowd: 0,
       detectionFromFile: false,
       className: CommonDetections.Unknown,
-      color: 'orange',
+      color: generateDetectionColor(CommonDetections.Unknown),
       uuid: guid(),
       // TODO: update below properties to the default
       confidence: 0,
