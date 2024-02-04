@@ -61,10 +61,8 @@ export class LabelEditComponent implements AfterViewInit {
     });
   }
 
-  handleChange(event: Event) {
-    const value = (event.target as HTMLInputElement).value;
-    this.label = value;
-    this.updateDetectionLabel(value, false);
+  handleInputEvent(event: Event) {
+    this.label = (event.target as HTMLInputElement).value;
   }
 
   toggleLabelList() {
@@ -140,5 +138,9 @@ export class LabelEditComponent implements AfterViewInit {
     const scaleByZoom = (value: number) => value * this.zoomLevel;
     const getWidth = (width: number) => scaleByZoom(width) + 2;
     this.size.width = getWidth(width);
+  }
+
+  handleChangeEvent(event: Event) {
+    this.updateDetectionLabel((event.target as HTMLInputElement).value, false);
   }
 }

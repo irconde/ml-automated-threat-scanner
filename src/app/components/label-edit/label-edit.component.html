@@ -8,7 +8,8 @@
     <input id="label-input"
            placeholder="unknown"
            [disabled]="isListOpen"
-           (input)="handleChange($event)"
+           (input)="handleInputEvent($event)"
+           (change)="handleChangeEvent($event)"
            [value]="label.toLowerCase()"
            autocomplete="off"
            autofocus
@@ -28,4 +29,4 @@
     (labelSelect)="submitFromList($event)"
   ></app-label-list>
 </div>
-                                   
+

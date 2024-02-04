@@ -4,6 +4,7 @@ import {EditionMode} from '../../enums/cornerstone';
 import {getTextLabelSize, hexToCssRgba, limitCharCount,} from './text.utilities';
 import {DETECTION_STYLE} from '../../enums/detection-styles';
 import {isModeAnyOf} from './cornerstone.utilities';
+import randomColor from 'randomcolor';
 
 /**
  * Converts COCO bbox to a bounding box
@@ -617,4 +618,12 @@ export const calculateBoundingBox = (
   const x_max = Math.max(...x_values);
   const y_min = Math.min(...y_values);
   return [x_min, y_min, x_max - x_min, y_max - y_min];
+};
+
+export const generateDetectionColor = (className: string): string => {
+  return randomColor({
+    seed: className.toLowerCase(),
+    hue: 'random',
+    luminosity: 'bright',
+  });
 };

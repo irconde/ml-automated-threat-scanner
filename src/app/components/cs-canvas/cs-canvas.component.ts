@@ -19,6 +19,7 @@ import { resizeCornerstoneViewports } from '../../utilities/cornerstone.utilitie
 import { DetectionContextMenuComponent } from '../detection-context-menu/detection-context-menu.component';
 import { AlgorithmInfoComponent } from '../algorithm-info/algorithm-info.component';
 import AnnotationMovementTool from '../../utilities/cornerstone-tools/AnnotationMovementTool';
+import { generateDetectionColor } from '../../utilities/detection.utilities';
 
 @Component({
   selector: 'app-cs-canvas',
@@ -158,7 +159,7 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
       visible: true,
       id: '',
       iscrowd: 0,
-      color: 'orange',
+      color: generateDetectionColor(rawDetection.className),
       categoryName: rawDetection.className,
     };
   }
