@@ -9,6 +9,7 @@ import {
 import { DetectionsService } from '../../services/detections/detections.service';
 import { CornerstoneService } from '../../services/cornerstone/cornerstone.service';
 import { Detection } from '../../../models/detection';
+import { updateCornerstoneViewports } from '../../utilities/cornerstone.utilities';
 
 @Component({
   selector: 'app-color-picker',
@@ -93,27 +94,6 @@ export class ColorPickerComponent implements AfterViewInit {
     this.inputColor = color.slice(1);
   }
 
-  rgbToHex = (rgbString: string): string => {
-    const match = rgbString.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-
-    if (match) {
-      const [, r, g, b] = match.map(Number);
-
-      const componentToHex = (c: number): string => {
-        const hex = c.toString(16);
-        return hex.length === 1 ? '0' + hex : hex;
-      };
-
-      return (
-        componentToHex(r) +
-        componentToHex(g) +
-        componentToHex(b)
-      ).toUpperCase();
-    } else {
-      throw new Error('Invalid RGB string format');
-    }
-  };
-
   colorNameToHex = (colorName: string): string | null => {
     return this.colorNamesMap[colorName] || null;
   };
@@ -136,5 +116,6 @@ export class ColorPickerComponent implements AfterViewInit {
       editionMode: EditionMode.NoTool,
     });
     this.updateColor(color);
+    updateCornerstoneViewports();
   }
 }

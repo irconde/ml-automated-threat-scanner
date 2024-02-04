@@ -44,7 +44,7 @@ export const hexToRgb = (hex: string) => {
  * @param hex
  * @param alpha
  */
-export const hexToCssRgba = (hex: string, alpha = 0.25) => {
+export const hexToCssRgba = (hex: string, alpha = 0.4) => {
   const { r, g, b } = hexToRgb(hex);
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
