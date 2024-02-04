@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { Coordinate2D, Detection } from '../../../models/detection';
 import { DetectionsService } from '../../services/detections/detections.service';
 import { cornerstone } from '../../csSetup';
@@ -30,6 +30,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { ColorPickerComponent } from '../color-picker/color-picker.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { EventBusService } from '../../services/event-bus/event-bus.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-detection-context-menu',
@@ -53,7 +54,7 @@ import { EventBusService } from '../../services/event-bus/event-bus.service';
     ColorPickerComponent,
   ],
 })
-export class DetectionContextMenuComponent {
+export class DetectionContextMenuComponent implements OnDestroy {
   position: Coordinate2D | null = { x: 0, y: 0 };
   enablePositionOffset = false;
   showPolygonIcon = false;
@@ -62,6 +63,7 @@ export class DetectionContextMenuComponent {
   visible: boolean = false;
   editionMode: EditionMode = EditionMode.NoTool;
   readonly yGap = 5;
+  eventSubscriptions: Subscription[] = [];
 
   constructor(
     private detectionService: DetectionsService,
@@ -94,13 +96,16 @@ export class DetectionContextMenuComponent {
         detections.top.length > 0 && detections.side.length > 0;
     });
 
-    this.eventBusService.wheelEventStart$.subscribe(() => {
-      this.hideMenu();
-    });
-    this.eventBusService.wheelEventEnd$.subscribe(() => {
+    const wheelStartSub = this.eventBusService.wheelEventStart$.subscribe(
+      () => {
+        this.hideMenu();
+      },
+    );
+    const wheelEndSub = this.eventBusService.wheelEventEnd$.subscribe(() => {
       if (this.selectedDetection === null) return;
       this.updatePosition(this.selectedDetection);
     });
+    this.eventSubscriptions.push(wheelStartSub, wheelEndSub);
   }
 
   updateDetectionColor() {
@@ -228,5 +233,9 @@ export class DetectionContextMenuComponent {
     });
     // rerender the ports to remove the detection
     updateCornerstoneViewports();
+  }
+
+  ngOnDestroy(): void {
+    this.eventSubscriptions.forEach((sub) => sub.unsubscribe());
   }
 }
