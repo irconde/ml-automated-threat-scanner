@@ -29,6 +29,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { ColorPickerComponent } from '../color-picker/color-picker.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { EventBusService } from '../../services/event-bus/event-bus.service';
 
 @Component({
   selector: 'app-detection-context-menu',
@@ -65,6 +66,7 @@ export class DetectionContextMenuComponent {
   constructor(
     private detectionService: DetectionsService,
     private csService: CornerstoneService,
+    private eventBusService: EventBusService,
   ) {
     this.csService.getCsConfiguration().subscribe((config) => {
       const hideMenuMode = this.isEditionBoundOrPoly(config.editionMode);
@@ -90,6 +92,14 @@ export class DetectionContextMenuComponent {
     this.detectionService.getDetectionData().subscribe((detections) => {
       this.enablePositionOffset =
         detections.top.length > 0 && detections.side.length > 0;
+    });
+
+    this.eventBusService.wheelEventStart$.subscribe(() => {
+      this.hideMenu();
+    });
+    this.eventBusService.wheelEventEnd$.subscribe(() => {
+      if (this.selectedDetection === null) return;
+      this.updatePosition(this.selectedDetection);
     });
   }
 

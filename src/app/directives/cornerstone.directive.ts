@@ -41,6 +41,8 @@ import {
   BoundingEditToolState,
   PolygonToolPayload,
 } from '../../models/cornerstone-tools.types';
+import { debounceTime, fromEvent } from 'rxjs';
+import { EventBusService } from '../services/event-bus/event-bus.service';
 
 @Directive({
   selector: '[csDirective]',
@@ -61,8 +63,11 @@ export class CornerstoneDirective implements AfterViewInit {
     private csService: CornerstoneService,
     private detectionsService: DetectionsService,
     private settingsService: SettingsService,
+    private eventBusService: EventBusService,
   ) {
     this.element = elementRef.nativeElement;
+    this.listenToWheelEvent();
+
     // track the position of the mouse
     const handleMouseAndMove = (e: MouseEvent | TouchEvent) => {
       if (e instanceof MouseEvent) {
@@ -124,10 +129,10 @@ export class CornerstoneDirective implements AfterViewInit {
     this.imageDimensions.width = imageData.width;
   }
 
-  @HostListener('mousewheel', ['$event'])
-  onMouseWheel() {
-    console.log('mouseWheel');
-  }
+  // @HostListener('wheel', ['$event'])
+  // onMouseWheel() {
+  //   console.log('mouseWheel');
+  // }
 
   listenToClicks() {
     if (this.isClickListenerActive) return;
@@ -452,5 +457,19 @@ export class CornerstoneDirective implements AfterViewInit {
     });
 
     resetViewportCsTools(this.element);
+  }
+
+  private listenToWheelEvent() {
+    const endSub = fromEvent(this.element, 'wheel')
+      .pipe(debounceTime(200))
+      .subscribe((e) => {
+        this.eventBusService.emitWheelEventEnd(e);
+        endSub.unsubscribe();
+        this.listenToWheelEvent();
+      });
+    const subscription = fromEvent(this.element, 'wheel').subscribe((e) => {
+      this.eventBusService.emitWheelEventStart(e);
+      subscription.unsubscribe();
+    });
   }
 }
