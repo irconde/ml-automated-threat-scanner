@@ -9,6 +9,11 @@ import { FileParserService } from '../file-parser/file-parser.service';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
 import { HttpClient } from '@angular/common/http';
 import { ApplicationSettings } from '../settings/models/Settings';
+import { DetectionType } from '../../../models/detection';
+import { generateDicosOutput } from '../../utilities/dicos/dicos.utilities';
+import { DetectionsService } from '../detections/detections.service';
+import { PixelData } from '../../../models/file-parser';
+import { SettingsError } from '../../../errors/settings.error';
 
 @Injectable({
   providedIn: 'root',
@@ -23,6 +28,7 @@ export class FileService {
     private electronService: ElectronService,
     private fileParserService: FileParserService,
     private httpClient: HttpClient,
+    private detectionsService: DetectionsService,
   ) {
     this.settingsService
       .getSettings()
@@ -179,6 +185,77 @@ export class FileService {
           error: (error) =>
             console.log(`Error connection with server: ${error.message}`),
         });
+    }
+  }
+
+  private saveFileToServer(file: string, settings: ApplicationSettings) {
+    const { remoteIp, remotePort, fileFormat, fileNameSuffix } = settings;
+    this.httpClient
+      .post(`${API.protocol}${remoteIp}:${remotePort}${API.saveCurrentFile}`, {
+        file,
+        fileFormat,
+        fileSuffix: fileNameSuffix,
+      })
+      .subscribe({
+        next: (result) => {
+          console.log(result);
+        },
+        error: (error) => {
+          console.log(`Error connection with server: ${error.message}`);
+        },
+      });
+  }
+
+  private async saveFile(blob: string, suggestedName: string) {
+    try {
+      // Show the file save dialog.
+      const handle = await showSaveFilePicker({
+        suggestedName,
+      });
+      // Write the blob to the file.
+      const writable = await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      return;
+    } catch (err) {
+      // Fail silently if the user has simply canceled the dialog.
+      const { name, message } = err as Error;
+      if (name !== 'AbortError') {
+        console.error(name, message);
+        return;
+      }
+    }
+  }
+
+  /**
+   *
+   * @param pixelDataList
+   * @throws SettingsError - must be handled in case settings are not defined yet
+   */
+  public async saveCurrentFile(pixelDataList: PixelData[]) {
+    let file: string = '';
+    if (this.settings === null) throw new SettingsError('Settings are null');
+    const detections = this.detectionsService.allDetections;
+    if (this.settings?.detectionFormat === DetectionType.TDR) {
+      // TODO: update the currentFileFormat to be the actual one
+      file = await generateDicosOutput(
+        pixelDataList,
+        DetectionType.TDR,
+        detections,
+      );
+    } else {
+      console.warn('Saving COCO files is not implemented');
+    }
+
+    switch (this.settings.workingMode) {
+      case WorkingMode.IndividualFile:
+        return this.saveFile(file, 'new_file');
+      case WorkingMode.RemoteServer:
+        return this.saveFileToServer(file, this.settings);
+      case WorkingMode.LocalDirectory:
+        return console.warn(
+          `Working mode (${this.settings.workingMode}) is not implemented`,
+        );
     }
   }
 }

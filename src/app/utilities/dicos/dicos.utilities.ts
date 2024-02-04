@@ -220,11 +220,18 @@ export const retrieveMaskData = (
   return [arrayPixelData, baseCoords, extentsCoords];
 };
 
+/**
+ * Returns the base64 string file on success
+ * @param imageData
+ * @param currentFileFormat
+ * @param detections
+ * @throws error
+ */
 export const generateDicosOutput = async (
   imageData: PixelData[],
   currentFileFormat: DetectionType,
   detections: Detection[],
-) => {
+): Promise<string> => {
   const stackXML = document.implementation.createDocument('', '', null);
   const prolog = '<?xml version="1.0" encoding="utf-8"?>';
   const imageElem = stackXML.createElement('image');
@@ -292,22 +299,15 @@ export const generateDicosOutput = async (
     imageElem.appendChild(stackElem);
   });
 
-  try {
-    await Promise.all(listOfPromises);
-    stackXML.appendChild(imageElem);
-    newOra.file(
-      'stack.xml',
-      new Blob([prolog + new XMLSerializer().serializeToString(stackXML)], {
-        type: 'application/xml ',
-      }),
-    );
-    const file = await newOra.generateAsync({ type: 'base64' });
-    console.log('SUCCESS');
-    console.log(file);
-  } catch (error) {
-    // TODO: handle error here
-    console.warn(error);
-  }
+  await Promise.all(listOfPromises);
+  stackXML.appendChild(imageElem);
+  newOra.file(
+    'stack.xml',
+    new Blob([prolog + new XMLSerializer().serializeToString(stackXML)], {
+      type: 'application/xml ',
+    }),
+  );
+  return await newOra.generateAsync({ type: 'base64' });
 };
 
 const pngToDicosPixelData = async (viewport: HTMLElement) => {

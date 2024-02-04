@@ -9,11 +9,7 @@ import { KeyValuePipe, NgClass, NgForOf, NgIf, NgStyle } from '@angular/common';
 import { DetectionToolboxFabComponent } from '../detection-toolbox-fab/detection-toolbox-fab.component';
 import { ViewportsMap } from '../../../models/viewport';
 import { DetectionsService } from '../../services/detections/detections.service';
-import {
-  Detection,
-  DetectionType,
-  RawDetection,
-} from '../../../models/detection';
+import { Detection, RawDetection } from '../../../models/detection';
 import { CornerstoneMode, ToolNames } from '../../../enums/cornerstone';
 import { cornerstoneTools } from '../../csSetup';
 import BoundingBoxDrawingTool from '../../utilities/cornerstone-tools/BoundingBoxDrawingTool';
@@ -24,7 +20,6 @@ import { DetectionContextMenuComponent } from '../detection-context-menu/detecti
 import { AlgorithmInfoComponent } from '../algorithm-info/algorithm-info.component';
 import AnnotationMovementTool from '../../utilities/cornerstone-tools/AnnotationMovementTool';
 import { PixelData } from '../../../models/file-parser';
-import { generateDicosOutput } from '../../utilities/dicos/dicos.utilities';
 
 @Component({
   selector: 'app-cs-canvas',
@@ -170,15 +165,12 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
     };
   }
 
-  handleSaveBtnClick() {
-    const detections = this.detectionsService.allDetections;
-    // TODO: update the currentFileFormat to be the actual one
-    generateDicosOutput(this.pixelDataList, DetectionType.TDR, detections)
-      .then(() => {
-        console.log('It worked');
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  async handleSaveBtnClick() {
+    try {
+      await this.fileService.saveCurrentFile(this.pixelDataList);
+    } catch (e) {
+      // TODO: handle error here in ui
+      console.log(e);
+    }
   }
 }
