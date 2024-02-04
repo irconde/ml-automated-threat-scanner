@@ -9,6 +9,7 @@ import {
 import { DetectionsService } from '../../services/detections/detections.service';
 import { CornerstoneService } from '../../services/cornerstone/cornerstone.service';
 import { Detection } from '../../../models/detection';
+import { updateCornerstoneViewports } from '../../utilities/cornerstone.utilities';
 
 @Component({
   selector: 'app-color-picker',
@@ -136,5 +137,6 @@ export class ColorPickerComponent implements AfterViewInit {
       editionMode: EditionMode.NoTool,
     });
     this.updateColor(color);
+    updateCornerstoneViewports();
   }
 }

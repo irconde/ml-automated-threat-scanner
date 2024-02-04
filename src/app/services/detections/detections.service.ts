@@ -237,7 +237,7 @@ export class DetectionsService {
       const detections =
         this.detectionData.value[viewportName as keyof DetectionsMap];
       detections.forEach((det) => {
-        if (det.categoryName === this.selectedDetection.value?.categoryName) {
+        if (det.className === this.selectedDetection.value?.className) {
           det.color = color;
         }
       });
