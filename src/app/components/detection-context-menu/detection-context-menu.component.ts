@@ -96,16 +96,7 @@ export class DetectionContextMenuComponent implements OnDestroy {
         detections.top.length > 0 && detections.side.length > 0;
     });
 
-    const wheelStartSub = this.eventBusService.wheelEventStart$.subscribe(
-      () => {
-        this.hideMenu();
-      },
-    );
-    const wheelEndSub = this.eventBusService.wheelEventEnd$.subscribe(() => {
-      if (this.selectedDetection === null) return;
-      this.updatePosition(this.selectedDetection);
-    });
-    this.eventSubscriptions.push(wheelStartSub, wheelEndSub);
+    this.listenToCanvasEvents();
   }
 
   updateDetectionColor() {
@@ -237,5 +228,27 @@ export class DetectionContextMenuComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.eventSubscriptions.forEach((sub) => sub.unsubscribe());
+  }
+
+  private listenToCanvasEvents() {
+    const start = () => this.hideMenu();
+    const end = () => {
+      if (this.selectedDetection === null) return;
+      this.updatePosition(this.selectedDetection);
+    };
+
+    const wheelStartSub =
+      this.eventBusService.wheelEventStart$.subscribe(start);
+    const wheelEndSub = this.eventBusService.wheelEventEnd$.subscribe(end);
+
+    const dragStartSub = this.eventBusService.dragEventStart$.subscribe(start);
+    const dragEndSub = this.eventBusService.dragEventEnd$.subscribe(end);
+
+    this.eventSubscriptions.push(
+      wheelStartSub,
+      wheelEndSub,
+      dragStartSub,
+      dragEndSub,
+    );
   }
 }

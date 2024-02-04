@@ -67,6 +67,7 @@ export class CornerstoneDirective implements AfterViewInit {
   ) {
     this.element = elementRef.nativeElement;
     this.listenToWheelEvent();
+    this.listenToDragEvent();
 
     // track the position of the mouse
     const handleMouseAndMove = (e: MouseEvent | TouchEvent) => {
@@ -104,7 +105,7 @@ export class CornerstoneDirective implements AfterViewInit {
         if (isEditingPolygon) {
           // cornerstone polygon tool doesn't rerender the image when a polygon is being edited
           this.element.addEventListener(
-            CS_EVENTS.POLYGON_RENDER,
+            CS_EVENTS.MOUSE_DRAG,
             this.onPolygonRender,
           );
         }
@@ -128,11 +129,6 @@ export class CornerstoneDirective implements AfterViewInit {
     this.imageDimensions.height = imageData.height;
     this.imageDimensions.width = imageData.width;
   }
-
-  // @HostListener('wheel', ['$event'])
-  // onMouseWheel() {
-  //   console.log('mouseWheel');
-  // }
 
   listenToClicks() {
     if (this.isClickListenerActive) return;
@@ -209,7 +205,7 @@ export class CornerstoneDirective implements AfterViewInit {
       editedPolygon.polygonMask,
     );
     this.element.removeEventListener(
-      CS_EVENTS.POLYGON_RENDER,
+      CS_EVENTS.MOUSE_DRAG,
       this.onPolygonRender,
     );
   }
@@ -460,15 +456,35 @@ export class CornerstoneDirective implements AfterViewInit {
   }
 
   private listenToWheelEvent() {
-    const endSub = fromEvent(this.element, 'wheel')
+    this.listenToEventStartEnd(
+      'wheel',
+      (e) => this.eventBusService.emitWheelEventStart(e),
+      (e) => this.eventBusService.emitWheelEventEnd(e),
+    );
+  }
+
+  private listenToDragEvent() {
+    this.listenToEventStartEnd(
+      CS_EVENTS.MOUSE_DRAG,
+      (e) => this.eventBusService.emitDragEventStart(e),
+      (e) => this.eventBusService.emitDragEventEnd(e),
+    );
+  }
+
+  private listenToEventStartEnd(
+    eventName: string,
+    onStart: (e: Event) => void,
+    onEnd: (e: Event) => void,
+  ) {
+    const endSub = fromEvent(this.element, eventName)
       .pipe(debounceTime(200))
       .subscribe((e) => {
-        this.eventBusService.emitWheelEventEnd(e);
+        onEnd(e);
         endSub.unsubscribe();
-        this.listenToWheelEvent();
+        this.listenToEventStartEnd(eventName, onStart, onEnd);
       });
-    const subscription = fromEvent(this.element, 'wheel').subscribe((e) => {
-      this.eventBusService.emitWheelEventStart(e);
+    const subscription = fromEvent(this.element, eventName).subscribe((e) => {
+      onStart(e);
       subscription.unsubscribe();
     });
   }
