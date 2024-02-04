@@ -16,7 +16,7 @@ export const DEFAULT_SETTINGS: ApplicationSettings = {
   autoConnect: false,
   detectionFormat: DetectionType.COCO,
   fileFormat: FileFormat.OpenRaster,
-  fileNameSuffix: 'img_',
+  fileNameSuffix: '_img',
   remoteIp: '',
   remotePort: '',
   selectedImagesDirPath: '',

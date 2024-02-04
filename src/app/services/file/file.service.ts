@@ -206,26 +206,26 @@ export class FileService {
       });
   }
 
-  private async saveFile(blob: string, suggestedName: string) {
-    try {
-      // Show the file save dialog.
-      const handle = await showSaveFilePicker({
-        suggestedName,
-      });
-      // Write the blob to the file.
-      const writable = await handle.createWritable();
-      await writable.write(blob);
-      await writable.close();
-      return;
-    } catch (err) {
-      // Fail silently if the user has simply canceled the dialog.
-      const { name, message } = err as Error;
-      if (name !== 'AbortError') {
-        console.error(name, message);
-        return;
-      }
-    }
-  }
+  // private async saveFile(blob: string, suggestedName: string) {
+  //   try {
+  //     // Show the file save dialog.
+  //     const handle = await showSaveFilePicker({
+  //       suggestedName,
+  //     });
+  //     // Write the blob to the file.
+  //     const writable = await handle.createWritable();
+  //     await writable.write(blob);
+  //     await writable.close();
+  //     return;
+  //   } catch (err) {
+  //     // Fail silently if the user has simply canceled the dialog.
+  //     const { name, message } = err as Error;
+  //     if (name !== 'AbortError') {
+  //       console.error(name, message);
+  //       return;
+  //     }
+  //   }
+  // }
 
   /**
    *
@@ -244,12 +244,14 @@ export class FileService {
         detections,
       );
     } else {
-      console.warn('Saving COCO files is not implemented');
+      throw new Error('Saving COCO files is not implemented');
     }
 
     switch (this.settings.workingMode) {
       case WorkingMode.IndividualFile:
-        return this.saveFile(file, 'new_file');
+        return console.warn(
+          `Working mode (${this.settings.workingMode}) is not implemented`,
+        );
       case WorkingMode.RemoteServer:
         return this.saveFileToServer(file, this.settings);
       case WorkingMode.LocalDirectory:

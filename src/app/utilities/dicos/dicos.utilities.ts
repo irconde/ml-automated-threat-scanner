@@ -268,32 +268,34 @@ export const generateDicosOutput = async (
     }
     stackElem.appendChild(pixelLayer);
 
-    detections.forEach((detection) => {
-      const threatPromise = detectionObjectToBlob(
-        detection,
-        image.pixelData as Blob,
-        currentFileFormat,
-      );
-      threatPromise
-        .then((threatBlob) => {
-          newOra.file(
-            `data/${detection.viewpoint}_threat_detection_${detectionId}.dcs`,
-            threatBlob,
-          );
-          const newLayer = stackXML.createElement('layer');
-          newLayer.setAttribute(
-            'src',
-            `data/${detection.viewpoint}_threat_detection_${detectionId}.dcs`,
-          );
-          stackElem.appendChild(newLayer);
-          detectionId++;
-        })
-        .catch((error) => {
-          // TODO: handle error here
-          console.warn(error);
-        });
-      listOfPromises.push(threatPromise);
-    });
+    detections
+      .filter((det) => det.viewpoint === image.viewpoint)
+      .forEach((detection) => {
+        const threatPromise = detectionObjectToBlob(
+          detection,
+          image.pixelData as Blob,
+          currentFileFormat,
+        );
+        threatPromise
+          .then((threatBlob) => {
+            newOra.file(
+              `data/${detection.viewpoint}_threat_detection_${detectionId}.dcs`,
+              threatBlob,
+            );
+            const newLayer = stackXML.createElement('layer');
+            newLayer.setAttribute(
+              'src',
+              `data/${detection.viewpoint}_threat_detection_${detectionId}.dcs`,
+            );
+            stackElem.appendChild(newLayer);
+            detectionId++;
+          })
+          .catch((error) => {
+            // TODO: handle error here
+            console.warn(error);
+          });
+        listOfPromises.push(threatPromise);
+      });
 
     stackCounter++;
     imageElem.appendChild(stackElem);
