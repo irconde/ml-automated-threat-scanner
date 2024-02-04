@@ -224,8 +224,12 @@ export class DetectionsService {
 
   setDetectionLabel(label: string) {
     if (!this.selectedDetection.value) return;
+    const existingClassNameColor = this.allDetections.find(
+      ({ className }) => className === label,
+    )?.color;
+    this.selectedDetection.value.color =
+      existingClassNameColor ?? generateDetectionColor(label);
     this.selectedDetection.value.className = label;
-    this.selectedDetection.value.color = generateDetectionColor(label);
     this.setDetectionData(this.detectionData.value);
   }
 
