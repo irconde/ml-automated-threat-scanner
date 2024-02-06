@@ -41,8 +41,6 @@ import {
   BoundingEditToolState,
   PolygonToolPayload,
 } from '../../models/cornerstone-tools.types';
-import { debounceTime, fromEvent } from 'rxjs';
-import { EventBusService } from '../services/event-bus/event-bus.service';
 
 @Directive({
   selector: '[csDirective]',
@@ -63,12 +61,8 @@ export class CornerstoneDirective implements AfterViewInit {
     private csService: CornerstoneService,
     private detectionsService: DetectionsService,
     private settingsService: SettingsService,
-    private eventBusService: EventBusService,
   ) {
     this.element = elementRef.nativeElement;
-    this.listenToWheelEvent();
-    this.listenToDragEvent();
-
     // track the position of the mouse
     const handleMouseAndMove = (e: MouseEvent | TouchEvent) => {
       if (e instanceof MouseEvent) {
@@ -104,10 +98,17 @@ export class CornerstoneDirective implements AfterViewInit {
         this.stopListeningToCLicks();
         if (isEditingPolygon) {
           // cornerstone polygon tool doesn't rerender the image when a polygon is being edited
-          this.element.addEventListener(
-            CS_EVENTS.MOUSE_DRAG,
-            this.onPolygonRender,
-          );
+          if (this.settingsService.isMobile) {
+            this.element.addEventListener(
+              CS_EVENTS.POLYGON_TOUCH_DRAG,
+              this.onPolygonRender,
+            );
+          } else {
+            this.element.addEventListener(
+              CS_EVENTS.POLYGON_MOUSE_DRAG,
+              this.onPolygonRender,
+            );
+          }
         }
       } else {
         this.listenToClicks();
@@ -185,7 +186,6 @@ export class CornerstoneDirective implements AfterViewInit {
         editionMode: EditionMode.NoTool,
       });
     } else {
-      console.log('Empty area click');
       this.handleEmptyAreaClick();
     }
   };
@@ -205,10 +205,17 @@ export class CornerstoneDirective implements AfterViewInit {
       editedPolygon.bbox,
       editedPolygon.polygonMask,
     );
-    this.element.removeEventListener(
-      CS_EVENTS.MOUSE_DRAG,
-      this.onPolygonRender,
-    );
+    if (this.settingsService.isMobile) {
+      this.element.removeEventListener(
+        CS_EVENTS.POLYGON_TOUCH_DRAG,
+        this.onPolygonRender,
+      );
+    } else {
+      this.element.removeEventListener(
+        CS_EVENTS.POLYGON_MOUSE_DRAG,
+        this.onPolygonRender,
+      );
+    }
   }
 
   /**
@@ -454,38 +461,5 @@ export class CornerstoneDirective implements AfterViewInit {
     });
 
     resetViewportCsTools(this.element);
-  }
-
-  private listenToWheelEvent() {
-    // debounceTime enables getting notified of the wheel event
-    // when it hasn't occurred for 200ms
-    const endSub = fromEvent(this.element, 'wheel')
-      .pipe(debounceTime(200))
-      .subscribe((e) => {
-        this.eventBusService.emitWheelEventEnd(e);
-        endSub.unsubscribe();
-        this.listenToWheelEvent();
-      });
-    const subscription = fromEvent(this.element, 'wheel').subscribe((e) => {
-      this.eventBusService.emitWheelEventStart(e);
-      subscription.unsubscribe();
-    });
-  }
-
-  private listenToDragEvent() {
-    const subscription = fromEvent(
-      this.element,
-      CS_EVENTS.MOUSE_DRAG,
-    ).subscribe((e) => {
-      this.eventBusService.emitDragEventStart(e);
-      this.stopListeningToCLicks();
-      const endSub = fromEvent(this.element, 'mouseup').subscribe((e) => {
-        this.eventBusService.emitDragEventEnd(e);
-        endSub.unsubscribe();
-        this.listenToDragEvent();
-        this.listenToClicks();
-      });
-      subscription.unsubscribe();
-    });
   }
 }
