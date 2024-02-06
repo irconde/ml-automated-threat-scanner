@@ -98,10 +98,17 @@ export class CornerstoneDirective implements AfterViewInit {
         this.stopListeningToCLicks();
         if (isEditingPolygon) {
           // cornerstone polygon tool doesn't rerender the image when a polygon is being edited
-          this.element.addEventListener(
-            CS_EVENTS.POLYGON_RENDER,
-            this.onPolygonRender,
-          );
+          if (this.settingsService.isMobile) {
+            this.element.addEventListener(
+              CS_EVENTS.POLYGON_TOUCH_DRAG,
+              this.onPolygonRender,
+            );
+          } else {
+            this.element.addEventListener(
+              CS_EVENTS.POLYGON_MOUSE_DRAG,
+              this.onPolygonRender,
+            );
+          }
         }
       } else {
         this.listenToClicks();
@@ -203,10 +210,17 @@ export class CornerstoneDirective implements AfterViewInit {
       editedPolygon.bbox,
       editedPolygon.polygonMask,
     );
-    this.element.removeEventListener(
-      CS_EVENTS.POLYGON_RENDER,
-      this.onPolygonRender,
-    );
+    if (this.settingsService.isMobile) {
+      this.element.removeEventListener(
+        CS_EVENTS.POLYGON_TOUCH_DRAG,
+        this.onPolygonRender,
+      );
+    } else {
+      this.element.removeEventListener(
+        CS_EVENTS.POLYGON_MOUSE_DRAG,
+        this.onPolygonRender,
+      );
+    }
   }
 
   /**
