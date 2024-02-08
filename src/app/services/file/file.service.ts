@@ -227,6 +227,21 @@ export class FileService {
   //   }
   // }
 
+  private async saveFileWeb(base64: string) {
+    const file = new Blob([base64]);
+
+    const a = document.createElement('a');
+    const url = URL.createObjectURL(file);
+    a.href = url;
+    a.download = 'image.ora';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () {
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }, 0);
+  }
+
   /**
    *
    * @param pixelDataList
@@ -249,9 +264,7 @@ export class FileService {
 
     switch (this.settings.workingMode) {
       case WorkingMode.IndividualFile:
-        return console.warn(
-          `Working mode (${this.settings.workingMode}) is not implemented`,
-        );
+        return this.saveFileWeb(file);
       case WorkingMode.RemoteServer:
         return this.saveFileToServer(file, this.settings);
       case WorkingMode.LocalDirectory:

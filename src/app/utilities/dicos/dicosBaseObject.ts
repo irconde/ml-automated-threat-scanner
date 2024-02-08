@@ -159,13 +159,14 @@ export const buildDicosObject = (
       },
     ];
   }
+  const [x_0, y_0, w, h] = boundingBox;
   // [x0, y0, z0, xf, yf, zf]
   dataset.ThreatSequence.PTORepresentationSequence.BoundingPolygon = [
-    boundingBox[0],
-    boundingBox[1],
+    x_0,
+    y_0,
     0,
-    boundingBox[2],
-    boundingBox[3],
+    x_0 + w,
+    y_0 + h,
     0,
   ];
 

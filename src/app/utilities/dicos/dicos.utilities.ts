@@ -65,10 +65,12 @@ export const DICOS_DICTIONARY = {
 
 /**
  * Parses a DICOS+TDR file to pull the coordinates of the bounding boxes to be rendered
+ * It's assumed the file stores the bounding box as [x_0, y_0, x_f, y_f]
  *
  * @param {Blob} image - Blob data
  * @return {Array<number>} - Coordinates of the several bounding boxes derived from the DICOS+TDR data. Each
- * bounding box is defined by the two end points of the diagonal, and each point is defined by its coordinates x and y.
+ * bounding box is defined by the two end points of the diagonal, and each point is defined by its coordinates x and y
+ * [x_0, y_0, w, h]
  */
 export const retrieveBoundingBoxData = (
   image: dicomParser.Element,
@@ -101,6 +103,10 @@ export const retrieveBoundingBoxData = (
     );
     bBoxIndex++;
   }
+
+  bBoxCoords[2] = Math.abs(bBoxCoords[2] - bBoxCoords[0]);
+  bBoxCoords[3] = Math.abs(bBoxCoords[3] - bBoxCoords[1]);
+
   return bBoxCoords;
 };
 

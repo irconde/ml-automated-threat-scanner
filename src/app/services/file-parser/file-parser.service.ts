@@ -308,8 +308,6 @@ export class FileParserService {
     } else {
       const dicomElement: dicomParser.Element = threatSequence.items[0];
       const boundingBox = DICOS.retrieveBoundingBoxData(dicomElement);
-      boundingBox[2] = Math.abs(boundingBox[2] - boundingBox[0]);
-      boundingBox[3] = Math.abs(boundingBox[3] - boundingBox[1]);
       const className = DICOS.retrieveObjectClass(dicomElement);
       const confidence = DICOS.decimalToPercentage(
         DICOS.retrieveConfidenceLevel(dicomElement),
