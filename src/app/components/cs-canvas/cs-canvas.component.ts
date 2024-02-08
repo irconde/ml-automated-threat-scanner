@@ -20,6 +20,7 @@ import { DetectionContextMenuComponent } from '../detection-context-menu/detecti
 import { AlgorithmInfoComponent } from '../algorithm-info/algorithm-info.component';
 import AnnotationMovementTool from '../../utilities/cornerstone-tools/AnnotationMovementTool';
 import { PixelData } from '../../../models/file-parser';
+import { generateDetectionColor } from '../../utilities/detection.utilities';
 
 @Component({
   selector: 'app-cs-canvas',
@@ -160,7 +161,7 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
       visible: true,
       id: '',
       iscrowd: 0,
-      color: 'orange',
+      color: generateDetectionColor(rawDetection.className),
       categoryName: rawDetection.className,
     };
   }

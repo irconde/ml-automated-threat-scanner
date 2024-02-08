@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { Coordinate2D, Detection } from '../../../models/detection';
 import { DetectionsService } from '../../services/detections/detections.service';
 import { cornerstone } from '../../csSetup';
@@ -29,6 +29,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { ColorPickerComponent } from '../color-picker/color-picker.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { EventBusService } from '../../services/event-bus/event-bus.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-detection-context-menu',
@@ -52,7 +54,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     ColorPickerComponent,
   ],
 })
-export class DetectionContextMenuComponent {
+export class DetectionContextMenuComponent implements OnDestroy {
   position: Coordinate2D | null = { x: 0, y: 0 };
   enablePositionOffset = false;
   showPolygonIcon = false;
@@ -61,10 +63,12 @@ export class DetectionContextMenuComponent {
   visible: boolean = false;
   editionMode: EditionMode = EditionMode.NoTool;
   readonly yGap = 5;
+  eventSubscriptions: Subscription[] = [];
 
   constructor(
     private detectionService: DetectionsService,
     private csService: CornerstoneService,
+    private eventBusService: EventBusService,
   ) {
     this.csService.getCsConfiguration().subscribe((config) => {
       const hideMenuMode = this.isEditionBoundOrPoly(config.editionMode);
@@ -91,6 +95,8 @@ export class DetectionContextMenuComponent {
       this.enablePositionOffset =
         detections.top.length > 0 && detections.side.length > 0;
     });
+
+    this.listenToCanvasEvents();
   }
 
   updateDetectionColor() {
@@ -218,5 +224,31 @@ export class DetectionContextMenuComponent {
     });
     // rerender the ports to remove the detection
     updateCornerstoneViewports();
+  }
+
+  ngOnDestroy(): void {
+    this.eventSubscriptions.forEach((sub) => sub.unsubscribe());
+  }
+
+  private listenToCanvasEvents() {
+    const start = () => this.hideMenu();
+    const end = () => {
+      if (this.selectedDetection === null) return;
+      this.updatePosition(this.selectedDetection);
+    };
+
+    const wheelStartSub =
+      this.eventBusService.wheelEventStart$.subscribe(start);
+    const wheelEndSub = this.eventBusService.wheelEventEnd$.subscribe(end);
+
+    const dragStartSub = this.eventBusService.dragEventStart$.subscribe(start);
+    const dragEndSub = this.eventBusService.dragEventEnd$.subscribe(end);
+
+    this.eventSubscriptions.push(
+      wheelStartSub,
+      wheelEndSub,
+      dragStartSub,
+      dragEndSub,
+    );
   }
 }
