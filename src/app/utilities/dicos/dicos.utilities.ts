@@ -231,13 +231,15 @@ export const retrieveMaskData = (
  * @param imageData
  * @param currentFileFormat
  * @param detections
+ * @param fileType
  * @throws error
  */
 export const generateDicosOutput = async (
   imageData: PixelData[],
   currentFileFormat: DetectionType,
   detections: Detection[],
-): Promise<string> => {
+  fileType: 'base64' | 'blob',
+): Promise<string | Blob> => {
   const stackXML = document.implementation.createDocument('', '', null);
   const prolog = '<?xml version="1.0" encoding="utf-8"?>';
   const imageElem = stackXML.createElement('image');
@@ -315,7 +317,7 @@ export const generateDicosOutput = async (
       type: 'application/xml ',
     }),
   );
-  return await newOra.generateAsync({ type: 'base64' });
+  return await newOra.generateAsync({ type: fileType });
 };
 
 const pngToDicosPixelData = async (viewport: HTMLElement) => {

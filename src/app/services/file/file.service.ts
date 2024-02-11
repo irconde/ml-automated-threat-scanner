@@ -22,6 +22,7 @@ export class FileService {
   private currentFileObservable: Subject<FilePayload | null> =
     new Subject<FilePayload | null>();
   private settings: ApplicationSettings | null = null;
+  readonly outputType: 'base64' | 'blob';
 
   constructor(
     private settingsService: SettingsService,
@@ -33,6 +34,8 @@ export class FileService {
     this.settingsService
       .getSettings()
       .subscribe((newSettings) => this.handleSettingsChange(newSettings));
+    this.outputType =
+      this.settingsService.platform === Platforms.Web ? 'blob' : 'base64';
   }
 
   /**
@@ -188,7 +191,7 @@ export class FileService {
     }
   }
 
-  private saveFileToServer(file: string, settings: ApplicationSettings) {
+  private saveCurrentFileToServer(file: string, settings: ApplicationSettings) {
     const { remoteIp, remotePort, fileFormat, fileNameSuffix } = settings;
     this.httpClient
       .post(`${API.protocol}${remoteIp}:${remotePort}${API.saveCurrentFile}`, {
@@ -206,32 +209,9 @@ export class FileService {
       });
   }
 
-  // private async saveFile(blob: string, suggestedName: string) {
-  //   try {
-  //     // Show the file save dialog.
-  //     const handle = await showSaveFilePicker({
-  //       suggestedName,
-  //     });
-  //     // Write the blob to the file.
-  //     const writable = await handle.createWritable();
-  //     await writable.write(blob);
-  //     await writable.close();
-  //     return;
-  //   } catch (err) {
-  //     // Fail silently if the user has simply canceled the dialog.
-  //     const { name, message } = err as Error;
-  //     if (name !== 'AbortError') {
-  //       console.error(name, message);
-  //       return;
-  //     }
-  //   }
-  // }
-
-  private async saveFileWeb(base64: string) {
-    const file = new Blob([base64]);
-
+  private async saveFileWeb(blob: Blob) {
     const a = document.createElement('a');
-    const url = URL.createObjectURL(file);
+    const url = URL.createObjectURL(blob);
     a.href = url;
     a.download = 'image.ora';
     document.body.appendChild(a);
@@ -242,21 +222,37 @@ export class FileService {
     }, 0);
   }
 
+  private async saveIndividualFile(fileData: string | Blob) {
+    switch (this.settingsService.platform) {
+      case Platforms.iOS:
+      case Platforms.Android:
+        throw new Error('Saving individual files on mobile is not implemented');
+      case Platforms.Web:
+        return this.saveFileWeb(fileData as Blob);
+      default:
+        throw new Error(
+          'Saving individual files is not implemented on current platform',
+        );
+    }
+  }
+
   /**
    *
    * @param pixelDataList
    * @throws SettingsError - must be handled in case settings are not defined yet
    */
   public async saveCurrentFile(pixelDataList: PixelData[]) {
-    let file: string = '';
+    let file: string | Blob = '';
     if (this.settings === null) throw new SettingsError('Settings are null');
     const detections = this.detectionsService.allDetections;
     if (this.settings?.detectionFormat === DetectionType.TDR) {
       // TODO: update the currentFileFormat to be the actual one
+      // only web platform uses Blob as an output
       file = await generateDicosOutput(
         pixelDataList,
         DetectionType.TDR,
         detections,
+        this.outputType,
       );
     } else {
       throw new Error('Saving COCO files is not implemented');
@@ -264,13 +260,13 @@ export class FileService {
 
     switch (this.settings.workingMode) {
       case WorkingMode.IndividualFile:
-        return this.saveFileWeb(file);
+        return this.saveIndividualFile(file);
       case WorkingMode.RemoteServer:
-        return this.saveFileToServer(file, this.settings);
+        return this.saveCurrentFileToServer(file as string, this.settings);
       case WorkingMode.LocalDirectory:
         return this.electronService.saveCurrentFile(
           {
-            base64File: file,
+            base64File: file as string,
             selectedImagesDirPath: this.settings.selectedImagesDirPath!,
           },
           (electronPayload) => this.setCurrentFile(electronPayload),
