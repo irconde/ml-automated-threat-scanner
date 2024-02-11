@@ -268,8 +268,12 @@ export class FileService {
       case WorkingMode.RemoteServer:
         return this.saveFileToServer(file, this.settings);
       case WorkingMode.LocalDirectory:
-        return console.warn(
-          `Working mode (${this.settings.workingMode}) is not implemented`,
+        return this.electronService.saveCurrentFile(
+          {
+            base64File: file,
+            selectedImagesDirPath: this.settings.selectedImagesDirPath!,
+          },
+          (electronPayload) => this.setCurrentFile(electronPayload),
         );
     }
   }

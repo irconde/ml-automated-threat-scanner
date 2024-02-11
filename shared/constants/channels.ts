@@ -6,4 +6,5 @@ export enum Channels {
   InitFilesInvoke = 'InitFilesInvoke',
   NewFileInvoke = 'NewFileInvoke',
   FolderPickerInvoke = 'FolderPickerInvoke',
+  SaveCurrentFileInvoke = 'SaveCurrentFileInvoke',
 }
