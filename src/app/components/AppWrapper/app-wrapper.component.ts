@@ -17,6 +17,7 @@ import { DetectionContextMenuComponent } from '../detection-context-menu/detecti
 import { SideMenuComponent } from '../side-menu/side-menu.component';
 import { LabelEditComponent } from '../label-edit/label-edit.component';
 import { ColorPickerComponent } from '../color-picker/color-picker.component';
+import { NoFileSignComponent } from '../no-file-sign/no-file-sign.component';
 
 @Component({
   selector: 'app-wrapper',
@@ -37,6 +38,7 @@ import { ColorPickerComponent } from '../color-picker/color-picker.component';
     SideMenuComponent,
     LabelEditComponent,
     ColorPickerComponent,
+    NoFileSignComponent,
   ],
 })
 export class AppWrapperComponent {
