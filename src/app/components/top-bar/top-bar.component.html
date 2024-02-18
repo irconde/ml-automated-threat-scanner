@@ -12,23 +12,24 @@
       class="connection" [style]="connectionDisplay">
       <div>// <span>Connected to</span></div>
       &nbsp;
-      {{connectionTextContent}}
+      {{ connectionTextContent }}
     </div>
     <div class="connection">
       &nbsp; &nbsp;
       <span>Processing</span> &nbsp;
-      {{currentFile?.fileName}}
+      {{ currentFile?.fileName }}
     </div>
   </div>
   <div id="top-bar-icon-group">
-    <div id="file-icons-info">
+    <div id="file-icons-info" *ngIf="settings?.workingMode !== WorkingMode.IndividualFile">
       <div id="file-queue-icon">
-        <div id="file-queue-text">{{fileQueueAmount}}</div>
+        <div id="file-queue-text">{{ fileQueueAmount }}</div>
         <img alt="file queue icon" src="../../../assets/file-queue.icon.svg"/>
       </div>
       <img alt="traffic icon" src="{{updateTraffic()}}"/>
-      <mat-icon aria-hidden="false" aria-label="Cloud icon"
-                fontSet="material-icons-outlined">{{this.cloudIconType}}</mat-icon>
+      <mat-icon aria-hidden="false" *ngIf="settings?.workingMode === WorkingMode.RemoteServer" aria-label="Cloud icon"
+                fontSet="material-icons-outlined">{{ this.cloudIconType }}
+      </mat-icon>
     </div>
     <span id="top-bar-divider"></span>
     <button (click)="openSettingsModal()" aria-label="Settings cog icon" color="white" mat-icon-button

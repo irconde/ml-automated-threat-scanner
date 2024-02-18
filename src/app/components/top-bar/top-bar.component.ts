@@ -8,7 +8,7 @@ import { FilePayload } from '../../../../shared/models/file-models';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { WorkingMode } from '../../../enums/platforms';
-import { NgStyle } from '@angular/common';
+import { NgIf, NgStyle } from '@angular/common';
 import { UiService } from '../../services/ui/ui.service';
 
 @Component({
@@ -22,6 +22,7 @@ import { UiService } from '../../services/ui/ui.service';
     MatIconModule,
     MatButtonModule,
     NgStyle,
+    NgIf,
   ],
 })
 export class TopBarComponent implements OnInit {
@@ -128,4 +129,6 @@ export class TopBarComponent implements OnInit {
   toggleSideMenu() {
     this.uiService.toggleSideMenu();
   }
+
+  protected readonly WorkingMode = WorkingMode;
 }
