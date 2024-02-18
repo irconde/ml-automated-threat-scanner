@@ -1,4 +1,4 @@
-<div class="detection-toolbox-fab">
+<div class="detection-toolbox-fab" *ngIf="isVisible">
   <button (click)="handleFabButtonClick(true)" [disabled]="disabled">
     <img alt="rectangle icon" src="assets/rectangle.svg"/>
     Bounding box

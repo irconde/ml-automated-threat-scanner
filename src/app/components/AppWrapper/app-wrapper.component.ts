@@ -41,7 +41,6 @@ import { ColorPickerComponent } from '../color-picker/color-picker.component';
 })
 export class AppWrapperComponent {
   currentFile: FilePayload | null = null;
-
   settings: ApplicationSettings | null = null;
   public readonly Platforms: typeof Platforms = Platforms;
 
@@ -53,6 +52,7 @@ export class AppWrapperComponent {
     fileService.getCurrentFile().subscribe((currentFile) => {
       this.currentFile = currentFile;
     });
+
     settingsService
       .getSettings()
       .subscribe((settings: ApplicationSettings | null) => {

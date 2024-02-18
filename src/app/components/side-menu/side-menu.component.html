@@ -1,4 +1,4 @@
-<div [ngClass]="{ open: isOpen }" class="side-menu">
+<div *ngIf="isVisible" [ngClass]="{ open: isOpen }" class="side-menu">
   <div *ngFor="let groupName of getAlgorithmNames()" class="algorithm-group">
     <div class="algorithm" (click)="handleGroupNameClick(groupName)"
          [ngClass]="{ selected: detectionsGroupMetaData[groupName].selected }">

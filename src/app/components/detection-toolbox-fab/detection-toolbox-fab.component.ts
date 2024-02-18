@@ -9,21 +9,26 @@ import {
 import { CornerstoneService } from '../../services/cornerstone/cornerstone.service';
 import { DetectionsService } from '../../services/detections/detections.service';
 import { setCornerstoneToolActive } from '../../utilities/cornerstone.utilities';
+import { UiService } from '../../services/ui/ui.service';
+import { NgIf, NgStyle } from '@angular/common';
+import { ImageStatus } from '../../services/ui/model/enum';
 
 @Component({
   selector: 'app-detection-toolbox-fab',
   templateUrl: './detection-toolbox-fab.component.html',
   styleUrls: ['./detection-toolbox-fab.component.scss'],
   standalone: true,
-  imports: [MatIconModule],
+  imports: [MatIconModule, NgStyle, NgIf],
 })
 export class DetectionToolboxFabComponent implements OnInit {
+  protected isVisible: boolean = false;
   private annotationMode = AnnotationMode.NoTool;
   protected disabled = false;
 
   constructor(
     private cornerstoneService: CornerstoneService,
     private detectionsService: DetectionsService,
+    private uiService: UiService,
   ) {}
 
   ngOnInit() {
@@ -32,6 +37,10 @@ export class DetectionToolboxFabComponent implements OnInit {
       this.disabled =
         config.annotationMode !== AnnotationMode.NoTool ||
         config.editionMode !== EditionMode.NoTool;
+    });
+
+    this.uiService.getImageStatus().subscribe((status) => {
+      this.isVisible = status !== ImageStatus.NoImage;
     });
   }
 

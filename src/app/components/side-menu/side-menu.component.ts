@@ -15,6 +15,7 @@ import { SaveButtonComponent } from './save-button/save-button.component';
 import { NextButtonComponent } from './next-button/next-button.component';
 import { SettingsService } from '../../services/settings/settings.service';
 import { WorkingMode } from '../../../enums/platforms';
+import { ImageStatus } from '../../services/ui/model/enum';
 
 @Component({
   selector: 'app-side-menu',
@@ -35,6 +36,7 @@ export class SideMenuComponent {
   public detectionsGroups: Record<string, Detection[]> = {};
   public detectionsGroupMetaData: Record<string, DetectionGroupMetaData> = {};
   protected isNextOrSaveBtn: boolean = true;
+  protected isVisible: boolean = false;
 
   constructor(
     private uiService: UiService,
@@ -43,6 +45,10 @@ export class SideMenuComponent {
   ) {
     this.uiService.getIsSideMenuOpen().subscribe((isSideMenuOpen) => {
       this.isOpen = isSideMenuOpen;
+    });
+
+    this.uiService.getImageStatus().subscribe((status) => {
+      this.isVisible = status !== ImageStatus.NoImage;
     });
 
     this.detectionsService.getDetectionData().subscribe((detections) => {

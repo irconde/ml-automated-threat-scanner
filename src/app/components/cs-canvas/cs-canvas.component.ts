@@ -21,6 +21,7 @@ import { AlgorithmInfoComponent } from '../algorithm-info/algorithm-info.compone
 import AnnotationMovementTool from '../../utilities/cornerstone-tools/AnnotationMovementTool';
 import { PixelData } from '../../../models/file-parser';
 import { generateDetectionColor } from '../../utilities/detection.utilities';
+import { ImageStatus } from '../../services/ui/model/enum';
 
 @Component({
   selector: 'app-cs-canvas',
@@ -80,19 +81,8 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
     this.fileService
       .getCurrentFile()
       .subscribe((currentFile: FilePayload | null) => {
-        console.log('-------------------Current File-------------------------');
-        console.log(currentFile);
-        console.log('--------------------------------------------------------');
         if (!currentFile) return;
         this.fileParserService.loadData(currentFile.file).then((parsedFile) => {
-          console.log(
-            '-------------------Parsed File--------------------------',
-          );
-          console.log(parsedFile);
-          console.log(
-            '--------------------------------------------------------',
-          );
-
           if (parsedFile.algorithms) {
             this.detectionsService.setAlgorithms(parsedFile.algorithms);
           }
@@ -119,6 +109,7 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
               this.detectionsService.setDetectionData({
                 [viewpoint]: detectionData,
               });
+              this.uiService.setImageStatus(ImageStatus.HasImage);
             });
           });
         });
@@ -164,14 +155,5 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
       color: generateDetectionColor(rawDetection.className),
       categoryName: rawDetection.className,
     };
-  }
-
-  async handleSaveBtnClick() {
-    try {
-      await this.fileService.saveCurrentFile(this.pixelDataList);
-    } catch (e) {
-      // TODO: handle error here in ui
-      console.log(e);
-    }
   }
 }
