@@ -36,5 +36,6 @@
       </li>
     </ul>
   </div>
-  <app-save-button></app-save-button>
+  <app-next-button *ngIf="isNextOrSaveBtn"></app-next-button>
+  <app-save-button *ngIf="!isNextOrSaveBtn"></app-save-button>
 </div>

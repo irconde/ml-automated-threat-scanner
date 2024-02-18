@@ -13,6 +13,8 @@ import {
 import { MatIconModule } from '@angular/material/icon';
 import { SaveButtonComponent } from './save-button/save-button.component';
 import { NextButtonComponent } from './next-button/next-button.component';
+import { SettingsService } from '../../services/settings/settings.service';
+import { WorkingMode } from '../../../enums/platforms';
 
 @Component({
   selector: 'app-side-menu',
@@ -32,10 +34,12 @@ export class SideMenuComponent {
   public isOpen: boolean = false;
   public detectionsGroups: Record<string, Detection[]> = {};
   public detectionsGroupMetaData: Record<string, DetectionGroupMetaData> = {};
+  protected isNextOrSaveBtn: boolean = true;
 
   constructor(
     private uiService: UiService,
     private detectionsService: DetectionsService,
+    private settingsService: SettingsService,
   ) {
     this.uiService.getIsSideMenuOpen().subscribe((isSideMenuOpen) => {
       this.isOpen = isSideMenuOpen;
@@ -49,6 +53,13 @@ export class SideMenuComponent {
       .subscribe((detectionsMetaData) => {
         this.detectionsGroupMetaData = detectionsMetaData;
       });
+
+    this.settingsService.getSettings().subscribe((appSettings) => {
+      if (appSettings !== null) {
+        this.isNextOrSaveBtn =
+          appSettings.workingMode !== WorkingMode.IndividualFile;
+      }
+    });
   }
 
   public getAlgorithmNames(): string[] {

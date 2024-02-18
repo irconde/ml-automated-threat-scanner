@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { SettingsService } from '../../services/settings/settings.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -58,7 +58,7 @@ interface AnnotationOptions {
     IonicModule,
   ],
 })
-export class SettingsModalComponent implements OnInit {
+export class SettingsModalComponent {
   submitting: boolean = false;
   settings: ApplicationSettings | null = null;
   form: FormGroup<Record<keyof ApplicationSettings, FormControl>>;
@@ -91,11 +91,6 @@ export class SettingsModalComponent implements OnInit {
     });
   }
 
-  ngOnInit() {
-    // Implement initialization logic here after implementing save settings
-    console.log('Settings Modal Component Initialized');
-  }
-
   openDirectoryPicker() {
     getElectronAPI().invoke(Channels.FolderPickerInvoke, null, ({ path }) => {
       // don't update the form if cancelled
@@ -109,8 +104,13 @@ export class SettingsModalComponent implements OnInit {
   saveSettings() {
     let workingMode: WorkingMode = WorkingMode.RemoteServer;
     const isRemote = this.form.get('workingMode')?.value;
+    const isDirectory = this.form.get('selectedImagesDirPath')?.value;
     if (!isRemote) {
-      workingMode = WorkingMode.LocalDirectory;
+      if (isDirectory === null || isDirectory === '') {
+        workingMode = WorkingMode.IndividualFile;
+      } else {
+        workingMode = WorkingMode.LocalDirectory;
+      }
     }
 
     const formSettings: ApplicationSettings = {
