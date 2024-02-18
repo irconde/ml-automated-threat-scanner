@@ -3,12 +3,14 @@ import { UiService } from '../../services/ui/ui.service';
 import { ImageStatus } from '../../services/ui/model/enum';
 import { SettingsService } from '../../services/settings/settings.service';
 import { WorkingMode } from '../../../enums/platforms';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-no-file-sign',
   templateUrl: './no-file-sign.component.html',
   styleUrls: ['./no-file-sign.component.scss'],
   standalone: true,
+  imports: [NgIf],
 })
 export class NoFileSignComponent {
   protected isVisible: boolean = false;
