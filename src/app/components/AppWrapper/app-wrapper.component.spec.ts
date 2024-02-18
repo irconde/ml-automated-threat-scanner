@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AppMain } from './app-main.component';
+import { AppWrapperComponent } from './app-wrapper.component';
 
 describe('Tab1Page', () => {
-  let component: AppMain;
-  let fixture: ComponentFixture<AppMain>;
+  let component: AppWrapperComponent;
+  let fixture: ComponentFixture<AppWrapperComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AppMain],
+      imports: [AppWrapperComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(AppMain);
+    fixture = TestBed.createComponent(AppWrapperComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

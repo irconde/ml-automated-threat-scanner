@@ -1,15 +1,15 @@
-import {Component, OnInit} from '@angular/core';
-import {MatIconModule} from '@angular/material/icon';
-import {FileService} from '../../services/file/file.service';
-import {SettingsService} from '../../services/settings/settings.service';
-import {SettingsModalComponent} from '../settings-modal/settings-modal.component';
-import {ApplicationSettings} from '../../services/settings/models/Settings';
-import {FilePayload} from '../../../../shared/models/file-models';
-import {MatDialog, MatDialogModule} from '@angular/material/dialog';
-import {MatButtonModule} from '@angular/material/button';
-import {WorkingMode} from '../../../enums/platforms';
-import {NgStyle} from '@angular/common';
-import {UiService} from "../../services/ui/ui.service";
+import { Component, OnInit } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
+import { FileService } from '../../services/file/file.service';
+import { SettingsService } from '../../services/settings/settings.service';
+import { SettingsModalComponent } from '../settings-modal/settings-modal.component';
+import { ApplicationSettings } from '../../services/settings/models/Settings';
+import { FilePayload } from '../../../../shared/models/file-models';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { WorkingMode } from '../../../enums/platforms';
+import { NgStyle } from '@angular/common';
+import { UiService } from '../../services/ui/ui.service';
 
 @Component({
   selector: 'app-top-bar',
@@ -38,8 +38,7 @@ export class TopBarComponent implements OnInit {
     public fileService: FileService,
     public settingsService: SettingsService,
     public dialog: MatDialog,
-  ) {
-  }
+  ) {}
 
   ngOnInit() {
     this.fileService.getCurrentFile().subscribe((currentFile) => {
@@ -81,7 +80,7 @@ export class TopBarComponent implements OnInit {
   updateFileQueue() {
     if (this.currentFile?.filesCount) {
       this.fileQueueAmount = this.currentFile?.filesCount;
-      console.log({fileQueueAmount: this.fileQueueAmount});
+      console.log({ fileQueueAmount: this.fileQueueAmount });
       if (this.fileQueueAmount >= 99) this.fileQueueAmount = 99;
     } else {
       this.fileQueueAmount = 0;

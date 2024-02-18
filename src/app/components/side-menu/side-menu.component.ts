@@ -11,13 +11,22 @@ import {
   getDetectionGroupName,
 } from '../../../models/detection';
 import { MatIconModule } from '@angular/material/icon';
+import { SaveButtonComponent } from './save-button/save-button.component';
+import { NextButtonComponent } from './next-button/next-button.component';
 
 @Component({
   selector: 'app-side-menu',
   templateUrl: './side-menu.component.html',
   styleUrls: ['./side-menu.component.scss'],
   standalone: true,
-  imports: [NgClass, NgForOf, MatIconModule, NgIf],
+  imports: [
+    NgClass,
+    NgForOf,
+    MatIconModule,
+    NgIf,
+    SaveButtonComponent,
+    NextButtonComponent,
+  ],
 })
 export class SideMenuComponent {
   public isOpen: boolean = false;
