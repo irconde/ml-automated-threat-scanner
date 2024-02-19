@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { SettingsService } from '../../../services/settings/settings.service';
 import { WorkingMode } from '../../../../enums/platforms';
+import { FileService } from '../../../services/file/file.service';
 
 @Component({
   selector: 'app-next-button',
@@ -13,7 +14,10 @@ import { WorkingMode } from '../../../../enums/platforms';
 export class NextButtonComponent {
   protected displayString: string = 'Next';
 
-  constructor(private settingsService: SettingsService) {
+  constructor(
+    private settingsService: SettingsService,
+    private fileService: FileService,
+  ) {
     this.settingsService.getSettings().subscribe((appSettings) => {
       if (appSettings !== null) {
         this.displayString =
@@ -22,5 +26,9 @@ export class NextButtonComponent {
             : 'Save';
       }
     });
+  }
+
+  protected async handleNext() {
+    return await this.fileService.saveCurrentFile();
   }
 }

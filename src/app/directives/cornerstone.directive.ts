@@ -256,7 +256,6 @@ export class CornerstoneDirective implements AfterViewInit {
   @HostListener('mouseup', ['$event'])
   @HostListener('touchend')
   onDragEnd() {
-    console.log('onDragEnd');
     if (this.csConfig.annotationMode === AnnotationMode.Bounding) {
       this.handleBboxCreation();
     } else if (this.csConfig.editionMode === EditionMode.Bounding) {

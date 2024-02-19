@@ -25,8 +25,7 @@ export const VIEWPORTS_CLASSNAME = 'viewportElement';
  * Updates all viewports by calling the cornerstone.updateImage method on each viewport
  */
 export const updateCornerstoneViewports = () => {
-  // Causes 2 renders
-  console.log('update viewport');
+  // Causes 2 renders ?
   const viewports = document.getElementsByClassName(
     VIEWPORTS_CLASSNAME,
   ) as HTMLCollectionOf<HTMLElement>;

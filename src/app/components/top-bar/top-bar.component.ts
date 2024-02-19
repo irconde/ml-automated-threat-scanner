@@ -81,7 +81,6 @@ export class TopBarComponent implements OnInit {
   updateFileQueue() {
     if (this.currentFile?.filesCount) {
       this.fileQueueAmount = this.currentFile?.filesCount;
-      console.log({ fileQueueAmount: this.fileQueueAmount });
       if (this.fileQueueAmount >= 99) this.fileQueueAmount = 99;
     } else {
       this.fileQueueAmount = 0;

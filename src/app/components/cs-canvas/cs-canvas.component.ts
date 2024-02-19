@@ -19,7 +19,6 @@ import { resizeCornerstoneViewports } from '../../utilities/cornerstone.utilitie
 import { DetectionContextMenuComponent } from '../detection-context-menu/detection-context-menu.component';
 import { AlgorithmInfoComponent } from '../algorithm-info/algorithm-info.component';
 import AnnotationMovementTool from '../../utilities/cornerstone-tools/AnnotationMovementTool';
-import { PixelData } from '../../../models/file-parser';
 import { generateDetectionColor } from '../../utilities/detection.utilities';
 import { ImageStatus } from '../../services/ui/model/enum';
 
@@ -48,7 +47,6 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
     side: { imageData: null, detectionData: [] },
   };
   isAnnotating: boolean = false;
-  pixelDataList: PixelData[] = [];
 
   constructor(
     private csService: CornerstoneService,
