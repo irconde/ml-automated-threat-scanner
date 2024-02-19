@@ -8,6 +8,7 @@ import { cornerstone } from '../../csSetup';
 import * as dcmjs from 'dcmjs';
 import { getViewportByViewpoint } from '../cornerstone.utilities';
 import { buildDicosObject } from './dicosBaseObject';
+import { FileType } from '../../services/file/model/enum';
 
 export const DICOS_DICTIONARY = {
   ThreatROIBase: {
@@ -239,7 +240,7 @@ export const generateDicosOutput = async (
   imageData: PixelData[],
   currentFileFormat: DetectionType,
   detections: Detection[],
-  fileType: 'base64' | 'blob',
+  fileType: FileType,
 ): Promise<string | Blob> => {
   const stackXML = document.implementation.createDocument('', '', null);
   const prolog = '<?xml version="1.0" encoding="utf-8"?>';
@@ -318,7 +319,9 @@ export const generateDicosOutput = async (
       type: 'application/xml ',
     }),
   );
-  return await newOra.generateAsync({ type: fileType });
+  return await newOra.generateAsync({
+    type: fileType.toString() === 'base64' ? 'base64' : 'blob',
+  });
 };
 
 const pngToDicosPixelData = async (viewport: HTMLElement) => {

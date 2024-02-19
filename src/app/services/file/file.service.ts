@@ -5,7 +5,6 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { SettingsService } from '../settings/settings.service';
 import { Platforms, WorkingMode } from '../../../enums/platforms';
 import { ElectronService } from '../electron/electron.service';
-import { FileParserService } from '../file-parser/file-parser.service';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
 import { HttpClient } from '@angular/common/http';
 import { ApplicationSettings } from '../settings/models/Settings';
@@ -14,6 +13,7 @@ import { generateDicosOutput } from '../../utilities/dicos/dicos.utilities';
 import { DetectionsService } from '../detections/detections.service';
 import { PixelData } from '../../../models/file-parser';
 import { SettingsError } from '../../../errors/settings.error';
+import { FileType } from './model/enum';
 
 @Injectable({
   providedIn: 'root',
@@ -25,20 +25,17 @@ export class FileService {
     PixelData[]
   >([]);
   private settings: ApplicationSettings | null = null;
-  readonly outputType: 'base64' | 'blob';
+  private outputType: FileType = FileType.Base64;
 
   constructor(
     private settingsService: SettingsService,
     private electronService: ElectronService,
-    private fileParserService: FileParserService,
     private httpClient: HttpClient,
     private detectionsService: DetectionsService,
   ) {
     this.settingsService
       .getSettings()
       .subscribe((newSettings) => this.handleSettingsChange(newSettings));
-    this.outputType =
-      this.settingsService.platform === Platforms.Web ? 'blob' : 'base64';
   }
 
   public getPixelData() {
@@ -119,6 +116,10 @@ export class FileService {
   }
 
   private handleSettingsChange(newSettings: ApplicationSettings | null) {
+    this.outputType =
+      newSettings?.workingMode === WorkingMode.IndividualFile
+        ? FileType.Blob
+        : FileType.Base64;
     switch (newSettings?.workingMode) {
       case WorkingMode.LocalDirectory:
         this.requestNewImageDirFromElectron(newSettings);
