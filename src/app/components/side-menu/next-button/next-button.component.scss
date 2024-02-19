@@ -1,0 +1,18 @@
+.next-btn-container {
+  width: -webkit-fill-available;
+  height: 75px;
+  position: absolute;
+  bottom: 0;
+}
+
+.next-button {
+  font-family: 'Noto Sans JP';
+  width: inherit;
+  height: inherit;
+  border-radius: 0;
+  border-width: 0;
+  box-shadow: 0.1rem -0.4rem 2rem 0.2rem rgb(0 0 0 / 50%);
+  font-size: 12pt;
+  align-items: center;
+  text-transform: uppercase;
+}

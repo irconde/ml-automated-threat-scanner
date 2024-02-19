@@ -267,7 +267,7 @@ export class DetectionsService {
       color: generateDetectionColor(CommonDetections.Unknown),
       uuid: guid(),
       // TODO: update below properties to the default
-      confidence: 0,
+      confidence: 100,
       imageId: '',
       id: '',
       algorithm: '',

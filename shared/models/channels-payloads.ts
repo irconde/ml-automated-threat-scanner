@@ -1,5 +1,5 @@
-import {Channels} from '../constants/channels';
-import {FilePayload} from './file-models';
+import { Channels } from '../constants/channels';
+import { FilePayload } from './file-models';
 
 /**
  * Maps a channel to the type of payload sent by Angular
@@ -12,6 +12,10 @@ export type AngularChannelPayloadMapper = {
   // electron payload
   [Channels.FolderPickerInvoke]: { path: string };
   [Channels.InitFilesInvoke]: { selectedImagesDirPath: string };
+  [Channels.SaveCurrentFileInvoke]: {
+    base64File: string;
+    selectedImagesDirPath: string;
+  };
 };
 
 /**
@@ -25,6 +29,7 @@ export type ElectronChannelPayloadMapper = {
   // electron payload
   [Channels.FolderPickerInvoke]: { path: string };
   [Channels.InitFilesInvoke]: FilePayload | null;
+  [Channels.SaveCurrentFileInvoke]: FilePayload | null;
 };
 
 export type ElectronSendFunc = <

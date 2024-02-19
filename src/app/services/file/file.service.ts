@@ -1,14 +1,19 @@
 import { Injectable } from '@angular/core';
 import { FilePayload, FileStatus } from '../../../../shared/models/file-models';
 import { API } from '../../../enums/remote-service';
-import { Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { SettingsService } from '../settings/settings.service';
 import { Platforms, WorkingMode } from '../../../enums/platforms';
 import { ElectronService } from '../electron/electron.service';
-import { FileParserService } from '../file-parser/file-parser.service';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
 import { HttpClient } from '@angular/common/http';
 import { ApplicationSettings } from '../settings/models/Settings';
+import { DetectionType } from '../../../models/detection';
+import { generateDicosOutput } from '../../utilities/dicos/dicos.utilities';
+import { DetectionsService } from '../detections/detections.service';
+import { PixelData } from '../../../models/file-parser';
+import { SettingsError } from '../../../errors/settings.error';
+import { FileType } from './model/enum';
 
 @Injectable({
   providedIn: 'root',
@@ -16,17 +21,29 @@ import { ApplicationSettings } from '../settings/models/Settings';
 export class FileService {
   private currentFileObservable: Subject<FilePayload | null> =
     new Subject<FilePayload | null>();
+  private currentPixelData: BehaviorSubject<PixelData[]> = new BehaviorSubject<
+    PixelData[]
+  >([]);
   private settings: ApplicationSettings | null = null;
+  private outputType: FileType = FileType.Base64;
 
   constructor(
     private settingsService: SettingsService,
     private electronService: ElectronService,
-    private fileParserService: FileParserService,
     private httpClient: HttpClient,
+    private detectionsService: DetectionsService,
   ) {
     this.settingsService
       .getSettings()
       .subscribe((newSettings) => this.handleSettingsChange(newSettings));
+  }
+
+  public getPixelData() {
+    return this.currentPixelData.asObservable();
+  }
+
+  public setPixelData(pixelData: PixelData[]) {
+    this.currentPixelData.next(pixelData);
   }
 
   /**
@@ -99,6 +116,10 @@ export class FileService {
   }
 
   private handleSettingsChange(newSettings: ApplicationSettings | null) {
+    this.outputType =
+      newSettings?.workingMode === WorkingMode.IndividualFile
+        ? FileType.Blob
+        : FileType.Base64;
     switch (newSettings?.workingMode) {
       case WorkingMode.LocalDirectory:
         this.requestNewImageDirFromElectron(newSettings);
@@ -179,6 +200,89 @@ export class FileService {
           error: (error) =>
             console.log(`Error connection with server: ${error.message}`),
         });
+    }
+  }
+
+  private saveCurrentFileToServer(file: string, settings: ApplicationSettings) {
+    const { remoteIp, remotePort, fileFormat, fileNameSuffix } = settings;
+    this.httpClient
+      .post(`${API.protocol}${remoteIp}:${remotePort}${API.saveCurrentFile}`, {
+        file,
+        fileFormat,
+        fileSuffix: fileNameSuffix,
+      })
+      .subscribe({
+        next: (result) => {
+          console.log(result);
+        },
+        error: (error) => {
+          console.log(`Error connection with server: ${error.message}`);
+        },
+      });
+  }
+
+  private async saveFileWeb(blob: Blob) {
+    const a = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    a.href = url;
+    a.download = 'image.ora';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () {
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }, 0);
+  }
+
+  private async saveIndividualFile(fileData: string | Blob) {
+    switch (this.settingsService.platform) {
+      case Platforms.iOS:
+      case Platforms.Android:
+        throw new Error('Saving individual files on mobile is not implemented');
+      case Platforms.Web:
+        return this.saveFileWeb(fileData as Blob);
+      default:
+        throw new Error(
+          'Saving individual files is not implemented on current platform',
+        );
+    }
+  }
+
+  /**
+   *
+   * @param pixelDataList
+   * @throws SettingsError - must be handled in case settings are not defined yet
+   */
+  public async saveCurrentFile() {
+    let file: string | Blob = '';
+    if (this.settings === null) throw new SettingsError('Settings are null');
+    const detections = this.detectionsService.allDetections;
+    if (this.settings?.detectionFormat === DetectionType.TDR) {
+      // TODO: update the currentFileFormat to be the actual one
+      // only web platform uses Blob as an output
+      file = await generateDicosOutput(
+        this.currentPixelData.getValue(),
+        DetectionType.TDR,
+        detections,
+        this.outputType,
+      );
+    } else {
+      throw new Error('Saving COCO files is not implemented');
+    }
+
+    switch (this.settings.workingMode) {
+      case WorkingMode.IndividualFile:
+        return this.saveIndividualFile(file);
+      case WorkingMode.RemoteServer:
+        return this.saveCurrentFileToServer(file as string, this.settings);
+      case WorkingMode.LocalDirectory:
+        return this.electronService.saveCurrentFile(
+          {
+            base64File: file as string,
+            selectedImagesDirPath: this.settings.selectedImagesDirPath!,
+          },
+          (electronPayload) => this.setCurrentFile(electronPayload),
+        );
     }
   }
 }

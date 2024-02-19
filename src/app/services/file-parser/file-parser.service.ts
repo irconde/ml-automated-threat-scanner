@@ -1,6 +1,10 @@
 import { Injectable } from '@angular/core';
 import JSZip from 'jszip';
-import { ParsedORA, PixelData } from '../../../models/file-parser';
+import {
+  FileParserOutput,
+  ParsedORA,
+  PixelData,
+} from '../../../models/file-parser';
 import { v4 as guid } from 'uuid';
 import {
   cocoBoxToBoundingBox,
@@ -14,13 +18,7 @@ import {
   RawDicosDetection,
 } from '../../../models/detection';
 import dicomParser from 'dicom-parser';
-import * as DICOS from '../../utilities/dicos.utilities';
-
-type FileParserOutput = {
-  detectionData: RawDetection[];
-  imageData: PixelData[];
-  algorithms?: Record<string, DetectionAlgorithm>;
-};
+import * as DICOS from '../../utilities/dicos/dicos.utilities';
 
 @Injectable({
   providedIn: 'root',
@@ -188,7 +186,10 @@ export class FileParserService {
     });
 
     await Promise.all(allPromises);
-    const returnValue: FileParserOutput = { detectionData, imageData };
+    const returnValue: FileParserOutput = {
+      detectionData,
+      pixelDataList: imageData,
+    };
     // return the algorithms too if there are any
     if (Object.keys(algorithms).length) {
       returnValue.algorithms = algorithms;
@@ -307,8 +308,6 @@ export class FileParserService {
     } else {
       const dicomElement: dicomParser.Element = threatSequence.items[0];
       const boundingBox = DICOS.retrieveBoundingBoxData(dicomElement);
-      boundingBox[2] = Math.abs(boundingBox[2] - boundingBox[0]);
-      boundingBox[3] = Math.abs(boundingBox[3] - boundingBox[1]);
       const className = DICOS.retrieveObjectClass(dicomElement);
       const confidence = DICOS.decimalToPercentage(
         DICOS.retrieveConfidenceLevel(dicomElement),

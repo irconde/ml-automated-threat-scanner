@@ -20,6 +20,7 @@ import { DetectionContextMenuComponent } from '../detection-context-menu/detecti
 import { AlgorithmInfoComponent } from '../algorithm-info/algorithm-info.component';
 import AnnotationMovementTool from '../../utilities/cornerstone-tools/AnnotationMovementTool';
 import { generateDetectionColor } from '../../utilities/detection.utilities';
+import { ImageStatus } from '../../services/ui/model/enum';
 
 @Component({
   selector: 'app-cs-canvas',
@@ -78,26 +79,16 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
     this.fileService
       .getCurrentFile()
       .subscribe((currentFile: FilePayload | null) => {
-        console.log('-------------------Current File-------------------------');
-        console.log(currentFile);
-        console.log('--------------------------------------------------------');
         if (!currentFile) return;
         this.fileParserService.loadData(currentFile.file).then((parsedFile) => {
-          console.log(
-            '-------------------Parsed File--------------------------',
-          );
-          console.log(parsedFile);
-          console.log(
-            '--------------------------------------------------------',
-          );
-
           if (parsedFile.algorithms) {
             this.detectionsService.setAlgorithms(parsedFile.algorithms);
           }
 
+          this.fileService.setPixelData(parsedFile.pixelDataList);
           Object.keys(this.viewportsData).forEach((key): void => {
             const viewpoint = key as keyof ViewportsMap;
-            const pixelData = parsedFile.imageData.find(
+            const pixelData = parsedFile.pixelDataList.find(
               (img) => img.viewpoint === key,
             );
             if (!pixelData) {
@@ -117,6 +108,7 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
               this.detectionsService.setDetectionData({
                 [viewpoint]: detectionData,
               });
+              this.uiService.setImageStatus(ImageStatus.HasImage);
             });
           });
         });

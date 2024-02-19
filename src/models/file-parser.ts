@@ -1,4 +1,4 @@
-import { DetectionType } from './detection';
+import { DetectionAlgorithm, DetectionType, RawDetection } from './detection';
 
 export interface CanvasViewpoint {
   viewpoint: string;
@@ -18,3 +18,9 @@ export interface PixelData {
   imageId: string;
   type: DetectionType;
 }
+
+export type FileParserOutput = {
+  detectionData: RawDetection[];
+  pixelDataList: PixelData[];
+  algorithms?: Record<string, DetectionAlgorithm>;
+};

@@ -1,4 +1,4 @@
-<div [ngClass]="{ open: isOpen }" class="side-menu">
+<div *ngIf="isVisible" [ngClass]="{ open: isOpen }" class="side-menu">
   <div *ngFor="let groupName of getAlgorithmNames()" class="algorithm-group">
     <div class="algorithm" (click)="handleGroupNameClick(groupName)"
          [ngClass]="{ selected: detectionsGroupMetaData[groupName].selected }">
@@ -12,7 +12,7 @@
       <button class="eye-icon"
               (click)="handleGroupEyeClick($event, groupName)">
         <mat-icon [ngClass]="{'hidden': !detectionsGroupMetaData[groupName].visible}">
-          {{detectionsGroupMetaData[groupName].visible ? 'visibility' : 'visibility_off'}}
+          {{ detectionsGroupMetaData[groupName].visible ? 'visibility' : 'visibility_off' }}
         </mat-icon>
       </button>
     </div>
@@ -31,9 +31,10 @@
           {{ detection.className }} - {{ detection.confidence }}%
         </span>
         <button class="eye-icon" (click)="handleDetectionEyeClick($event, detection)">
-          <mat-icon>{{detection.visible ? 'visibility' : 'visibility_off'}}</mat-icon>
+          <mat-icon>{{ detection.visible ? 'visibility' : 'visibility_off' }}</mat-icon>
         </button>
       </li>
     </ul>
   </div>
+  <app-next-button/>
 </div>

@@ -1,4 +1,3 @@
-// label-list.component.ts
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { NgForOf } from '@angular/common';
 

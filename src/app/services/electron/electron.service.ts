@@ -2,7 +2,10 @@ import { Injectable } from '@angular/core';
 import { getElectronAPI } from '../../get-electron-api';
 import { Channels } from '../../../../shared/constants/channels';
 import { FilePayload } from '../../../../shared/models/file-models';
-import { AngularChannelPayloadMapper } from '../../../../shared/models/channels-payloads';
+import {
+  AngularChannelPayloadMapper,
+  ElectronChannelPayloadMapper,
+} from '../../../../shared/models/channels-payloads';
 
 @Injectable({
   providedIn: 'root',
@@ -28,5 +31,14 @@ export class ElectronService {
     callback: (electronPayload: FilePayload | null) => void,
   ) {
     this.electronAPI.invoke(Channels.InitFilesInvoke, sentPayload, callback);
+  }
+
+  saveCurrentFile(
+    payload: AngularChannelPayloadMapper[Channels.SaveCurrentFileInvoke],
+    callback: (
+      electronPayload: ElectronChannelPayloadMapper[Channels.SaveCurrentFileInvoke],
+    ) => void,
+  ) {
+    this.electronAPI.invoke(Channels.SaveCurrentFileInvoke, payload, callback);
   }
 }

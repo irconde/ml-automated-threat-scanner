@@ -11,18 +11,22 @@ import {
   getDetectionGroupName,
 } from '../../../models/detection';
 import { MatIconModule } from '@angular/material/icon';
+import { NextButtonComponent } from './next-button/next-button.component';
+import { ImageStatus } from '../../services/ui/model/enum';
 
 @Component({
   selector: 'app-side-menu',
   templateUrl: './side-menu.component.html',
   styleUrls: ['./side-menu.component.scss'],
   standalone: true,
-  imports: [NgClass, NgForOf, MatIconModule, NgIf],
+  imports: [NgClass, NgForOf, MatIconModule, NgIf, NextButtonComponent],
 })
 export class SideMenuComponent {
   public isOpen: boolean = false;
   public detectionsGroups: Record<string, Detection[]> = {};
   public detectionsGroupMetaData: Record<string, DetectionGroupMetaData> = {};
+  protected isNextOrSaveBtn: boolean = true;
+  protected isVisible: boolean = false;
 
   constructor(
     private uiService: UiService,
@@ -30,6 +34,10 @@ export class SideMenuComponent {
   ) {
     this.uiService.getIsSideMenuOpen().subscribe((isSideMenuOpen) => {
       this.isOpen = isSideMenuOpen;
+    });
+
+    this.uiService.getImageStatus().subscribe((status) => {
+      this.isVisible = status !== ImageStatus.NoImage;
     });
 
     this.detectionsService.getDetectionData().subscribe((detections) => {

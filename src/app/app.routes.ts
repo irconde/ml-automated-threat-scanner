@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
-import { AppMain } from './components/AppMain/app-main.component';
+import { AppWrapperComponent } from './components/AppWrapper/app-wrapper.component';
 
 export const routes: Routes = [
   {
     path: '',
-    component: AppMain,
+    component: AppWrapperComponent,
   },
 ];

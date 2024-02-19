@@ -43,10 +43,29 @@ class UserFilesManager extends ChannelsManager {
     this.handleAngularEvent(
       Channels.InitFilesInvoke,
       async (e, { selectedImagesDirPath }) => {
-        const anyFiles = await this.#updateFileNames(selectedImagesDirPath);
+        const { anyFiles } = await this.#updateFileNames(selectedImagesDirPath);
         return anyFiles
           ? this.#getCurrentFilePayload(selectedImagesDirPath)
           : null;
+      },
+    );
+    this.handleAngularEvent(
+      Channels.SaveCurrentFileInvoke,
+      async (e, { base64File, selectedImagesDirPath }) => {
+        const filePath = path.join(
+          selectedImagesDirPath,
+          this.fileNames[this.currentFileIndex],
+        );
+        await fs.promises.writeFile(filePath, base64File, {
+          encoding: 'base64',
+        });
+        this.currentFileIndex++;
+        if (this.currentFileIndex >= this.fileNames.length) {
+          this.currentFileIndex = 0;
+          return null;
+        } else {
+          return this.#getCurrentFilePayload(selectedImagesDirPath);
+        }
       },
     );
   }
@@ -67,13 +86,15 @@ class UserFilesManager extends ChannelsManager {
     };
   }
 
-  async #updateFileNames(selectedImagesDirPath: string) {
-    if (!selectedImagesDirPath) return false;
+  async #updateFileNames(
+    selectedImagesDirPath: string,
+  ): Promise<{ anyFiles: boolean }> {
+    if (!selectedImagesDirPath) return { anyFiles: false };
     const foundFiles: string[] = await fs.promises.readdir(
       selectedImagesDirPath,
     );
     this.fileNames = foundFiles.filter(UserFilesManager.#isFileTypeAllowed);
-    return !!this.fileNames.length;
+    return { anyFiles: !!this.fileNames.length };
   }
 }
 

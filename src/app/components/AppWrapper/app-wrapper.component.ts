@@ -1,7 +1,4 @@
 import { Component } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
-import { ExploreContainerComponent } from '../explore-container/explore-container.component';
-import { CsCanvasComponent } from '../cs-canvas/cs-canvas.component';
 import { FilePayload } from '../../../../shared/models/file-models';
 import { FileService } from '../../services/file/file.service';
 import { SettingsService } from '../../services/settings/settings.service';
@@ -12,16 +9,20 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ApplicationSettings } from '../../services/settings/models/Settings';
+import { IonicModule } from '@ionic/angular';
+import { ExploreContainerComponent } from '../explore-container/explore-container.component';
+import { CsCanvasComponent } from '../cs-canvas/cs-canvas.component';
 import { TopBarComponent } from '../top-bar/top-bar.component';
 import { DetectionContextMenuComponent } from '../detection-context-menu/detection-context-menu.component';
 import { SideMenuComponent } from '../side-menu/side-menu.component';
 import { LabelEditComponent } from '../label-edit/label-edit.component';
-import {ColorPickerComponent} from "../color-picker/color-picker.component";
+import { ColorPickerComponent } from '../color-picker/color-picker.component';
+import { NoFileSignComponent } from '../no-file-sign/no-file-sign.component';
 
 @Component({
-  selector: 'app-main',
-  templateUrl: 'app-main.component.html',
-  styleUrls: ['app-main.component.scss'],
+  selector: 'app-wrapper',
+  templateUrl: 'app-wrapper.component.html',
+  styleUrls: ['app-wrapper.component.scss'],
   standalone: true,
   imports: [
     IonicModule,
@@ -37,11 +38,11 @@ import {ColorPickerComponent} from "../color-picker/color-picker.component";
     SideMenuComponent,
     LabelEditComponent,
     ColorPickerComponent,
+    NoFileSignComponent,
   ],
 })
-export class AppMain {
+export class AppWrapperComponent {
   currentFile: FilePayload | null = null;
-
   settings: ApplicationSettings | null = null;
   public readonly Platforms: typeof Platforms = Platforms;
 
@@ -53,6 +54,7 @@ export class AppMain {
     fileService.getCurrentFile().subscribe((currentFile) => {
       this.currentFile = currentFile;
     });
+
     settingsService
       .getSettings()
       .subscribe((settings: ApplicationSettings | null) => {
