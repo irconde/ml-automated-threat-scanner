@@ -11,10 +11,7 @@ import {
   getDetectionGroupName,
 } from '../../../models/detection';
 import { MatIconModule } from '@angular/material/icon';
-import { SaveButtonComponent } from './save-button/save-button.component';
 import { NextButtonComponent } from './next-button/next-button.component';
-import { SettingsService } from '../../services/settings/settings.service';
-import { WorkingMode } from '../../../enums/platforms';
 import { ImageStatus } from '../../services/ui/model/enum';
 
 @Component({
@@ -22,14 +19,7 @@ import { ImageStatus } from '../../services/ui/model/enum';
   templateUrl: './side-menu.component.html',
   styleUrls: ['./side-menu.component.scss'],
   standalone: true,
-  imports: [
-    NgClass,
-    NgForOf,
-    MatIconModule,
-    NgIf,
-    SaveButtonComponent,
-    NextButtonComponent,
-  ],
+  imports: [NgClass, NgForOf, MatIconModule, NgIf, NextButtonComponent],
 })
 export class SideMenuComponent {
   public isOpen: boolean = false;
@@ -41,7 +31,6 @@ export class SideMenuComponent {
   constructor(
     private uiService: UiService,
     private detectionsService: DetectionsService,
-    private settingsService: SettingsService,
   ) {
     this.uiService.getIsSideMenuOpen().subscribe((isSideMenuOpen) => {
       this.isOpen = isSideMenuOpen;
@@ -59,13 +48,6 @@ export class SideMenuComponent {
       .subscribe((detectionsMetaData) => {
         this.detectionsGroupMetaData = detectionsMetaData;
       });
-
-    this.settingsService.getSettings().subscribe((appSettings) => {
-      if (appSettings !== null) {
-        this.isNextOrSaveBtn =
-          appSettings.workingMode !== WorkingMode.IndividualFile;
-      }
-    });
   }
 
   public getAlgorithmNames(): string[] {

@@ -86,7 +86,8 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
           if (parsedFile.algorithms) {
             this.detectionsService.setAlgorithms(parsedFile.algorithms);
           }
-          this.pixelDataList = parsedFile.pixelDataList;
+
+          this.fileService.setPixelData(parsedFile.pixelDataList);
           Object.keys(this.viewportsData).forEach((key): void => {
             const viewpoint = key as keyof ViewportsMap;
             const pixelData = parsedFile.pixelDataList.find(

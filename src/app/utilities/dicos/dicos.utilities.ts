@@ -3,6 +3,7 @@ import { Detection, DetectionType } from '../../../models/detection';
 import JSZip from 'jszip';
 import { PixelData } from '../../../models/file-parser';
 import { cornerstone } from '../../csSetup';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import * as dcmjs from 'dcmjs';
 import { getViewportByViewpoint } from '../cornerstone.utilities';

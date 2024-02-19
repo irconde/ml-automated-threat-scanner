@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { FilePayload, FileStatus } from '../../../../shared/models/file-models';
 import { API } from '../../../enums/remote-service';
-import { Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { SettingsService } from '../settings/settings.service';
 import { Platforms, WorkingMode } from '../../../enums/platforms';
 import { ElectronService } from '../electron/electron.service';
@@ -21,6 +21,9 @@ import { SettingsError } from '../../../errors/settings.error';
 export class FileService {
   private currentFileObservable: Subject<FilePayload | null> =
     new Subject<FilePayload | null>();
+  private currentPixelData: BehaviorSubject<PixelData[]> = new BehaviorSubject<
+    PixelData[]
+  >([]);
   private settings: ApplicationSettings | null = null;
   readonly outputType: 'base64' | 'blob';
 
@@ -36,6 +39,14 @@ export class FileService {
       .subscribe((newSettings) => this.handleSettingsChange(newSettings));
     this.outputType =
       this.settingsService.platform === Platforms.Web ? 'blob' : 'base64';
+  }
+
+  public getPixelData() {
+    return this.currentPixelData.asObservable();
+  }
+
+  public setPixelData(pixelData: PixelData[]) {
+    this.currentPixelData.next(pixelData);
   }
 
   /**
@@ -241,7 +252,7 @@ export class FileService {
    * @param pixelDataList
    * @throws SettingsError - must be handled in case settings are not defined yet
    */
-  public async saveCurrentFile(pixelDataList: PixelData[]) {
+  public async saveCurrentFile() {
     let file: string | Blob = '';
     if (this.settings === null) throw new SettingsError('Settings are null');
     const detections = this.detectionsService.allDetections;
@@ -249,7 +260,7 @@ export class FileService {
       // TODO: update the currentFileFormat to be the actual one
       // only web platform uses Blob as an output
       file = await generateDicosOutput(
-        pixelDataList,
+        this.currentPixelData.getValue(),
         DetectionType.TDR,
         detections,
         this.outputType,
