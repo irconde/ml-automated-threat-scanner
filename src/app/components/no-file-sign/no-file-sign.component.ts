@@ -3,14 +3,14 @@ import { UiService } from '../../services/ui/ui.service';
 import { ImageStatus } from '../../services/ui/model/enum';
 import { SettingsService } from '../../services/settings/settings.service';
 import { WorkingMode } from '../../../enums/platforms';
-import { NgIf } from '@angular/common';
+import { NgIf, NgOptimizedImage } from '@angular/common';
 
 @Component({
   selector: 'app-no-file-sign',
   templateUrl: './no-file-sign.component.html',
   styleUrls: ['./no-file-sign.component.scss'],
   standalone: true,
-  imports: [NgIf],
+  imports: [NgIf, NgOptimizedImage],
 })
 export class NoFileSignComponent {
   protected isVisible: boolean = false;
@@ -29,7 +29,7 @@ export class NoFileSignComponent {
         this.displayString =
           appSettings.workingMode === WorkingMode.RemoteServer
             ? 'No file available'
-            : 'Please select a file';
+            : 'Select a file';
       }
     });
   }
