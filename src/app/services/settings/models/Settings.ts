@@ -6,19 +6,17 @@ export interface ApplicationSettings {
   fileFormat: FileFormat;
   detectionFormat: DetectionType;
   fileNameSuffix: string;
-  autoConnect: boolean;
   remoteIp: string;
   remotePort: string;
   selectedImagesDirPath?: string;
 }
 
 export const DEFAULT_SETTINGS: ApplicationSettings = {
-  autoConnect: false,
   detectionFormat: DetectionType.COCO,
   fileFormat: FileFormat.OpenRaster,
   fileNameSuffix: '_img',
   remoteIp: '',
   remotePort: '',
   selectedImagesDirPath: '',
-  workingMode: WorkingMode.RemoteServer,
+  workingMode: WorkingMode.MinIO,
 };

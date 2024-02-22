@@ -102,7 +102,7 @@ export class SettingsModalComponent {
   checkConnection() {}
 
   saveSettings() {
-    let workingMode: WorkingMode = WorkingMode.RemoteServer;
+    let workingMode: WorkingMode = WorkingMode.MinIO;
     const isRemote = this.form.get('workingMode')?.value;
     const isDirectory = this.form.get('selectedImagesDirPath')?.value;
     if (!isRemote) {
@@ -115,12 +115,11 @@ export class SettingsModalComponent {
 
     const formSettings: ApplicationSettings = {
       workingMode,
-      remoteIp: this.form.get('remoteIp')?.value,
-      remotePort: this.form.get('remotePort')?.value,
+      remoteIp: 'ualr', // TODO
+      remotePort: '9000',
       fileFormat: this.form.get('fileFormat')?.value as FileFormat,
       detectionFormat: this.form.get('detectionFormat')?.value as DetectionType,
       fileNameSuffix: this.form.get('fileNameSuffix')?.value,
-      autoConnect: this.form.get('autoConnect')?.value,
       selectedImagesDirPath: this.form.get('selectedImagesDirPath')?.value,
     };
 
@@ -151,9 +150,10 @@ export class SettingsModalComponent {
     key: keyof ApplicationSettings,
     settings: ApplicationSettings,
   ) {
-    let value = settings[key as keyof ApplicationSettings];
+    const value = settings[key as keyof ApplicationSettings];
     if (key === 'workingMode') {
-      value = value === WorkingMode.RemoteServer;
+      // TODO
+      //value = value === WorkingMode.MinIO;
     }
     return value;
   }

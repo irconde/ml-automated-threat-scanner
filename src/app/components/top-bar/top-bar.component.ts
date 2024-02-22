@@ -69,7 +69,7 @@ export class TopBarComponent implements OnInit {
 
   setConnectionText() {
     // Set connection text based on working mode
-    if (this.settings?.workingMode === WorkingMode.RemoteServer) {
+    if (this.settings?.workingMode === WorkingMode.MinIO) {
       this.connectionTextContent = `https://${this.settings?.remoteIp}:${this.settings?.remotePort}`;
     } else if (this.settings?.workingMode === WorkingMode.LocalDirectory) {
       this.connectionTextContent = `${this.settings?.selectedImagesDirPath}`;
@@ -89,9 +89,7 @@ export class TopBarComponent implements OnInit {
 
   updateConnectionStatus() {
     this.cloudIconType =
-      this.settings?.workingMode === WorkingMode.RemoteServer
-        ? 'cloud'
-        : 'cloud_off';
+      this.settings?.workingMode === WorkingMode.MinIO ? 'cloud' : 'cloud_off';
   }
 
   updateTraffic() {
@@ -114,7 +112,7 @@ export class TopBarComponent implements OnInit {
 
   handleFileButtonVisibility() {
     if (
-      this.settings?.workingMode !== WorkingMode.RemoteServer &&
+      this.settings?.workingMode !== WorkingMode.MinIO &&
       this.settings?.selectedImagesDirPath === ''
     ) {
       this.fileButtonVisibility = 'visibility: visible';

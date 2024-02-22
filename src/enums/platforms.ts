@@ -6,7 +6,7 @@ export enum Platforms {
 }
 
 export enum WorkingMode {
-  RemoteServer,
+  MinIO,
   LocalDirectory,
   IndividualFile,
 }

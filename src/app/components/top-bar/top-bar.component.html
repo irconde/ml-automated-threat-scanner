@@ -26,7 +26,7 @@
         <img alt="file queue icon" src="../../../assets/file-queue.icon.svg"/>
       </div>
       <img alt="traffic icon" src="{{updateTraffic()}}"/>
-      <mat-icon aria-hidden="false" *ngIf="settings?.workingMode === WorkingMode.RemoteServer" aria-label="Cloud icon"
+      <mat-icon aria-hidden="false" *ngIf="settings?.workingMode === WorkingMode.MinIO" aria-label="Cloud icon"
                 fontSet="material-icons-outlined">{{ this.cloudIconType }}
       </mat-icon>
     </div>

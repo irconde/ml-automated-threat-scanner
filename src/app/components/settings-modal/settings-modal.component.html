@@ -17,45 +17,11 @@
       <!--    REMOTE SERVICE TOGGLE    -->
       <div class="settings-section">
         <div>
-          <p class="settings-text">Work Connected to a Remote Service</p>
-          <p class="settings-subtext">Choose this option if you want to receive/send images from/to a
-                                      server.</p>
+          <p class="settings-text">Work Connected to UALR Min.IO Data Store</p>
+          <p class="settings-subtext">Choose this option if you want to interact with the UALR Min.IO Data Store
+            files.</p>
         </div>
         <mat-slide-toggle formControlName="workingMode"/>
-      </div>
-
-      <!--    HOST AND PORT INFO    -->
-      <div class="settings-section section-column">
-
-        <!--    SERVER INFO TOP    -->
-        <div id="server-info-top">
-          <div class="input-info-wrapper">
-            <mat-icon aria-hidden="false" aria-label="Cloud icon" fontSet="material-icons-outlined">cloud</mat-icon>
-
-            <!--    INPUTS    -->
-            <div class="input-info">
-              <mat-form-field id="host-input">
-                <mat-label>Host</mat-label>
-                <input formControlName="remoteIp" matInput placeholder="Ex. 127.0.0.1" type="text">
-              </mat-form-field>
-              <span id="colon">:</span>
-              <mat-form-field id="port-input">
-                <mat-label>Port</mat-label>
-                <input formControlName="remotePort" matInput placeholder="Ex. 5500" type="text">
-              </mat-form-field>
-            </div>
-          </div>
-          <div id="settings-checkbox-wrapper">
-            <mat-checkbox formControlName="autoConnect">Autoconnect</mat-checkbox>
-          </div>
-        </div>
-
-        <!--    SERVER INFO BOTTOM    -->
-        <div id="server-info-bottom">
-          <button (click)="checkConnection()" color="primary" mat-flat-button type="button">Check
-                                                                                            Connection
-          </button>
-        </div>
       </div>
 
       <!--      DIVIDER    -->
@@ -93,7 +59,7 @@
               <mat-label>Output File Format</mat-label>
               <mat-select formControlName="fileFormat">
                 <mat-option *ngFor="let option of output_options" [value]="option.value">
-                  {{option.viewValue}}
+                  {{ option.viewValue }}
                 </mat-option>
               </mat-select>
             </mat-form-field>
@@ -107,7 +73,7 @@
               <mat-label>Annotations Format</mat-label>
               <mat-select formControlName="detectionFormat">
                 <mat-option *ngFor="let option of annotation_options" [value]="option.value">
-                  {{option.viewValue}}
+                  {{ option.viewValue }}
                 </mat-option>
               </mat-select>
             </mat-form-field>
@@ -127,7 +93,8 @@
     </mat-card-content>
     <div class="settings-footer">
       <button color="primary" mat-flat-button
-              type="submit">{{submitting ? "Saving..." : "Save Settings"}}</button>
+              type="submit">{{ submitting ? "Saving..." : "Save Settings" }}
+      </button>
     </div>
   </mat-card>
 </form>

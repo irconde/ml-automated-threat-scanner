@@ -42,7 +42,7 @@ export class SettingsService {
   public static isMissingRequiredInfo(settings: ApplicationSettings): boolean {
     // returns true if application doesn't have basic settings for where to get the files from
     return (
-      settings.workingMode === WorkingMode.RemoteServer &&
+      settings.workingMode === WorkingMode.MinIO &&
       (!settings.remoteIp || !settings.remotePort)
       // TODO: decide if we need this below for electron
       // ||
