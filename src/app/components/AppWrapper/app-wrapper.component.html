@@ -6,7 +6,7 @@
     </ion-toolbar>
   </ion-header>
 
-  <app-cs-canvas></app-cs-canvas>
+  <app-cs-canvas *ngIf="!isLoading"></app-cs-canvas>
   <app-side-menu/>
   <app-label-edit/>
   <app-detection-context-menu/>

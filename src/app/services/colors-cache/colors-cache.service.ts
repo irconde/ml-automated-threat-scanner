@@ -27,14 +27,7 @@ export class ColorsCacheService {
   private async init() {
     // Load colors using Capacitor Preferences
     this.colorsCache = await this.loadCachedColors();
-  }
-
-  private addCachedColor(className: string, color: string) {
-    if (this.colorsCache === null) {
-      throw Error("Can't add a color before async initialization");
-    }
-    this.colorsCache[className] = color;
-    this.storeCachedColors(this.colorsCache).then();
+    this.isLoading.next(false);
   }
 
   private storeCachedColors = async (colorsCache: ColorsCache) => {
@@ -69,8 +62,16 @@ export class ColorsCacheService {
     if (cachedColor) return cachedColor;
     else {
       const newColor = this.generateDetectionColor(className);
-      this.addCachedColor(className, newColor);
+      this.setCachedColor(className, newColor).then();
       return newColor;
     }
+  }
+
+  public async setCachedColor(className: string, color: string) {
+    if (this.colorsCache === null) {
+      throw Error("Can't add a color before async initialization");
+    }
+    this.colorsCache[className] = color;
+    await this.storeCachedColors(this.colorsCache);
   }
 }

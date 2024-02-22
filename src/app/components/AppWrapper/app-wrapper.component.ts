@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { FilePayload } from '../../../../shared/models/file-models';
 import { FileService } from '../../services/file/file.service';
 import { SettingsService } from '../../services/settings/settings.service';
 import { Platforms } from '../../../enums/platforms';
@@ -18,6 +17,7 @@ import { SideMenuComponent } from '../side-menu/side-menu.component';
 import { LabelEditComponent } from '../label-edit/label-edit.component';
 import { ColorPickerComponent } from '../color-picker/color-picker.component';
 import { NoFileSignComponent } from '../no-file-sign/no-file-sign.component';
+import { ColorsCacheService } from '../../services/colors-cache/colors-cache.service';
 
 @Component({
   selector: 'app-wrapper',
@@ -42,18 +42,23 @@ import { NoFileSignComponent } from '../no-file-sign/no-file-sign.component';
   ],
 })
 export class AppWrapperComponent {
-  currentFile: FilePayload | null = null;
+  // currentFile: FilePayload | null = null;
   settings: ApplicationSettings | null = null;
   public readonly Platforms: typeof Platforms = Platforms;
+  public isLoading = true;
 
   constructor(
+    public colorsService: ColorsCacheService,
     public fileService: FileService,
     public settingsService: SettingsService,
     public dialog: MatDialog,
   ) {
-    fileService.getCurrentFile().subscribe((currentFile) => {
-      this.currentFile = currentFile;
-    });
+    this.colorsService.$isLoading.subscribe(
+      (areColorsLoading) => (this.isLoading = areColorsLoading),
+    );
+    // fileService.getCurrentFile().subscribe((currentFile) => {
+    //   this.currentFile = currentFile;
+    // });
 
     settingsService
       .getSettings()

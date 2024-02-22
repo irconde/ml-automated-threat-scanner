@@ -16,7 +16,7 @@ import {
   updateCornerstoneViewports,
 } from '../../utilities/cornerstone.utilities';
 import { cornerstone } from '../../csSetup';
-import { generateDetectionColor } from '../../utilities/detection.utilities';
+import { ColorsCacheService } from '../colors-cache/colors-cache.service';
 
 export interface DetectionsMap {
   top: Detection[];
@@ -44,7 +44,7 @@ export class DetectionsService {
 
   private algorithms: Record<string, DetectionAlgorithm> | null = null;
 
-  constructor() {}
+  constructor(private colorsService: ColorsCacheService) {}
 
   public getSelectedAlgorithm() {
     return this.selectedAlgorithm.asObservable();
@@ -224,11 +224,8 @@ export class DetectionsService {
 
   setDetectionLabel(label: string) {
     if (!this.selectedDetection.value) return;
-    const existingClassNameColor = this.allDetections.find(
-      ({ className }) => className === label,
-    )?.color;
     this.selectedDetection.value.color =
-      existingClassNameColor ?? generateDetectionColor(label);
+      this.colorsService.getDetectionColor(label);
     this.selectedDetection.value.className = label;
     this.setDetectionData(this.detectionData.value);
   }
@@ -264,7 +261,7 @@ export class DetectionsService {
       iscrowd: 0,
       detectionFromFile: false,
       className: CommonDetections.Unknown,
-      color: generateDetectionColor(CommonDetections.Unknown),
+      color: this.colorsService.getDetectionColor(CommonDetections.Unknown),
       uuid: guid(),
       // TODO: update below properties to the default
       confidence: 100,

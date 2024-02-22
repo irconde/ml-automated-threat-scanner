@@ -19,8 +19,8 @@ import { resizeCornerstoneViewports } from '../../utilities/cornerstone.utilitie
 import { DetectionContextMenuComponent } from '../detection-context-menu/detection-context-menu.component';
 import { AlgorithmInfoComponent } from '../algorithm-info/algorithm-info.component';
 import AnnotationMovementTool from '../../utilities/cornerstone-tools/AnnotationMovementTool';
-import { generateDetectionColor } from '../../utilities/detection.utilities';
 import { ImageStatus } from '../../services/ui/model/enum';
+import { ColorsCacheService } from '../../services/colors-cache/colors-cache.service';
 
 @Component({
   selector: 'app-cs-canvas',
@@ -49,6 +49,7 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
   isAnnotating: boolean = false;
 
   constructor(
+    private colorsService: ColorsCacheService,
     private csService: CornerstoneService,
     private fileService: FileService,
     private fileParserService: FileParserService,
@@ -100,7 +101,7 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
             this.csService.getImageData(pixelData).subscribe((imageData) => {
               const detectionData = parsedFile.detectionData
                 .filter((detect) => detect.viewpoint === viewpoint)
-                .map(this.getDetection);
+                .map((det) => this.getDetection(det));
               this.viewportsData[viewpoint] = {
                 imageData,
                 detectionData: [],
@@ -143,6 +144,8 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
    * Converts a raw detection to a detection for the application to use
    */
   private getDetection(rawDetection: RawDetection): Detection {
+    const { className } = rawDetection;
+    const color = this.colorsService.getDetectionColor(className);
     return {
       ...rawDetection,
       // TODO: set these values to something that makes sense
@@ -151,8 +154,8 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
       visible: true,
       id: '',
       iscrowd: 0,
-      color: generateDetectionColor(rawDetection.className),
-      categoryName: rawDetection.className,
+      color,
+      categoryName: className,
     };
   }
 }
