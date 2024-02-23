@@ -62,6 +62,11 @@ export class AppWrapperComponent {
         // settings are null when they are first loading
         if (settings && SettingsService.isMissingRequiredInfo(settings)) {
           this.openSettingsModal();
+        } else if (
+          settings &&
+          !SettingsService.isMissingRequiredInfo(settings)
+        ) {
+          this.dialog.closeAll();
         }
       });
   }
