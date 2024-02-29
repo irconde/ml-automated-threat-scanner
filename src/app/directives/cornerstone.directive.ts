@@ -102,7 +102,7 @@ export class CornerstoneDirective implements AfterViewInit {
           EditionMode.Move,
         )
       ) {
-        this.stopListeningToCLicks();
+        this.stopListeningToClicks();
         if (isEditingPolygon) {
           // cornerstone polygon tool doesn't rerender the image when a polygon is being edited
           if (this.settingsService.isMobile) {
@@ -150,7 +150,7 @@ export class CornerstoneDirective implements AfterViewInit {
     }, 200);
   }
 
-  stopListeningToCLicks() {
+  stopListeningToClicks() {
     if (!this.isClickListenerActive) return;
     this.element.removeEventListener('click', this.onMouseClick);
     this.element.removeEventListener('touchstart', this.onMouseClick);
@@ -471,9 +471,7 @@ export class CornerstoneDirective implements AfterViewInit {
 
   private listenToWheelEvent() {
     // debounceTime enables getting notified of the wheel event
-
     // when it hasn't occurred for 200ms
-
     const endSub = fromEvent(this.element, 'wheel')
       .pipe(debounceTime(200))
       .subscribe((e) => {
@@ -493,12 +491,11 @@ export class CornerstoneDirective implements AfterViewInit {
   private listenToDragEvent() {
     const subscription = fromEvent(
       this.element,
-
       CS_EVENTS.MOUSE_DRAG,
     ).subscribe((e) => {
       this.eventBusService.emitDragEventStart(e);
 
-      this.stopListeningToCLicks();
+      this.stopListeningToClicks();
 
       const endSub = fromEvent(this.element, 'mouseup').subscribe((e) => {
         this.eventBusService.emitDragEventEnd(e);
@@ -506,8 +503,10 @@ export class CornerstoneDirective implements AfterViewInit {
         endSub.unsubscribe();
 
         this.listenToDragEvent();
-
-        this.listenToClicks();
+        // don't listen to clicks when drawing a polygon
+        if (this.csConfig.annotationMode !== AnnotationMode.Polygon) {
+          this.listenToClicks();
+        }
       });
 
       subscription.unsubscribe();
