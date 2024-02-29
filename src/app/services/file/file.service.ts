@@ -85,18 +85,20 @@ export class FileService {
 
   public async requestNextFile(next: boolean) {
     switch (this.settings?.workingMode) {
+      case WorkingMode.IndividualFile:
+        break;
       case WorkingMode.LocalDirectory:
         if (!this.settings.selectedImagesDirPath) return;
-        this.electronService.requestNewFile(
-          {
-            isNext: next,
-            selectedImagesDirPath: this.settings.selectedImagesDirPath,
-          },
-          (filePayload: FilePayload | null) => {
-            // if no more files, don't update the current file
-            if (filePayload !== null) this.setCurrentFile(filePayload);
-          },
-        );
+        // this.electronService.requestNewFile(
+        //   {
+        //     isNext: next,
+        //     selectedImagesDirPath: this.settings.selectedImagesDirPath,
+        //   },
+        //   (filePayload: FilePayload | null) => {
+        //     // if no more files, don't update the current file
+        //     if (filePayload !== null) this.setCurrentFile(filePayload);
+        //   },
+        // );
         break;
       case WorkingMode.RemoteServer:
         switch (this.settingsService.platform) {

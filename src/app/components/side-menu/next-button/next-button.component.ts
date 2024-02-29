@@ -30,6 +30,6 @@ export class NextButtonComponent {
 
   protected async handleNext() {
     await this.fileService.saveCurrentFile();
-    await this.fileService.requestNextFile(true);
+    // await this.fileService.requestNextFile(true);
   }
 }
