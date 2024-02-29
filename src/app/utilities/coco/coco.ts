@@ -4,6 +4,7 @@ import { polygonDataToCoordArray } from '../detection.utilities';
 import { PixelData } from '../../../models/file-parser';
 import { getViewportByViewpoint } from '../cornerstone.utilities';
 import { cornerstone } from '../../csSetup';
+import { buildIntervals, findGrayValue } from '../general.utilities';
 
 const licenses = [
   {
@@ -35,24 +36,24 @@ const dicosPixelDataToPng = async (
   return new Promise((resolve) => {
     const image = cornerstone.getImage(imageViewport);
     const pixelData = image.getPixelData();
-    const EightbitPixels = new Uint8ClampedArray(
+    const eightBitPixels = new Uint8ClampedArray(
       4 * image.width * image.height,
     );
     let z = 0;
-    const intervals = Utils.buildIntervals();
+    const intervals = buildIntervals();
     for (let i = 0; i < pixelData.length; i++) {
-      const greyValue = Utils.findGrayValue(pixelData[i], intervals);
-      EightbitPixels[z] = greyValue;
-      EightbitPixels[z + 1] = greyValue;
-      EightbitPixels[z + 2] = greyValue;
-      EightbitPixels[z + 3] = 255;
+      const greyValue = findGrayValue(pixelData[i], intervals);
+      eightBitPixels[z] = greyValue;
+      eightBitPixels[z + 1] = greyValue;
+      eightBitPixels[z + 2] = greyValue;
+      eightBitPixels[z + 3] = 255;
       z += 4;
     }
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     ctx!.canvas.width = image.width;
     ctx!.canvas.height = image.height;
-    const imageData = new ImageData(EightbitPixels, image.width, image.height);
+    const imageData = new ImageData(eightBitPixels, image.width, image.height);
     ctx!.putImageData(imageData, 0, 0);
     canvas.toBlob((blob) => {
       resolve(blob!);
@@ -75,6 +76,12 @@ function updateXmlStack(
     blob ?? image.pixelData,
   );
   currentDetections.forEach((detection) => {
+    const getPolygon = (detection: Detection) => {
+      if ('polygonMask' in detection && detection.polygonMask?.length) {
+        return [polygonDataToCoordArray(detection.polygonMask)];
+      }
+      return [];
+    };
     if (detection !== undefined) {
       const annotations = [];
       annotations.push({
@@ -91,13 +98,14 @@ function updateXmlStack(
         bbox: [
           detection.boundingBox[0],
           detection.boundingBox[1],
-          detection.binaryMask[2][0],
-          detection.binaryMask[2][1],
+          // two lines below got swapped with commented out code
+          detection.boundingBox[2],
+          detection.boundingBox[3],
+          // TODO: resolve this issue with @James
+          // detection.binaryMask[2][0],
+          // detection.binaryMask[2][1],
         ],
-        segmentation:
-          detection.polygonMask.length > 0
-            ? [polygonDataToCoordArray(detection.polygonMask)]
-            : [],
+        segmentation: getPolygon(detection),
       });
 
       const currentDate = new Date();
@@ -117,8 +125,9 @@ function updateXmlStack(
         {
           id: imageID,
           license: licenses[0].id,
-          width: image.dimensions.x,
-          height: image.dimensions.y,
+          // TODO: provide actual dimensions here rather than 1_000
+          width: 1_000,
+          height: 1_000,
           date_captured: currentDate,
           file_name: `${image.viewpoint}_pixel_data.png`,
           coco_url: '',

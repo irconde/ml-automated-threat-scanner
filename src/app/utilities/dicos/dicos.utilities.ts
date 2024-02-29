@@ -9,6 +9,7 @@ import * as dcmjs from 'dcmjs';
 import { getViewportByViewpoint } from '../cornerstone.utilities';
 import { buildDicosObject } from './dicosBaseObject';
 import { FileType } from '../../services/file/model/enum';
+import { buildIntervals } from '../general.utilities';
 
 export const DICOS_DICTIONARY = {
   ThreatROIBase: {
@@ -325,14 +326,6 @@ export const generateDicosOutput = async (
 };
 
 const pngToDicosPixelData = async (viewport: HTMLElement) => {
-  const buildIntervals = () => {
-    const intervals = [{ min: 0, max: 255 }];
-    for (let i = 255; i < 65535; i += 256) {
-      intervals.push({ min: i, max: i + 256 });
-    }
-    return intervals;
-  };
-
   const image = cornerstone.getImage(viewport);
   const pixelData = image.getPixelData();
   const buffer = new ArrayBuffer(2 * image.width * image.height);
