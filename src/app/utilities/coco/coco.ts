@@ -5,6 +5,21 @@ import { PixelData } from '../../../models/file-parser';
 import { getViewportByViewpoint } from '../cornerstone.utilities';
 import { cornerstone } from '../../csSetup';
 
+const licenses = [
+  {
+    url: '',
+    id: 1,
+    name: '',
+  },
+];
+const categories = [
+  {
+    supercategory: 'food',
+    id: 55,
+    name: 'orange',
+  },
+];
+
 /**
  * Pulls the pixel data from cornerstone as Uint16Array in 16 Bit grey scale value and converts the 16 bit grey
  * scale value into a 8 bit value (0-255). This is the grey color produced by setting the R, G, & B Values to
@@ -17,7 +32,7 @@ import { cornerstone } from '../../csSetup';
 const dicosPixelDataToPng = async (
   imageViewport: HTMLElement,
 ): Promise<Blob> => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const image = cornerstone.getImage(imageViewport);
     const pixelData = image.getPixelData();
     const EightbitPixels = new Uint8ClampedArray(
@@ -45,12 +60,14 @@ const dicosPixelDataToPng = async (
   });
 };
 
-function no_name_func(
+function updateXmlStack(
   cocoZip: JSZip,
   image: PixelData,
   currentDetections: Detection[],
   annotationID: number,
   imageID: number,
+  stackXML: XMLDocument,
+  stackElem: HTMLElement,
   blob: Blob | undefined = undefined,
 ) {
   cocoZip.file(
@@ -82,6 +99,11 @@ function no_name_func(
             ? [polygonDataToCoordArray(detection.polygonMask)]
             : [],
       });
+
+      const currentDate = new Date();
+      const dd = String(currentDate.getDate()).padStart(2, '0');
+      const mm = String(currentDate.getMonth() + 1).padStart(2, '0'); //January is 0!
+      const yyyy = currentDate.getFullYear();
       const info = {
         description: 'Annotated file from Pilot GUI',
         contributor: 'Pilot GUI',
@@ -91,6 +113,18 @@ function no_name_func(
         data_created: `${yyyy}/${mm}/${dd}`,
         algorithm: detection.algorithm,
       };
+      const images = [
+        {
+          id: imageID,
+          license: licenses[0].id,
+          width: image.dimensions.x,
+          height: image.dimensions.y,
+          date_captured: currentDate,
+          file_name: `${image.viewpoint}_pixel_data.png`,
+          coco_url: '',
+          flickr_url: '',
+        },
+      ];
       const cocoDataset = {
         info,
         licenses,
@@ -118,20 +152,13 @@ function no_name_func(
  * the detections via an array and builds the needed JSON format for
  * the MS COCO dataset.
  *
- * @param {Array<{view: string, type: string, pixelData: ArrayBuffer | Blob, imageId: string, dimensions: {x: number; y: number}}>} imageData - Object containing image information
- * @param {Array<{algorithm: string; className: string; confidence: number; view: string; binaryMask: Array<Array<number>>; polygonMask?: Array<number>; boundingBox: Array<number>; selected: boolean; visible: boolean; uuid: string; color: string; validation?: boolean; textColor: string; detectionType: string;}>} detections - Collection of detection objects
- * @param {Array<{view: string; element: HTMLElement}>} viewports - Collection of viewport HTMLElement objects
- * @param {{"cornerstone-core": *, __esModule: *}} cornerstone - Main cornerstone object
- * @param {string} currentFileFormat - Current file format string (MS COCO or DICOS-TDR)
  * @returns {JSZip} cocoZip - The zipped file
  */
 export const buildCocoDataZip = async (
   imageData: PixelData[],
   detections: Detection[],
-  viewports,
-  cornerstone,
-  currentFileFormat,
-) => {
+  currentFileFormat: DetectionType,
+): Promise<JSZip> => {
   return new Promise((resolve) => {
     const cocoZip = new JSZip();
     const stackXML = document.implementation.createDocument('', '', null);
@@ -142,24 +169,6 @@ export const buildCocoDataZip = async (
       type: 'text/plain;charset=utf-8',
     });
     cocoZip.file('mimetype', mimeType, { compression: 'STORE' });
-    const currentDate = new Date();
-    const dd = String(currentDate.getDate()).padStart(2, '0');
-    const mm = String(currentDate.getMonth() + 1).padStart(2, '0'); //January is 0!
-    const yyyy = currentDate.getFullYear();
-    const licenses = [
-      {
-        url: '',
-        id: 1,
-        name: '',
-      },
-    ];
-    const categories = [
-      {
-        supercategory: 'food',
-        id: 55,
-        name: 'orange',
-      },
-    ];
 
     let imageID = 1;
     const annotationID = 1;
@@ -169,18 +178,7 @@ export const buildCocoDataZip = async (
       stackElem.setAttribute('name', `SOP Instance UID #${imageID}`);
       stackElem.setAttribute('view', image.viewpoint);
       const pixelLayer = stackXML.createElement('layer');
-      const images = [
-        {
-          id: imageID,
-          license: licenses[0].id,
-          width: image.dimensions.x,
-          height: image.dimensions.y,
-          date_captured: currentDate,
-          file_name: `${image.viewpoint}_pixel_data.png`,
-          coco_url: '',
-          flickr_url: '',
-        },
-      ];
+
       pixelLayer.setAttribute('src', `data/${image.viewpoint}_pixel_data.png`);
       stackElem.appendChild(pixelLayer);
       const currentDetections = detections.filter(
@@ -189,20 +187,30 @@ export const buildCocoDataZip = async (
       const viewport = getViewportByViewpoint(image.viewpoint);
       if (currentFileFormat === DetectionType.TDR) {
         const pngPromise = dicosPixelDataToPng(viewport).then((blob) => {
-          no_name_func(
+          updateXmlStack(
             cocoZip,
             image,
             currentDetections,
             annotationID,
             imageID,
+            stackXML,
+            stackElem,
             blob,
           );
         });
         listOfPromises.push(pngPromise);
       } else if (currentFileFormat === DetectionType.COCO) {
-        no_name_func(cocoZip, image, currentDetections, annotationID, imageID);
+        updateXmlStack(
+          cocoZip,
+          image,
+          currentDetections,
+          annotationID,
+          imageID,
+          stackXML,
+          stackElem,
+        );
       } else {
-        return null;
+        return;
       }
       imageID++;
       imageElem.appendChild(stackElem);
