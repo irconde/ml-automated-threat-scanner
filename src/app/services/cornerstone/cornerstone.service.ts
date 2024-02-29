@@ -35,7 +35,12 @@ export class CornerstoneService {
   }
 
   public setCsConfiguration(config: CornerstoneConfiguration) {
-    this._configuration.next(config);
+    const hasChanged = (
+      Object.keys(config) as (keyof CornerstoneConfiguration)[]
+    ).some((key) => config[key] !== this._configuration.value[key]);
+    if (hasChanged) {
+      this._configuration.next(config);
+    }
   }
 
   getImageData(pixelData: PixelData): Observable<cornerstone.Image> {
