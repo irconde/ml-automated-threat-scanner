@@ -14,6 +14,9 @@ import { DetectionsService } from '../detections/detections.service';
 import { PixelData } from '../../../models/file-parser';
 import { SettingsError } from '../../../errors/settings.error';
 import { FileType } from './model/enum';
+import { UiService } from '../ui/ui.service';
+import { ImageStatus } from '../ui/model/enum';
+import { updateCornerstoneViewports } from '../../utilities/cornerstone.utilities';
 
 @Injectable({
   providedIn: 'root',
@@ -32,6 +35,7 @@ export class FileService {
     private electronService: ElectronService,
     private httpClient: HttpClient,
     private detectionsService: DetectionsService,
+    private uiService: UiService,
   ) {
     this.settingsService
       .getSettings()
@@ -103,6 +107,29 @@ export class FileService {
           case Platforms.Electron:
           case Platforms.Web:
             // TODO: Normal HTTP request
+
+            this.httpClient
+              .post<FilePayload>(
+                `${API.protocol}${this.settings.remoteIp}:${this.settings.remotePort}${API.getNextFile}`,
+                {
+                  fileFormat: this.settings.fileFormat,
+                },
+              )
+              .subscribe({
+                next: (filePayload) => {
+                  if (filePayload.status === FileStatus.Ok) {
+                    this.setCurrentFile(filePayload);
+                  } else {
+                    this.setCurrentFile(null);
+                    this.uiService.setImageStatus(ImageStatus.NoImage);
+                    updateCornerstoneViewports();
+                  }
+                },
+                error: (error) => {
+                  console.log(`Error connecting with server: ${error.message}`);
+                },
+              });
+
             break;
           default:
           //

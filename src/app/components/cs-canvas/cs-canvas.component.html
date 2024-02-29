@@ -7,12 +7,8 @@
        class="viewportElement {{viewpoint}}"
        csDirective
   >
-    <canvas class="cornerstone-canvas"></canvas>
+    <canvas [style.visibility]="isVisible ? 'visible' : 'hidden'" class="cornerstone-canvas"></canvas>
   </div>
   <app-algorithm-info/>
   <app-detection-toolbox-fab/>
 </div>
-<!--<ion-item class="controlButtons">-->
-<!--  <button (click)="handleChangeImage(false)">Previous</button>-->
-<!--  <button (click)="handleChangeImage(true)">Next</button>-->
-<!--</ion-item>-->

@@ -47,6 +47,7 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
     side: { imageData: null, detectionData: [] },
   };
   isAnnotating: boolean = false;
+  isVisible: boolean = false;
 
   constructor(
     private csService: CornerstoneService,
@@ -65,6 +66,9 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
         resizeCornerstoneViewports();
       }, 0);
     });
+    this.uiService.getImageStatus().subscribe((status) => {
+      this.isVisible = status !== ImageStatus.NoImage;
+    });
   }
 
   public getImageData(): (keyof ViewportsMap)[] {
@@ -79,7 +83,9 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
     this.fileService
       .getCurrentFile()
       .subscribe((currentFile: FilePayload | null) => {
-        if (!currentFile) return;
+        if (!currentFile) {
+          return;
+        }
         this.fileParserService.loadData(currentFile.file).then((parsedFile) => {
           if (parsedFile.algorithms) {
             this.detectionsService.setAlgorithms(parsedFile.algorithms);
@@ -115,8 +121,8 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
       });
   }
 
-  handleChangeImage(next = true) {
-    this.fileService.requestNextFile(next);
+  handleChangeImage() {
+    // return this.uiService.getImageStatus() === ImageStatus.HasImage;
   }
 
   ngAfterViewInit(): void {
@@ -155,4 +161,6 @@ export class CsCanvasComponent implements OnInit, AfterViewInit {
       categoryName: rawDetection.className,
     };
   }
+
+  protected readonly ImageStatus = ImageStatus;
 }
