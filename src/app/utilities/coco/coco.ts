@@ -5,6 +5,7 @@ import { PixelData } from '../../../models/file-parser';
 import { getViewportByViewpoint } from '../cornerstone.utilities';
 import { cornerstone } from '../../csSetup';
 import { buildIntervals, findGrayValue } from '../general.utilities';
+import { FileType } from '../../services/file/model/enum';
 
 const licenses = [
   {
@@ -163,10 +164,10 @@ function updateXmlStack(
  *
  * @returns {JSZip} cocoZip - The zipped file
  */
-export const buildCocoDataZip = async (
+const buildCocoDataZip = async (
   imageData: PixelData[],
-  detections: Detection[],
   currentFileFormat: DetectionType,
+  detections: Detection[],
 ): Promise<JSZip> => {
   return new Promise((resolve) => {
     const cocoZip = new JSZip();
@@ -236,5 +237,21 @@ export const buildCocoDataZip = async (
       );
       resolve(cocoZip);
     });
+  });
+};
+
+export const generateCocoOutput = async (
+  imageData: PixelData[],
+  currentFileFormat: DetectionType,
+  detections: Detection[],
+  fileType: FileType,
+): Promise<string | Blob> => {
+  const cocoZip = await buildCocoDataZip(
+    imageData,
+    currentFileFormat,
+    detections,
+  );
+  return cocoZip.generateAsync({
+    type: fileType.toString() === 'base64' ? 'base64' : 'blob',
   });
 };

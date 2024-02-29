@@ -14,6 +14,7 @@ import { DetectionsService } from '../detections/detections.service';
 import { PixelData } from '../../../models/file-parser';
 import { SettingsError } from '../../../errors/settings.error';
 import { FileType } from './model/enum';
+import { generateCocoOutput } from '../../utilities/coco/coco';
 
 @Injectable({
   providedIn: 'root',
@@ -257,17 +258,23 @@ export class FileService {
     let file: string | Blob = '';
     if (this.settings === null) throw new SettingsError('Settings are null');
     const detections = this.detectionsService.allDetections;
+    // TODO: update the currentFileFormat to be the actual one
+    const currentFileType = DetectionType.TDR;
     if (this.settings?.detectionFormat === DetectionType.TDR) {
-      // TODO: update the currentFileFormat to be the actual one
       // only web platform uses Blob as an output
       file = await generateDicosOutput(
         this.currentPixelData.getValue(),
-        DetectionType.TDR,
+        currentFileType,
         detections,
         this.outputType,
       );
     } else {
-      throw new Error('Saving COCO files is not implemented');
+      file = await generateCocoOutput(
+        this.currentPixelData.getValue(),
+        currentFileType,
+        detections,
+        this.outputType,
+      );
     }
 
     switch (this.settings.workingMode) {
