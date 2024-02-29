@@ -83,7 +83,7 @@ export class FileService {
     return this.currentFileObservable.asObservable();
   }
 
-  public requestNextFile(next: boolean) {
+  public async requestNextFile(next: boolean) {
     switch (this.settings?.workingMode) {
       case WorkingMode.LocalDirectory:
         if (!this.settings.selectedImagesDirPath) return;
@@ -102,12 +102,34 @@ export class FileService {
         switch (this.settingsService.platform) {
           case Platforms.Android:
           case Platforms.iOS:
-            // TODO: Http Phonegap plugin
+            // TODO: CapacitorHttp is installed but not in use yet
+            // try {
+            //   const response = await CapacitorHttp.post({
+            //     url: `${API.protocol}${this.settings.remoteIp}:${this.settings.remotePort}${API.getNextFile}`,
+            //     headers: {},
+            //     data: {
+            //       fileFormat: this.settings.fileFormat,
+            //     },
+            //   });
+            //   if (response.status === 200) {
+            //     const filePayload = JSON.parse(response.data) as FilePayload;
+            //     if (filePayload.status === FileStatus.Ok) {
+            //       this.setCurrentFile(filePayload);
+            //     } else {
+            //       this.setCurrentFile(null);
+            //       this.uiService.setImageStatus(ImageStatus.NoImage);
+            //       updateCornerstoneViewports();
+            //     }
+            //   }
+            // } catch (error) {
+            //   console.log(
+            //     `Error connecting with server: ${(error as Error).message}`,
+            //   );
+            // }
+
             break;
           case Platforms.Electron:
           case Platforms.Web:
-            // TODO: Normal HTTP request
-
             this.httpClient
               .post<FilePayload>(
                 `${API.protocol}${this.settings.remoteIp}:${this.settings.remotePort}${API.getNextFile}`,
@@ -129,7 +151,6 @@ export class FileService {
                   console.log(`Error connecting with server: ${error.message}`);
                 },
               });
-
             break;
           default:
           //
