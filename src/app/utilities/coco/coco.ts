@@ -3,6 +3,7 @@ import { Detection, DetectionType } from '../../../models/detection';
 import { polygonDataToCoordArray } from '../detection.utilities';
 import { PixelData } from '../../../models/file-parser';
 import { getViewportByViewpoint } from '../cornerstone.utilities';
+import { cornerstone } from '../../csSetup';
 
 /**
  * Pulls the pixel data from cornerstone as Uint16Array in 16 Bit grey scale value and converts the 16 bit grey
@@ -10,11 +11,12 @@ import { getViewportByViewpoint } from '../cornerstone.utilities';
  * this one 8 bit value. This produces a Uint8ClampedArray in RGBA format to be loaded onto a canvas element to
  * be finally returned as a Blob of type image/png
  *
- * @param {cornerstone} cornerstone - Main cornerstone object
  * @param {HTMLElement} imageViewport - Viewport HTMLElement object
  * @returns {Promise} - That resolves to a blob of type image/png
  */
-const dicosPixelDataToPng = async (cornerstone, imageViewport) => {
+const dicosPixelDataToPng = async (
+  imageViewport: HTMLElement,
+): Promise<Blob> => {
   return new Promise((resolve, reject) => {
     const image = cornerstone.getImage(imageViewport);
     const pixelData = image.getPixelData();
@@ -33,15 +35,84 @@ const dicosPixelDataToPng = async (cornerstone, imageViewport) => {
     }
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    ctx.canvas.width = image.width;
-    ctx.canvas.height = image.height;
+    ctx!.canvas.width = image.width;
+    ctx!.canvas.height = image.height;
     const imageData = new ImageData(EightbitPixels, image.width, image.height);
-    ctx.putImageData(imageData, 0, 0);
+    ctx!.putImageData(imageData, 0, 0);
     canvas.toBlob((blob) => {
-      resolve(blob);
+      resolve(blob!);
     }, 'image/png');
   });
 };
+
+function no_name_func(
+  cocoZip: JSZip,
+  image: PixelData,
+  currentDetections: Detection[],
+  annotationID: number,
+  imageID: number,
+  blob: Blob | undefined = undefined,
+) {
+  cocoZip.file(
+    `data/${image.viewpoint}_pixel_data.png`,
+    blob ?? image.pixelData,
+  );
+  currentDetections.forEach((detection) => {
+    if (detection !== undefined) {
+      const annotations = [];
+      annotations.push({
+        id: annotationID,
+        image_id: imageID,
+        className: detection.className,
+        confidence: detection.confidence,
+        iscrowd: 0,
+        category_id: 55,
+        area: Math.abs(
+          (detection.boundingBox[0] - detection.boundingBox[2]) *
+            (detection.boundingBox[1] - detection.boundingBox[3]),
+        ),
+        bbox: [
+          detection.boundingBox[0],
+          detection.boundingBox[1],
+          detection.binaryMask[2][0],
+          detection.binaryMask[2][1],
+        ],
+        segmentation:
+          detection.polygonMask.length > 0
+            ? [polygonDataToCoordArray(detection.polygonMask)]
+            : [],
+      });
+      const info = {
+        description: 'Annotated file from Pilot GUI',
+        contributor: 'Pilot GUI',
+        url: '',
+        version: '1.0',
+        year: currentDate.getFullYear(),
+        data_created: `${yyyy}/${mm}/${dd}`,
+        algorithm: detection.algorithm,
+      };
+      const cocoDataset = {
+        info,
+        licenses,
+        images,
+        annotations,
+        categories,
+      };
+      cocoZip.file(
+        `data/${image.viewpoint}_annotation_${annotationID}.json`,
+        JSON.stringify(cocoDataset, null, 4),
+      );
+      const newLayer = stackXML.createElement('layer');
+      newLayer.setAttribute(
+        'src',
+        `data/${image.viewpoint}_annotation_${annotationID}.json`,
+      );
+      stackElem.appendChild(newLayer);
+      annotationID++;
+    }
+  });
+}
+
 /**
  * Takes in the pixel data via myOra and blob format, along with
  * the detections via an array and builds the needed JSON format for
@@ -91,24 +162,25 @@ export const buildCocoDataZip = async (
     ];
 
     let imageID = 1;
-    let annotationID = 1;
-    const listOfPromises = [];
-    imageData.forEach((image, index) => {
+    const annotationID = 1;
+    const listOfPromises: Promise<unknown>[] = [];
+    imageData.forEach((image) => {
       const stackElem = stackXML.createElement('stack');
       stackElem.setAttribute('name', `SOP Instance UID #${imageID}`);
       stackElem.setAttribute('view', image.viewpoint);
       const pixelLayer = stackXML.createElement('layer');
-      const images = [];
-      images.push({
-        id: imageID,
-        license: licenses[0].id,
-        width: image.dimensions.x,
-        height: image.dimensions.y,
-        date_captured: currentDate,
-        file_name: `${image.viewpoint}_pixel_data.png`,
-        coco_url: '',
-        flickr_url: '',
-      });
+      const images = [
+        {
+          id: imageID,
+          license: licenses[0].id,
+          width: image.dimensions.x,
+          height: image.dimensions.y,
+          date_captured: currentDate,
+          file_name: `${image.viewpoint}_pixel_data.png`,
+          coco_url: '',
+          flickr_url: '',
+        },
+      ];
       pixelLayer.setAttribute('src', `data/${image.viewpoint}_pixel_data.png`);
       stackElem.appendChild(pixelLayer);
       const currentDetections = detections.filter(
@@ -116,122 +188,19 @@ export const buildCocoDataZip = async (
       );
       const viewport = getViewportByViewpoint(image.viewpoint);
       if (currentFileFormat === DetectionType.TDR) {
-        const pngPromise = dicosPixelDataToPng(cornerstone, viewport).then(
-          (blob) => {
-            cocoZip.file(`data/${image.viewpoint}_pixel_data.png`, blob);
-            currentDetections.forEach((detection) => {
-              if (detection !== undefined) {
-                const annotations = [];
-                annotations.push({
-                  id: annotationID,
-                  image_id: imageID,
-                  className: detection.className,
-                  confidence: detection.confidence,
-                  iscrowd: 0,
-                  category_id: 55,
-                  area: Math.abs(
-                    (detection.boundingBox[0] - detection.boundingBox[2]) *
-                      (detection.boundingBox[1] - detection.boundingBox[3]),
-                  ),
-                  bbox: [
-                    detection.boundingBox[0],
-                    detection.boundingBox[1],
-                    detection.binaryMask[2][0],
-                    detection.binaryMask[2][1],
-                  ],
-                  segmentation:
-                    detection.polygonMask.length > 0
-                      ? [polygonDataToCoordArray(detection.polygonMask)]
-                      : [],
-                });
-                const info = {
-                  description: 'Annotated file from Pilot GUI',
-                  contributor: 'Pilot GUI',
-                  url: '',
-                  version: '1.0',
-                  year: currentDate.getFullYear(),
-                  data_created: `${yyyy}/${mm}/${dd}`,
-                  algorithm: detection.algorithm,
-                };
-                const cocoDataset = {
-                  info,
-                  licenses,
-                  images,
-                  annotations,
-                  categories,
-                };
-                cocoZip.file(
-                  `data/${image.viewpoint}_annotation_${annotationID}.json`,
-                  JSON.stringify(cocoDataset, null, 4),
-                );
-                const newLayer = stackXML.createElement('layer');
-                newLayer.setAttribute(
-                  'src',
-                  `data/${image.viewpoint}_annotation_${annotationID}.json`,
-                );
-                stackElem.appendChild(newLayer);
-                annotationID++;
-              }
-            });
-          },
-        );
+        const pngPromise = dicosPixelDataToPng(viewport).then((blob) => {
+          no_name_func(
+            cocoZip,
+            image,
+            currentDetections,
+            annotationID,
+            imageID,
+            blob,
+          );
+        });
         listOfPromises.push(pngPromise);
       } else if (currentFileFormat === DetectionType.COCO) {
-        cocoZip.file(`data/${image.viewpoint}_pixel_data.png`, image.pixelData);
-        currentDetections.forEach((detection) => {
-          if (detection !== undefined) {
-            const annotations = [];
-            annotations.push({
-              id: annotationID,
-              image_id: imageID,
-              className: detection.className,
-              confidence: detection.confidence,
-              iscrowd: 0,
-              category_id: 55,
-              area: Math.abs(
-                (detection.boundingBox[0] - detection.boundingBox[2]) *
-                  (detection.boundingBox[1] - detection.boundingBox[3]),
-              ),
-              bbox: [
-                detection.boundingBox[0],
-                detection.boundingBox[1],
-                detection.binaryMask[2][0],
-                detection.binaryMask[2][1],
-              ],
-              segmentation:
-                detection.polygonMask.length > 0
-                  ? [Utils.polygonDataToCoordArray(detection.polygonMask)]
-                  : [],
-            });
-            const info = {
-              description: 'Annotated file from Pilot GUI',
-              contributor: 'Pilot GUI',
-              url: '',
-              version: '1.0',
-              year: currentDate.getFullYear(),
-              data_created: `${yyyy}/${mm}/${dd}`,
-              algorithm: detection.algorithm,
-            };
-            const cocoDataset = {
-              info,
-              licenses,
-              images,
-              annotations,
-              categories,
-            };
-            cocoZip.file(
-              `data/${image.viewpoint}_annotation_${annotationID}.json`,
-              JSON.stringify(cocoDataset, null, 4),
-            );
-            const newLayer = stackXML.createElement('layer');
-            newLayer.setAttribute(
-              'src',
-              `data/${image.viewpoint}_annotation_${annotationID}.json`,
-            );
-            stackElem.appendChild(newLayer);
-            annotationID++;
-          }
-        });
+        no_name_func(cocoZip, image, currentDetections, annotationID, imageID);
       } else {
         return null;
       }
