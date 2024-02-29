@@ -1,7 +1,5 @@
 import { Component } from '@angular/core';
-import { FileService } from '../../services/file/file.service';
 import { SettingsService } from '../../services/settings/settings.service';
-import { Platforms } from '../../../enums/platforms';
 import { CommonModule } from '@angular/common';
 import { SettingsModalComponent } from '../settings-modal/settings-modal.component';
 import { MatIconModule } from '@angular/material/icon';
@@ -42,23 +40,17 @@ import { ColorsCacheService } from '../../services/colors-cache/colors-cache.ser
   ],
 })
 export class AppWrapperComponent {
-  // currentFile: FilePayload | null = null;
   settings: ApplicationSettings | null = null;
-  public readonly Platforms: typeof Platforms = Platforms;
   public isLoading = true;
 
   constructor(
     public colorsService: ColorsCacheService,
-    public fileService: FileService,
     public settingsService: SettingsService,
     public dialog: MatDialog,
   ) {
     this.colorsService.$isLoading.subscribe(
       (areColorsLoading) => (this.isLoading = areColorsLoading),
     );
-    // fileService.getCurrentFile().subscribe((currentFile) => {
-    //   this.currentFile = currentFile;
-    // });
 
     settingsService
       .getSettings()
