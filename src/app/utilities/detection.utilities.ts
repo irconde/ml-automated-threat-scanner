@@ -1,9 +1,19 @@
-import {BoundingBox, Coordinate2D, Detection, Point, PolygonData,} from '../../models/detection';
-import {PolygonPoint} from '../../models/cornerstone';
-import {EditionMode} from '../../enums/cornerstone';
-import {getTextLabelSize, hexToCssRgba, limitCharCount,} from './text.utilities';
-import {DETECTION_STYLE} from '../../enums/detection-styles';
-import {isModeAnyOf} from './cornerstone.utilities';
+import {
+  BoundingBox,
+  Coordinate2D,
+  Detection,
+  Point,
+  PolygonData,
+} from '../../models/detection';
+import { PolygonPoint } from '../../models/cornerstone';
+import { EditionMode } from '../../enums/cornerstone';
+import {
+  getTextLabelSize,
+  hexToCssRgba,
+  limitCharCount,
+} from './text.utilities';
+import { DETECTION_STYLE } from '../../enums/detection-styles';
+import { isModeAnyOf } from './cornerstone.utilities';
 import randomColor from 'randomcolor';
 
 /**
@@ -626,4 +636,13 @@ export const generateDetectionColor = (className: string): string => {
     hue: 'random',
     luminosity: 'bright',
   });
+};
+
+export const polygonDataToCoordArray = (polygonData: PolygonData) => {
+  const points = [];
+  for (const index in polygonData) {
+    points.push(polygonData[index].x);
+    points.push(polygonData[index].y);
+  }
+  return points;
 };
