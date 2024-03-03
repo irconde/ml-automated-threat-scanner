@@ -112,6 +112,24 @@ export class AppWrapperComponent {
     return '';
   }
 
+  async callLogin(): Promise<void> {
+    const token = await this.generateToken();
+
+    const response = await fetch('http://localhost:8080/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + token,
+      },
+      body: JSON.stringify({ username: 'test', password: 'test' }),
+    });
+
+    if (response.status === 200) {
+      const jsonBody = await response.json();
+      console.log(jsonBody);
+    }
+  }
+
   openSettingsModal() {
     this.dialog.open(SettingsModalComponent, {
       autoFocus: false,
