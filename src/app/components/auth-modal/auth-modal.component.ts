@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { AuthService } from '../../services/auth/auth.service';
 
 @Component({
   selector: 'app-auth-modal',
@@ -25,10 +26,22 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 })
 export class AuthModalComponent {
   hide = true;
+  isLoading = false;
+  error = '';
 
-  constructor() {}
+  constructor(public authService: AuthService) {}
 
-  handleLogin(event: SubmitEvent) {
+  async handleLogin(event: SubmitEvent) {
     event.preventDefault();
+    this.error = '';
+    this.isLoading = true;
+    try {
+      await this.authService.login();
+    } catch (e) {
+      console.log(e);
+      this.error = (e as Error).message;
+    } finally {
+      this.isLoading = false;
+    }
   }
 }
