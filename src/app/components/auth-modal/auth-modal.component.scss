@@ -18,22 +18,30 @@ form {
 
   mat-form-field {
     flex: 1;
+    font-size: 13px;
+    --mdc-filled-text-field-input-text-placeholder-color: #787878;
+    --mdc-filled-text-field-container-color: transparent;
   }
+}
+
+::ng-deep .mat-mdc-checkbox .mdc-form-field label {
+  color: #afafaf;
+  font-size: 13px;
 }
 
 .form-button {
   width: 100%;
-  padding-block: 1rem;
+  padding-block: 9px;
   border-radius: 5px;
   background-color: $primary-600;
 
   &:hover {
-    background-color: $primary-700;
+    background-color: #2658b2;
   }
 }
 
-::ng-deep {
-  .mat-mdc-text-field-wrapper, .mat-mdc-form-field:hover {
-    background-color: transparent !important;
-  }
-}
+//::ng-deep {
+//  .mat-mdc-text-field-wrapper, .mat-mdc-form-field:hover {
+//    background-color: transparent !important;
+//  }
+//}
