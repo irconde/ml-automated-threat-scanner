@@ -1,13 +1,25 @@
 <div class="input-component-wrapper">
-  <mat-icon class="input-icon">{{ leadingIcon }}</mat-icon>
-  <div class="input-wrapper">
-    <input [type]="altInlineIcon && hide ? 'password' : 'text'" placeholder="{{placeholder}}"/>
-
-    <button type="button" mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
-            [attr.aria-pressed]="hide" *ngIf="inlineIcon">
-      <mat-icon class="input-inline-icon"
-      >{{ hide ? inlineIcon : altInlineIcon }}
-      </mat-icon>
-    </button>
+  <div class="input-section">
+    <mat-icon class="input-icon">{{ leadingIcon }}</mat-icon>
+    <div class="input-wrapper">
+      <input [type]="altInlineIcon && hide ? 'password' : 'text'" placeholder="{{placeholder}}"/>
+      <button type="button" mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
+              [attr.aria-pressed]="hide" *ngIf="inlineIcon">
+        <mat-icon class="input-inline-icon"
+        >{{ hide ? inlineIcon : altInlineIcon }}
+        </mat-icon>
+      </button>
+    </div>
   </div>
+  <span class="input-error">Error</span>
 </div>
+
+
+<!--
+
+  TODO:
+  - Line up the checkbox with the icons
+  - Add error section under the input
+  - Make eye icon change color when clicked
+
+-->

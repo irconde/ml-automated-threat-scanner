@@ -9,7 +9,7 @@
 form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  padding-top: 1rem;
 }
 
 .form-row {
@@ -21,6 +21,10 @@ form {
     font-size: 13px;
     --mdc-filled-text-field-input-text-placeholder-color: #787878;
     --mdc-filled-text-field-container-color: transparent;
+  }
+
+  mat-checkbox {
+    margin-block: 0.5rem 1rem;
   }
 }
 
