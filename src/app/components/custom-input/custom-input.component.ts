@@ -14,7 +14,6 @@ import { NgIf } from '@angular/common';
 export class CustomInputComponent implements OnInit {
   @Input() leadingIcon: string = '';
   @Input() placeholder: string = '';
-  @Input() inputType: string = 'text';
   @Input() inlineIcon: string | null = null;
   @Input() altInlineIcon: string | null = null;
   hide = true;
