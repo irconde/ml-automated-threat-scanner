@@ -10,6 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { WorkingMode } from '../../../enums/platforms';
 import { NgIf, NgStyle } from '@angular/common';
 import { UiService } from '../../services/ui/ui.service';
+import { AuthModalComponent } from '../auth-modal/auth-modal.component';
 
 @Component({
   selector: 'app-top-bar',
@@ -42,6 +43,10 @@ export class TopBarComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    setTimeout(() => {
+      this.dialog.open(AuthModalComponent);
+      console.log('Opened auth modal');
+    }, 1000);
     this.fileService.getCurrentFile().subscribe((currentFile) => {
       this.currentFile = currentFile;
       this.updateFileQueue();

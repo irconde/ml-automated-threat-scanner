@@ -1,0 +1,22 @@
+@import 'src/theme/theme-variables';
+
+.mat-mdc-card {
+  background: #1c1c1c;
+  padding-block: 1rem 2rem;
+  padding-inline: 1.5rem;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+}
+
+.form-button {
+  width: 100%;
+}
+
+::ng-deep {
+  .mat-mdc-text-field-wrapper, .mat-mdc-form-field:hover {
+    background-color: transparent !important;
+  }
+}
