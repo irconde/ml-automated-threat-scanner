@@ -30,6 +30,8 @@ export class AuthModalComponent {
   hide = true;
   isLoading = false;
   error = '';
+  showError = false;
+
   usernameIcon = 'person';
   passwordIcon = 'lock';
   usernamePlaceholder = 'Username*';
@@ -44,6 +46,7 @@ export class AuthModalComponent {
   async handleLogin(event: SubmitEvent) {
     event.preventDefault();
     this.error = '';
+    this.showError = true;
     this.isLoading = true;
     try {
       await this.authService.login();

@@ -4,19 +4,22 @@
       <form (submit)="handleLogin($event)">
         <div class="form-row">
           <app-input [leadingIcon]="usernameIcon" [placeholder]="usernamePlaceholder"
-                     [inlineIcon]="usernameInlineIcon" [altInlineIcon]="usernameAltInlineIcon"></app-input>
+                     [inlineIcon]="usernameInlineIcon" [altInlineIcon]="usernameAltInlineIcon"
+                     [errorMessage]="error"></app-input>
         </div>
 
         <div class="form-row">
           <app-input [leadingIcon]="passwordIcon" [placeholder]="passwordPlaceholder"
-                     [inlineIcon]="passwordInlineIcon" [altInlineIcon]="passwordAltInlineIcon"></app-input>
+                     [inlineIcon]="passwordInlineIcon" [altInlineIcon]="passwordAltInlineIcon"
+                     [errorMessage]="error"></app-input>
         </div>
 
         <div class="form-row">
           <mat-checkbox>Keep me signed in</mat-checkbox>
         </div>
 
-        <button mat-button class="form-button">{{ isLoading ? "SIGNING IN" : error ? error : "LOG IN" }}</button>
+        <button mat-button class="form-button">{{ isLoading ? "SIGNING IN" : error ? error : "LOG IN" }}
+        </button>
       </form>
     </mat-tab>
     <mat-tab label="NEW ACCOUNT">New account page</mat-tab>
