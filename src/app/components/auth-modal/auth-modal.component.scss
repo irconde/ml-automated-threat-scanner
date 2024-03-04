@@ -25,6 +25,7 @@ form {
 
   mat-checkbox {
     margin-block: 0.5rem 1rem;
+    transform: translateX(-8px);
   }
 }
 
@@ -42,10 +43,8 @@ form {
   &:hover {
     background-color: #2658b2;
   }
-}
 
-//::ng-deep {
-//  .mat-mdc-text-field-wrapper, .mat-mdc-form-field:hover {
-//    background-color: transparent !important;
-//  }
-//}
+  &.form-error {
+    background-color: #ff4b4b;
+  }
+}

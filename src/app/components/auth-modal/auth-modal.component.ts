@@ -57,4 +57,19 @@ export class AuthModalComponent {
       this.isLoading = false;
     }
   }
+
+  async handleSignup(event: SubmitEvent) {
+    event.preventDefault();
+    this.error = '';
+    this.showError = true;
+    this.isLoading = true;
+    try {
+      await this.authService.register();
+    } catch (e) {
+      console.log(e);
+      this.error = (e as Error).message;
+    } finally {
+      this.isLoading = false;
+    }
+  }
 }

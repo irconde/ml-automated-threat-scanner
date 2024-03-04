@@ -18,10 +18,18 @@
           <mat-checkbox>Keep me signed in</mat-checkbox>
         </div>
 
-        <button mat-button class="form-button">{{ isLoading ? "SIGNING IN" : error ? error : "LOG IN" }}
+        <button mat-button class="form-button {{error ? 'form-error' : ''}}">{{
+            isLoading ? "SIGNING IN" : error ?
+              error :
+              "LOG IN"
+          }}
         </button>
       </form>
     </mat-tab>
-    <mat-tab label="NEW ACCOUNT">New account page</mat-tab>
+    <mat-tab label="NEW ACCOUNT">
+      <form (submit)="handleSignup($event)">
+        <div>New Account Page</div>
+      </form>
+    </mat-tab>
   </mat-tab-group>
 </mat-card>

@@ -25,6 +25,10 @@ export class AuthService {
     }
   }
 
+  async register(): Promise<void> {
+    //   TODO: Implement
+  }
+
   async generateToken(): Promise<string> {
     // TODO: Get from ENV
     const clientId = 'test';

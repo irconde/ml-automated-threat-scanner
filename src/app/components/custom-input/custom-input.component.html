@@ -1,6 +1,6 @@
 <div class="input-component-wrapper">
   <div class="input-section">
-    <mat-icon class="input-icon">{{ leadingIcon }}</mat-icon>
+    <mat-icon class="input-icon {{errorMessage ? 'form-error' : ''}}">{{ leadingIcon }}</mat-icon>
     <div class="input-wrapper">
       <input [type]="altInlineIcon && hide ? 'password' : 'text'" placeholder="{{ placeholder }}"
              (blur)="validateInput()"/>
@@ -17,7 +17,6 @@
 <!--
 
   TODO:
-  - Line up the checkbox with the icons
   - Error handling
   - Add new account section
 
