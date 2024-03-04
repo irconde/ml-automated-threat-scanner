@@ -1,0 +1,13 @@
+<div class="input-component-wrapper">
+  <mat-icon class="input-icon">{{ leadingIcon }}</mat-icon>
+  <div class="input-wrapper">
+    <input [type]="altInlineIcon && hide ? 'password' : 'text'" placeholder="{{placeholder}}"/>
+
+    <button type="button" mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
+            [attr.aria-pressed]="hide" *ngIf="inlineIcon">
+      <mat-icon class="input-inline-icon"
+      >{{ hide ? inlineIcon : altInlineIcon }}
+      </mat-icon>
+    </button>
+  </div>
+</div>

@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { AuthService } from '../../services/auth/auth.service';
+import { CustomInputComponent } from '../custom-input/custom-input.component';
 
 @Component({
   selector: 'app-auth-modal',
@@ -22,12 +23,21 @@ import { AuthService } from '../../services/auth/auth.service';
     MatFormFieldModule,
     MatInputModule,
     MatCheckboxModule,
+    CustomInputComponent,
   ],
 })
 export class AuthModalComponent {
   hide = true;
   isLoading = false;
   error = '';
+  usernameIcon = 'person';
+  passwordIcon = 'lock';
+  usernamePlaceholder = 'Username*';
+  passwordPlaceholder = 'Password*';
+  usernameInlineIcon = null;
+  passwordInlineIcon = 'visibility';
+  usernameAltInlineIcon = null;
+  passwordAltInlineIcon = 'visibility_off';
 
   constructor(public authService: AuthService) {}
 
