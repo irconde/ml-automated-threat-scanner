@@ -4,6 +4,7 @@
   background: #1c1c1c;
   padding-block: 1rem 2rem;
   padding-inline: 1.5rem;
+  width: 23.5rem;
 }
 
 form {
@@ -16,6 +17,7 @@ form {
   display: flex;
   align-items: center;
   margin: 0.5rem 0;
+  height: 40px;
 
   mat-form-field {
     flex: 1;
@@ -25,13 +27,34 @@ form {
   }
 
   mat-checkbox {
-    transform: translate(-8px, 4px);
+    position: absolute;
+    left: -8px;
   }
 }
 
+// NEEDED TO OVERRIDE MATERIAL CUTTING OFF CHECKBOX RIPPLE
+::ng-deep .mat-mdc-tab-body-wrapper {
+  width: 100%;
+  padding-inline: 0.5rem;
+
+  .mat-mdc-tab-body {
+    overflow: visible !important;
+
+    .mat-mdc-tab-body-content {
+      overflow: visible !important;
+    }
+  }
+}
+
+// NEEDED TO CHANGE CHECKBOX COLOR
 ::ng-deep .mat-mdc-checkbox .mdc-form-field label {
   color: #afafaf;
   font-size: 13px;
+}
+
+// NEEDED TO HIDE CHECKBOX RIPPLE AFTER THE CLICK AND ON HOVER
+::ng-deep .mat-mdc-checkbox .mdc-checkbox__ripple {
+  display: none !important;
 }
 
 .form-button {
@@ -40,7 +63,7 @@ form {
   border-radius: 5px;
   background-color: $primary-600;
   height: 2.65rem;
-  margin-top: 1.25rem;
+  margin-top: 1rem;
   font-size: 16px;
 
   &:hover {
@@ -70,7 +93,12 @@ form {
   gap: 0.5rem;
 }
 
+// NEEDED TO OVERRIDE MATERIAL TABS
 mat-tab-group {
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+
   // ------------INACTIVE TAB / GENERAL TAB STYLING
   ::ng-deep .mdc-tab {
     // LABEL
@@ -88,10 +116,6 @@ mat-tab-group {
         border-color: #4e4e4e;
         border-top-width: 1px;
       }
-    }
-
-    &:focus {
-      //
     }
   }
 
