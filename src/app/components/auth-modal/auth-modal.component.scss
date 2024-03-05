@@ -81,10 +81,30 @@ mat-tab-group {
     }
   }
 
-  ::ng-deep .mat-tab .mdc-tab--active .mdc-tab-indicator--active {
-    &.mdc-tab-indicator {
+  ::ng-deep .mdc-tab--active {
+    .mdc-tab__content {
       span {
-        border-color: #4e4e4e;
+        color: #fafafa;
+      }
+    }
+
+    .mdc-tab-indicator {
+      span {
+        border-color: #fafafa;
+      }
+    }
+
+    &:hover, &:focus {
+      .mdc-tab__content {
+        span {
+          color: #fafafa;
+        }
+      }
+
+      .mdc-tab-indicator {
+        span {
+          border-color: #fafafa;
+        }
       }
     }
   }
