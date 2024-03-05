@@ -51,49 +51,44 @@ form {
   }
 }
 
-
 mat-tab-group {
-  // ------------ACTIVE TAB
-  // INDICATOR
-  //--mdc-tab-indicator-active-indicator-color: #fafafa;
-  //--mat-tab-header-active-hover-indicator-color: #fafafa;
-  //--mat-tab-header-active-focus-indicator-color: #fafafa;
+  // ------------INACTIVE TAB / GENERAL TAB STYLING
+  ::ng-deep .mdc-tab {
+    // LABEL
+    .mdc-tab__content {
+      span {
+        color: #4e4e4e;
+      }
+    }
 
-  // LABEL
-  //--mat-tab-header-active-label-text-color: #fafafa;
-  //--mat-tab-header-active-hover-label-text-color: #fafafa;
-  //--mat-tab-header-active-focus-label-text-color: #fafafa;
-
-  // ------------INACTIVE TAB
-  // INDICATOR
-
-
-  // LABEL
-  //--mat-tab-header-inactive-label-text-color: #4e4e4e;
-  //--mat-tab-header-inactive-hover-label-text-color: #4e4e4e;
-  //--mat-tab-header-inactive-focus-label-text-color: #4e4e4e;
-
-  // SUCCESSFULLY CHANGES TAB STYLING ( NEEDS TO DIFFERENTIATE ACTIVE AND INACTIVE TABS )
-  ::ng-deep .mdc-tab-indicator {
-    span {
-      opacity: 1;
-      border-color: #4e4e4e;
+    // INDICATOR
+    .mdc-tab-indicator {
+      span {
+        opacity: 1;
+        border-color: #4e4e4e;
+        border-top-width: 1px;
+      }
     }
   }
 
+  // ------------ACTIVE TAB
   ::ng-deep .mdc-tab--active {
+    // LABEL
     .mdc-tab__content {
       span {
         color: #fafafa;
       }
     }
 
+    // INDICATOR
     .mdc-tab-indicator {
       span {
         border-color: #fafafa;
+        border-top-width: 2px;
       }
     }
 
+    // HOVER & FOCUS
     &:hover, &:focus {
       .mdc-tab__content {
         span {
