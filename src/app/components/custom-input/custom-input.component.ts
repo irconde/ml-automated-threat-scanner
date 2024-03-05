@@ -16,7 +16,6 @@ export class CustomInputComponent {
   @Input() placeholder: string = '';
   @Input() inlineIcon: string | null = null;
   @Input() altInlineIcon: string | null = null;
-  @Input() showError: boolean = false;
   @Input() errorMessage: string | null = null;
 
   hide = true;

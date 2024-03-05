@@ -30,23 +30,29 @@ export class AuthModalComponent {
   hide = true;
   isLoading = false;
   error = '';
-  showError = false;
 
-  usernameIcon = 'person';
-  passwordIcon = 'lock';
-  usernamePlaceholder = 'Username*';
-  passwordPlaceholder = 'Password*';
-  usernameInlineIcon = null;
-  passwordInlineIcon = 'visibility';
-  usernameAltInlineIcon = null;
-  passwordAltInlineIcon = 'visibility_off';
+  inputInfo = {
+    username: {
+      leadingIcon: 'person',
+      placeholder: 'Username*',
+    },
+    password: {
+      leadingIcon: 'lock',
+      placeholder: 'Password*',
+      inlineIcon: 'visibility',
+      altInlineIcon: 'visibility_off',
+    },
+    email: {
+      leadingIcon: 'email',
+      placeholder: 'Email address*',
+    },
+  };
 
   constructor(public authService: AuthService) {}
 
   async handleLogin(event: SubmitEvent) {
     event.preventDefault();
     this.error = '';
-    this.showError = true;
     this.isLoading = true;
     try {
       await this.authService.login();
@@ -61,7 +67,6 @@ export class AuthModalComponent {
   async handleSignup(event: SubmitEvent) {
     event.preventDefault();
     this.error = '';
-    this.showError = true;
     this.isLoading = true;
     try {
       await this.authService.register();

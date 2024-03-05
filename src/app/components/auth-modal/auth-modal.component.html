@@ -3,21 +3,17 @@
     <mat-tab label="USER LOGIN">
       <form (submit)="handleLogin($event)">
         <div class="form-row">
-          <app-input [leadingIcon]="usernameIcon" [placeholder]="usernamePlaceholder"
-                     [inlineIcon]="usernameInlineIcon" [altInlineIcon]="usernameAltInlineIcon"
+          <app-input [leadingIcon]="inputInfo.username.leadingIcon" [placeholder]="inputInfo.username.placeholder"
                      [errorMessage]="error"></app-input>
         </div>
-
         <div class="form-row">
-          <app-input [leadingIcon]="passwordIcon" [placeholder]="passwordPlaceholder"
-                     [inlineIcon]="passwordInlineIcon" [altInlineIcon]="passwordAltInlineIcon"
+          <app-input [leadingIcon]="inputInfo.password.leadingIcon" [placeholder]="inputInfo.password.placeholder"
+                     [inlineIcon]="inputInfo.password.inlineIcon" [altInlineIcon]="inputInfo.password.altInlineIcon"
                      [errorMessage]="error"></app-input>
         </div>
-
         <div class="form-row">
           <mat-checkbox>Keep me signed in</mat-checkbox>
         </div>
-
         <button mat-button class="form-button {{error ? 'form-error' : ''}}">{{
             isLoading ? "SIGNING IN" : error ?
               error :
@@ -28,7 +24,27 @@
     </mat-tab>
     <mat-tab label="NEW ACCOUNT">
       <form (submit)="handleSignup($event)">
-        <div>New Account Page</div>
+        <div class="form-row">
+          <app-input [leadingIcon]="inputInfo.username.leadingIcon" [placeholder]="inputInfo.username.placeholder"
+                     [errorMessage]="error"></app-input>
+        </div>
+
+        <div class="form-row">
+          <app-input [leadingIcon]="inputInfo.email.leadingIcon" [placeholder]="inputInfo.email.placeholder"
+                     [errorMessage]="error"></app-input>
+        </div>
+
+        <div class="form-row">
+          <app-input [leadingIcon]="inputInfo.password.leadingIcon" [placeholder]="inputInfo.password.placeholder"
+                     [inlineIcon]="inputInfo.password.inlineIcon" [altInlineIcon]="inputInfo.password.altInlineIcon"
+                     [errorMessage]="error"></app-input>
+        </div>
+        <button mat-button class="form-button {{error ? 'form-error' : ''}}">{{
+            isLoading ? "CREATING ACCOUNT" : error ?
+              error :
+              "CREATE ACCOUNT"
+          }}
+        </button>
       </form>
     </mat-tab>
   </mat-tab-group>

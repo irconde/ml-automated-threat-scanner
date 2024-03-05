@@ -9,12 +9,13 @@
 form {
   display: flex;
   flex-direction: column;
-  padding-top: 1rem;
+  padding-top: 0.5rem;
 }
 
 .form-row {
   display: flex;
   align-items: center;
+  margin: 0.5rem 0;
 
   mat-form-field {
     flex: 1;
@@ -24,8 +25,7 @@ form {
   }
 
   mat-checkbox {
-    margin-block: 0.5rem 1rem;
-    transform: translateX(-8px);
+    transform: translate(-8px, 4px);
   }
 }
 
@@ -39,6 +39,8 @@ form {
   padding-block: 9px;
   border-radius: 5px;
   background-color: $primary-600;
+  height: 2.65rem;
+  margin-top: 1.25rem;
 
   &:hover {
     background-color: #2658b2;
@@ -46,5 +48,44 @@ form {
 
   &.form-error {
     background-color: #ff4b4b;
+  }
+}
+
+
+mat-tab-group {
+  // ------------ACTIVE TAB
+  // INDICATOR
+  //--mdc-tab-indicator-active-indicator-color: #fafafa;
+  //--mat-tab-header-active-hover-indicator-color: #fafafa;
+  //--mat-tab-header-active-focus-indicator-color: #fafafa;
+
+  // LABEL
+  //--mat-tab-header-active-label-text-color: #fafafa;
+  //--mat-tab-header-active-hover-label-text-color: #fafafa;
+  //--mat-tab-header-active-focus-label-text-color: #fafafa;
+
+  // ------------INACTIVE TAB
+  // INDICATOR
+
+
+  // LABEL
+  //--mat-tab-header-inactive-label-text-color: #4e4e4e;
+  //--mat-tab-header-inactive-hover-label-text-color: #4e4e4e;
+  //--mat-tab-header-inactive-focus-label-text-color: #4e4e4e;
+
+  // SUCCESSFULLY CHANGES TAB STYLING ( NEEDS TO DIFFERENTIATE ACTIVE AND INACTIVE TABS )
+  ::ng-deep .mdc-tab-indicator {
+    span {
+      opacity: 1;
+      border-color: #4e4e4e;
+    }
+  }
+
+  ::ng-deep .mat-tab .mdc-tab--active .mdc-tab-indicator--active {
+    &.mdc-tab-indicator {
+      span {
+        border-color: #4e4e4e;
+      }
+    }
   }
 }

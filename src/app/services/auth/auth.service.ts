@@ -27,6 +27,7 @@ export class AuthService {
 
   async register(): Promise<void> {
     //   TODO: Implement
+    console.log('Registered');
   }
 
   async generateToken(): Promise<string> {
