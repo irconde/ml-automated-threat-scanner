@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { AuthService } from '../../services/auth/auth.service';
 import { CustomInputComponent } from '../custom-input/custom-input.component';
+import { NgIf, NgOptimizedImage } from '@angular/common';
 
 @Component({
   selector: 'app-auth-modal',
@@ -24,6 +25,8 @@ import { CustomInputComponent } from '../custom-input/custom-input.component';
     MatInputModule,
     MatCheckboxModule,
     CustomInputComponent,
+    NgOptimizedImage,
+    NgIf,
   ],
 })
 export class AuthModalComponent {

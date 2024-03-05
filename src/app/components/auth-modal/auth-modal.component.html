@@ -14,12 +14,28 @@
         <div class="form-row">
           <mat-checkbox>Keep me signed in</mat-checkbox>
         </div>
-        <button mat-button class="form-button {{error ? 'form-error' : ''}}">{{
-            isLoading ? "SIGNING IN" : error ?
-              error :
-              "LOG IN"
-          }}
-        </button>
+        <ng-container *ngIf="!error; else errorDiv">
+          <button mat-button class="form-button" [class.form-error]="error">
+            <ng-container class="submit-button-div" *ngIf="isLoading; else loginText">
+              <div class="submit-button-div">
+                <span>SIGNING IN</span>
+                <img ngSrc="assets/loading-spinner.svg" class="loading-spinner" alt="loading spinner" height="20"
+                     width="20">
+              </div>
+            </ng-container>
+            <ng-template #loginText>
+              LOG IN
+            </ng-template>
+          </button>
+        </ng-container>
+        <ng-template #errorDiv>
+          <button mat-button class="form-button" [class.form-error]="error">
+            <div class="submit-button-div">
+              <span>LOGIN FAILED</span>
+              <mat-icon fontSet="material-icons-outlined">error_outline</mat-icon>
+            </div>
+          </button>
+        </ng-template>
       </form>
     </mat-tab>
     <mat-tab label="NEW ACCOUNT">
@@ -39,12 +55,28 @@
                      [inlineIcon]="inputInfo.password.inlineIcon" [altInlineIcon]="inputInfo.password.altInlineIcon"
                      [errorMessage]="error"></app-input>
         </div>
-        <button mat-button class="form-button {{error ? 'form-error' : ''}}">{{
-            isLoading ? "CREATING ACCOUNT" : error ?
-              error :
-              "CREATE ACCOUNT"
-          }}
-        </button>
+        <ng-container *ngIf="!error; else errorDiv">
+          <button mat-button class="form-button" [class.form-error]="error">
+            <ng-container class="submit-button-div" *ngIf="isLoading; else createText">
+              <div class="submit-button-div">
+                <span>CREATING ACCOUNT</span>
+                <img ngSrc="assets/loading-spinner.svg" class="loading-spinner" alt="loading spinner" height="20"
+                     width="20">
+              </div>
+            </ng-container>
+            <ng-template #createText>
+              CREATE ACCOUNT
+            </ng-template>
+          </button>
+        </ng-container>
+        <ng-template #errorDiv>
+          <button mat-button class="form-button" [class.form-error]="error">
+            <div class="submit-button-div">
+              <span>CREATION FAILED</span>
+              <mat-icon fontSet="material-icons-outlined">error_outline</mat-icon>
+            </div>
+          </button>
+        </ng-template>
       </form>
     </mat-tab>
   </mat-tab-group>

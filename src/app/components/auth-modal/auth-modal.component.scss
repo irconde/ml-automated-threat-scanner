@@ -41,6 +41,7 @@ form {
   background-color: $primary-600;
   height: 2.65rem;
   margin-top: 1.25rem;
+  font-size: 16px;
 
   &:hover {
     background-color: #2658b2;
@@ -49,6 +50,18 @@ form {
   &.form-error {
     background-color: #ff4b4b;
   }
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.submit-button-div {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 mat-tab-group {
