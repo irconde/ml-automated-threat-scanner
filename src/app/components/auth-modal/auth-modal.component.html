@@ -2,20 +2,24 @@
   <mat-tab-group dynamicHeight>
     <mat-tab label="USER LOGIN">
       <form (submit)="handleLogin($event)">
+
         <div class="form-row">
           <app-input [leadingIcon]="inputInfo.username.leadingIcon" [placeholder]="inputInfo.username.placeholder"
-                     [errorMessage]="error"></app-input>
+                     [errorMessage]="loginError" [type]="inputInfo.username.type"></app-input>
         </div>
+
         <div class="form-row">
           <app-input [leadingIcon]="inputInfo.password.leadingIcon" [placeholder]="inputInfo.password.placeholder"
                      [inlineIcon]="inputInfo.password.inlineIcon" [altInlineIcon]="inputInfo.password.altInlineIcon"
-                     [errorMessage]="error"></app-input>
+                     [errorMessage]="loginError" [type]="inputInfo.password.type"></app-input>
         </div>
+
         <div class="form-row">
           <mat-checkbox>Keep me signed in</mat-checkbox>
         </div>
-        <ng-container *ngIf="!error; else errorDiv">
-          <button mat-button class="form-button" [class.form-error]="error">
+
+        <ng-container *ngIf="!loginError; else errorDiv">
+          <button mat-button class="form-button" [class.form-error]="loginError">
             <ng-container class="submit-button-div" *ngIf="isLoading; else loginText">
               <div class="submit-button-div">
                 <span>SIGNING IN</span>
@@ -29,7 +33,7 @@
           </button>
         </ng-container>
         <ng-template #errorDiv>
-          <button mat-button class="form-button" [class.form-error]="error">
+          <button mat-button class="form-button" [class.form-error]="loginError">
             <div class="submit-button-div">
               <span>LOGIN FAILED</span>
               <mat-icon class="fail-icon" fontSet="material-icons-outlined">error_outline</mat-icon>
@@ -42,21 +46,21 @@
       <form (submit)="handleSignup($event)">
         <div class="form-row">
           <app-input [leadingIcon]="inputInfo.username.leadingIcon" [placeholder]="inputInfo.username.placeholder"
-                     [errorMessage]="error"></app-input>
+                     [errorMessage]="signUpError" [type]="inputInfo.username.type"></app-input>
         </div>
 
         <div class="form-row">
           <app-input [leadingIcon]="inputInfo.email.leadingIcon" [placeholder]="inputInfo.email.placeholder"
-                     [errorMessage]="error"></app-input>
+                     [errorMessage]="signUpError" [type]="inputInfo.email.type"></app-input>
         </div>
 
         <div class="form-row">
           <app-input [leadingIcon]="inputInfo.password.leadingIcon" [placeholder]="inputInfo.password.placeholder"
                      [inlineIcon]="inputInfo.password.inlineIcon" [altInlineIcon]="inputInfo.password.altInlineIcon"
-                     [errorMessage]="error"></app-input>
+                     [errorMessage]="signUpError" [type]="inputInfo.password.type"></app-input>
         </div>
-        <ng-container *ngIf="!error; else errorDiv">
-          <button mat-button class="form-button" [class.form-error]="error">
+        <ng-container *ngIf="!signUpError; else errorDiv">
+          <button mat-button class="form-button" [class.form-error]="signUpError">
             <ng-container class="submit-button-div" *ngIf="isLoading; else createText">
               <div class="submit-button-div">
                 <span>CREATING ACCOUNT</span>
@@ -70,7 +74,7 @@
           </button>
         </ng-container>
         <ng-template #errorDiv>
-          <button mat-button class="form-button" [class.form-error]="error">
+          <button mat-button class="form-button" [class.form-error]="signUpError">
             <div class="submit-button-div">
               <span>CREATION FAILED</span>
               <mat-icon class="fail-icon" fontSet="material-icons-outlined">error_outline</mat-icon>

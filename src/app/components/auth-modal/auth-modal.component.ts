@@ -32,36 +32,53 @@ import { NgIf, NgOptimizedImage } from '@angular/common';
 export class AuthModalComponent {
   hide = true;
   isLoading = false;
-  error = '';
+  signUpError = '';
+  loginError = '';
 
   inputInfo = {
     username: {
       leadingIcon: 'person',
       placeholder: 'Username*',
+      type: 'text',
     },
     password: {
       leadingIcon: 'lock',
       placeholder: 'Password*',
       inlineIcon: 'visibility',
       altInlineIcon: 'visibility_off',
+      type: 'password',
     },
     email: {
       leadingIcon: 'email',
       placeholder: 'Email address*',
+      type: 'email',
     },
   };
 
-  constructor(public authService: AuthService) {}
+  errorHashMap: { [key: string]: string } = {};
+
+  constructor(public authService: AuthService) {
+    this.errorHashMap = {
+      username: 'The user does not exist',
+      password: 'The password is incorrect',
+    };
+  }
 
   async handleLogin(event: SubmitEvent) {
     event.preventDefault();
-    this.error = '';
+    this.loginError = '';
     this.isLoading = true;
     try {
       await this.authService.login();
     } catch (e) {
       console.log(e);
-      this.error = (e as Error).message;
+      if ((e as Error).message.includes('user')) {
+        this.loginError = this.errorHashMap['username'];
+        console.log(this.loginError);
+      } else if ((e as Error).message.includes('password')) {
+        this.loginError = this.errorHashMap['password'];
+        console.log(this.loginError);
+      }
     } finally {
       this.isLoading = false;
     }
@@ -69,13 +86,16 @@ export class AuthModalComponent {
 
   async handleSignup(event: SubmitEvent) {
     event.preventDefault();
-    this.error = '';
+    this.signUpError = '';
     this.isLoading = true;
     try {
       await this.authService.register();
     } catch (e) {
       console.log(e);
-      this.error = (e as Error).message;
+      if ((e as Error).message.includes('password')) {
+        this.signUpError = this.errorHashMap['password'];
+        console.log(this.signUpError);
+      }
     } finally {
       this.isLoading = false;
     }

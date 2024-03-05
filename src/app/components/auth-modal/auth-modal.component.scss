@@ -76,6 +76,7 @@ mat-tab-group {
     // LABEL
     .mdc-tab__content {
       span {
+        font-size: 16px;
         color: #4e4e4e;
       }
     }
@@ -87,6 +88,10 @@ mat-tab-group {
         border-color: #4e4e4e;
         border-top-width: 1px;
       }
+    }
+
+    &:focus {
+      //
     }
   }
 

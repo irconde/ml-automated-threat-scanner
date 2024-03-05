@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,28 +11,48 @@ import { NgIf } from '@angular/common';
   standalone: true,
   imports: [MatIconModule, MatInputModule, MatButtonModule, NgIf],
 })
-export class CustomInputComponent {
+export class CustomInputComponent implements OnInit {
   @Input() leadingIcon: string = '';
   @Input() placeholder: string = '';
   @Input() inlineIcon: string | null = null;
   @Input() altInlineIcon: string | null = null;
   @Input() errorMessage: string | null = null;
+  @Input() type: string = 'text';
+  inputType: string = '';
 
   hide = true;
 
   constructor() {}
 
-  validateInput() {
-    // if (error?.trim() === '') {
-    //   this.inputEventMsg = 'Input cannot be empty.';
-    // } else if (error?.trim() !== 'irconde') {
-    //   // FIXME: This is a hardcoded value
-    //   this.inputEventMsg = 'The user does not exist';
-    // } else if (error?.trim() !== 'password') {
-    //   // FIXME: This is a hardcoded value
-    //   this.inputEventMsg = 'The password is incorrect';
-    // } else {
-    //   this.inputEventMsg = '';
-    // }
+  ngOnInit() {
+    this.inputType = this.type;
+  }
+
+  shouldShowError() {
+    let tempType = this.inputType;
+    if (tempType === 'text') {
+      tempType = 'user';
+    }
+
+    return !!(this.errorMessage && this.errorMessage.includes(tempType));
+  }
+
+  toggleType() {
+    this.hide = !this.hide;
+    if (this.type === 'password') {
+      if (!this.hide) {
+        this.type = 'text';
+      } else if (this.hide) {
+        this.type = 'password';
+      }
+    } else if (this.type === 'text') {
+      if (!this.hide) {
+        this.type = 'text';
+      } else if (this.hide) {
+        this.type = 'password';
+      }
+    } else {
+      return;
+    }
   }
 }
