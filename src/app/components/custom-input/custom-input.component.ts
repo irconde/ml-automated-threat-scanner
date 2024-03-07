@@ -30,24 +30,30 @@ export class CustomInputComponent implements OnInit {
   }
 
   validateInput() {
-    console.log(this.inputElement.nativeElement.value);
-
     const inputValue = this.inputElement.nativeElement.value;
 
     switch (this.inputType) {
       case 'text':
         if (!/^[a-zA-Z]+$/.test(inputValue)) {
-          this.errorMessage = 'Please enter upper and lower case letters only.';
-          return;
+          this.errorMessage = 'Not valid. A-Z and a-z only.';
+        } else {
+          this.errorMessage = '';
         }
         break;
-      // case 'password':
-      //   this.errorMessage = 'Please enter a valid password';
-      //   break;
-      // case 'email':
-      //   this.errorMessage = 'Please enter a valid email';
-      //   break;
-      default:
+      case 'password':
+        if (!/^[A-Za-z0-9!@#$^&()_-]+$/.test(inputValue)) {
+          this.errorMessage =
+            'Not valid. A-Z and a-z, 0-9, and ! @ # $ ^ & ( ) _ - only.';
+        } else {
+          this.errorMessage = '';
+        }
+        break;
+      case 'email':
+        if (!/@\./.test(inputValue)) {
+          this.errorMessage = 'Not valid. Include "@" and a domain name.';
+        } else {
+          this.errorMessage = '';
+        }
         break;
     }
   }
@@ -60,10 +66,8 @@ export class CustomInputComponent implements OnInit {
 
     return !!(
       (this.errorMessage && this.errorMessage.includes(tempType)) ||
-      (this.errorMessage && this.errorMessage.includes('Please enter'))
+      (this.errorMessage && this.errorMessage.includes('valid'))
     );
-
-    // return !!(this.errorMessage && this.errorMessage.includes(tempType));
   }
 
   toggleType() {
