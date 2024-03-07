@@ -68,6 +68,7 @@ export class AuthModalComponent {
     event.preventDefault();
     this.loginError = '';
     this.isLoading = true;
+
     try {
       await this.authService.login();
     } catch (e) {

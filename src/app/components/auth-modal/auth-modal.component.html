@@ -2,7 +2,6 @@
   <mat-tab-group dynamicHeight>
     <mat-tab label="USER LOGIN">
       <form (submit)="handleLogin($event)">
-
         <div class="form-row">
           <app-input [leadingIcon]="inputInfo.username.leadingIcon" [placeholder]="inputInfo.username.placeholder"
                      [errorMessage]="loginError" [type]="inputInfo.username.type"></app-input>

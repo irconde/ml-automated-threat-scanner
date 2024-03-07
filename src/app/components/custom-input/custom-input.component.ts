@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -19,6 +19,7 @@ export class CustomInputComponent implements OnInit {
   @Input() errorMessage: string | null = null;
   @Input() type: string = 'text';
   inputType: string = '';
+  @ViewChild('inputElement') inputElement!: ElementRef;
 
   hide = true;
 
@@ -28,13 +29,41 @@ export class CustomInputComponent implements OnInit {
     this.inputType = this.type;
   }
 
+  validateInput() {
+    console.log(this.inputElement.nativeElement.value);
+
+    const inputValue = this.inputElement.nativeElement.value;
+
+    switch (this.inputType) {
+      case 'text':
+        if (!/^[a-zA-Z]+$/.test(inputValue)) {
+          this.errorMessage = 'Please enter upper and lower case letters only.';
+          return;
+        }
+        break;
+      // case 'password':
+      //   this.errorMessage = 'Please enter a valid password';
+      //   break;
+      // case 'email':
+      //   this.errorMessage = 'Please enter a valid email';
+      //   break;
+      default:
+        break;
+    }
+  }
+
   shouldShowError() {
     let tempType = this.inputType;
     if (tempType === 'text') {
       tempType = 'user';
     }
 
-    return !!(this.errorMessage && this.errorMessage.includes(tempType));
+    return !!(
+      (this.errorMessage && this.errorMessage.includes(tempType)) ||
+      (this.errorMessage && this.errorMessage.includes('Please enter'))
+    );
+
+    // return !!(this.errorMessage && this.errorMessage.includes(tempType));
   }
 
   toggleType() {
