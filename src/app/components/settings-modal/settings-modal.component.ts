@@ -25,6 +25,8 @@ import {
   DEFAULT_SETTINGS,
 } from '../../services/settings/models/Settings';
 import { IonicModule } from '@ionic/angular';
+import { User } from '../../utilities/api/user-api.types';
+import { AuthService } from '../../services/auth/auth.service';
 
 interface OutputOptions {
   value: string;
@@ -60,11 +62,7 @@ interface AnnotationOptions {
   ],
 })
 export class SettingsModalComponent {
-  user = false; // TODO: base on actual user
-  accountImg = 'IR';
-  accountUsername = 'Irconde';
-  accountEmail = 'irconde@ualr.edu';
-
+  user: User | null = null;
   submitting: boolean = false;
   settings: ApplicationSettings | null = null;
   form: FormGroup<Record<keyof ApplicationSettings, FormControl>>;
@@ -82,6 +80,7 @@ export class SettingsModalComponent {
   constructor(
     public dialogRef: MatDialogRef<SettingsModalComponent>,
     private settingsService: SettingsService,
+    protected authService: AuthService,
   ) {
     this.form = this.getFormGroup();
     this.shouldAllowImageDir =
@@ -94,6 +93,9 @@ export class SettingsModalComponent {
         this.disableClose = SettingsService.isMissingRequiredInfo(settings);
         this.dialogRef.disableClose = this.disableClose;
       }
+    });
+    this.authService.$user.subscribe((user) => {
+      this.user = user;
     });
   }
 

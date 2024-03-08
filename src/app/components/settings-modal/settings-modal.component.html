@@ -17,13 +17,13 @@
       <div class="account-section {{user ? 'sign-out' : 'sign-in'}}">
         <ng-container *ngIf="user; else signInButton">
           <div class="account-info-wrapper">
-            <span class="account-img">{{ accountImg }}</span>
+            <span class="account-img">{{ (user.username[0] + user.username[1]).toUpperCase() }}</span>
             <div class="account-info">
-              <span class="account-name">{{ accountUsername }}</span>
-              <span class="account-email">{{ accountEmail }}</span>
+              <span class="account-name">{{ user.username }}</span>
+              <span class="account-email">{{ user.email }}</span>
             </div>
           </div>
-          <button type="button" class="auth-button">Sign Out</button>
+          <button (click)="authService.logout()" type="button" class="auth-button">Sign Out</button>
         </ng-container>
         <ng-template #signInButton>
           <div class="account-info-wrapper">
