@@ -69,15 +69,14 @@ export class AppWrapperComponent {
       .subscribe((settings: ApplicationSettings | null) => {
         this.settings = settings;
         // settings are null when they are first loading
-        // if (settings && SettingsService.isMissingRequiredInfo(settings)) {
-        //   this.openSettingsModal();
-        // } else if (
-        //   settings &&
-        //   !SettingsService.isMissingRequiredInfo(settings)
-        // ) {
-        //   this.dialog.closeAll();
-        // }
-        this.openSettingsModal();
+        if (settings && SettingsService.isMissingRequiredInfo(settings)) {
+          this.openSettingsModal();
+        } else if (
+          settings &&
+          !SettingsService.isMissingRequiredInfo(settings)
+        ) {
+          this.dialog.closeAll();
+        }
       });
   }
 
