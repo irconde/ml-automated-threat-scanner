@@ -5,15 +5,15 @@
     </ion-toolbar>
   </ion-header>
 
-<!--  <ng-container *ngIf="user; else authModal">-->
-<!--    <app-top-bar class="topBarElement"/>-->
-<!--    <app-cs-canvas></app-cs-canvas>-->
-<!--    <app-side-menu/>-->
-<!--    <app-label-edit/>-->
-<!--    <app-detection-context-menu/>-->
-<!--    <app-no-file-sign/>-->
-<!--  </ng-container>-->
-<!--  <ng-template #authModal>-->
-<!--    <app-auth-modal/>-->
-<!--  </ng-template>-->
+  <ng-container *ngIf="user; else authModal">
+    <app-top-bar class="topBarElement"/>
+    <app-cs-canvas></app-cs-canvas>
+    <app-side-menu/>
+    <app-label-edit/>
+    <app-detection-context-menu/>
+    <app-no-file-sign/>
+  </ng-container>
+  <ng-template #authModal>
+    <app-auth-modal/>
+  </ng-template>
 </ion-content>
