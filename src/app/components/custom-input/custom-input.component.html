@@ -2,7 +2,8 @@
   <div class="input-section">
     <mat-icon class="input-icon {{shouldShowError() ? 'form-error' : ''}}">{{ leadingIcon }}</mat-icon>
     <div class="input-wrapper">
-      <input #inputElement [type]="type" placeholder="{{ placeholder }}" (change)="validateInput(inputElement.value)"/>
+      <input #inputElement [type]="type" placeholder="{{ placeholder }}"
+             (focus)="inputElement.value = inputElement.value.trim()" (change)="validateInput(inputElement.value)"/>
       <button type="button" mat-icon-button matSuffix (click)="toggleType()" [attr.aria-label]="'Hide password'"
               [attr.aria-pressed]="hide" *ngIf="inlineIcon">
         <mat-icon class="input-inline-icon">{{ hide ? inlineIcon : altInlineIcon }}</mat-icon>

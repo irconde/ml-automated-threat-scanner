@@ -41,14 +41,14 @@ export class CustomInputComponent implements OnInit {
   validateInput(inputValue: string) {
     switch (this.inputType) {
       case 'text':
-        if (!/^[a-zA-Z]+$/.test(inputValue)) {
+        if (!/^[a-zA-Z]+$/.test(inputValue.trim())) {
           this.errorMessage = 'Not valid. A-Z and a-z only.';
         } else {
           this.errorMessage = '';
         }
         break;
       case 'password':
-        if (!/^[A-Za-z0-9!@#$^&()_-]+$/.test(inputValue)) {
+        if (!/^[A-Za-z0-9!@#$^&()_-]+$/.test(inputValue.trim())) {
           this.errorMessage =
             'Not valid. A-Z and a-z, 0-9, and ! @ # $ ^ & ( ) _ - only.';
         } else {
@@ -56,7 +56,7 @@ export class CustomInputComponent implements OnInit {
         }
         break;
       case 'email':
-        if (!/@\w+\.\w+/.test(inputValue)) {
+        if (!/@\w+\.\w+/.test(inputValue.trim())) {
           this.errorMessage = 'Not valid. Include "@" and a domain name.';
         } else {
           this.errorMessage = '';
@@ -64,7 +64,7 @@ export class CustomInputComponent implements OnInit {
         break;
     }
 
-    this.inputValueEvent.emit(inputValue);
+    this.inputValueEvent.emit(inputValue.trim());
   }
 
   shouldShowError() {

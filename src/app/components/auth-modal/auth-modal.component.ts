@@ -71,13 +71,13 @@ export class AuthModalComponent {
   handleInputValidation(inputValue: string, inputType: string) {
     switch (inputType) {
       case 'text':
-        this.isFormValid = /^[a-zA-Z]+$/.test(inputValue);
+        this.isFormValid = /^[a-zA-Z]+$/.test(inputValue.trim());
         break;
       case 'password':
-        this.isFormValid = /^[A-Za-z0-9!@#$^&()_-]+$/.test(inputValue);
+        this.isFormValid = /^[A-Za-z0-9!@#$^&()_-]+$/.test(inputValue.trim());
         break;
       case 'email':
-        this.isFormValid = /@\w+\.\w+/.test(inputValue);
+        this.isFormValid = /@\w+\.\w+/.test(inputValue.trim());
         break;
     }
   }
