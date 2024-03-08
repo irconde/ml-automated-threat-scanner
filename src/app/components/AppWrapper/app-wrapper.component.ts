@@ -18,6 +18,8 @@ import { SideMenuComponent } from '../side-menu/side-menu.component';
 import { LabelEditComponent } from '../label-edit/label-edit.component';
 import { ColorPickerComponent } from '../color-picker/color-picker.component';
 import { NoFileSignComponent } from '../no-file-sign/no-file-sign.component';
+import { AuthService, User } from '../../services/auth/auth.service';
+import { AuthModalComponent } from '../auth-modal/auth-modal.component';
 
 @Component({
   selector: 'app-wrapper',
@@ -39,20 +41,27 @@ import { NoFileSignComponent } from '../no-file-sign/no-file-sign.component';
     LabelEditComponent,
     ColorPickerComponent,
     NoFileSignComponent,
+    AuthModalComponent,
   ],
 })
 export class AppWrapperComponent {
   currentFile: FilePayload | null = null;
   settings: ApplicationSettings | null = null;
   public readonly Platforms: typeof Platforms = Platforms;
+  user: User | null = null;
 
   constructor(
     public fileService: FileService,
     public settingsService: SettingsService,
     public dialog: MatDialog,
+    public authService: AuthService,
   ) {
     fileService.getCurrentFile().subscribe((currentFile) => {
       this.currentFile = currentFile;
+    });
+
+    authService.$user.subscribe((user) => {
+      this.user = user;
     });
 
     settingsService

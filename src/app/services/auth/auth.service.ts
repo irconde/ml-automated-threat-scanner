@@ -1,27 +1,42 @@
 import { Injectable } from '@angular/core';
 import fetch from 'cross-fetch';
+import { BehaviorSubject } from 'rxjs';
+
+// TODO: figure out the props of user
+export interface User {}
+
+type LoginResponse = {
+  email: string;
+  Success: boolean;
+};
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  constructor() {}
+  private user = new BehaviorSubject<User | null>(null);
+  public $user = this.user.asObservable();
+
+  constructor() {
+    this.checkIfLoggedIn().then();
+  }
 
   async login(): Promise<void> {
     const token = await this.generateToken();
 
     const response = await fetch('http://localhost:8080/auth/login', {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
         Authorization: 'Bearer ' + token,
       },
-      body: JSON.stringify({ username: 'test', password: 'test' }),
+      body: JSON.stringify({ username: 'test', password: 's0//P4$$w0rD' }),
     });
 
     if (response.status === 200) {
-      const jsonBody = await response.json();
-      console.log(jsonBody);
+      const jsonBody: LoginResponse = await response.json();
+      this.user.next({});
     }
   }
 
@@ -70,5 +85,22 @@ export class AuthService {
       console.log(e);
     }
     return '';
+  }
+
+  private async checkIfLoggedIn() {
+    const token = await this.generateToken();
+
+    const response = await fetch('http://localhost:8080/auth', {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + token,
+      },
+    });
+
+    if (response.status === 200) {
+      this.user.next({});
+    }
   }
 }
