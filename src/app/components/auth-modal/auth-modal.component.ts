@@ -30,12 +30,16 @@ import { NgIf, NgOptimizedImage } from '@angular/common';
   ],
 })
 export class AuthModalComponent {
-  hide = true;
+  isFormValid = true;
   isLoading = false;
   signUpError = '';
   loginError = '';
 
   inputInfo = {
+    vaildForms: {
+      login: true,
+      signup: true,
+    },
     username: {
       leadingIcon: 'person',
       placeholder: 'Username*',
@@ -64,41 +68,61 @@ export class AuthModalComponent {
     };
   }
 
+  handleInputValidation(inputValue: string, inputType: string) {
+    switch (inputType) {
+      case 'text':
+        this.isFormValid = /^[a-zA-Z]+$/.test(inputValue);
+        break;
+      case 'password':
+        this.isFormValid = /^[A-Za-z0-9!@#$^&()_-]+$/.test(inputValue);
+        break;
+      case 'email':
+        this.isFormValid = /@\w+\.\w+/.test(inputValue);
+        break;
+    }
+  }
+
   async handleLogin(event: SubmitEvent) {
     event.preventDefault();
-    this.loginError = '';
-    this.isLoading = true;
 
-    try {
-      await this.authService.login();
-    } catch (e) {
-      console.log(e);
-      if ((e as Error).message.includes('user')) {
-        this.loginError = this.errorHashMap['username'];
-        console.log(this.loginError);
-      } else if ((e as Error).message.includes('password')) {
-        this.loginError = this.errorHashMap['password'];
-        console.log(this.loginError);
+    if (this.isFormValid) {
+      this.loginError = '';
+      this.isLoading = true;
+
+      try {
+        await this.authService.login();
+      } catch (e) {
+        console.log(e);
+        if ((e as Error).message.includes('user')) {
+          this.loginError = this.errorHashMap['username'];
+          console.log(this.loginError);
+        } else if ((e as Error).message.includes('password')) {
+          this.loginError = this.errorHashMap['password'];
+          console.log(this.loginError);
+        }
+      } finally {
+        this.isLoading = false;
       }
-    } finally {
-      this.isLoading = false;
     }
   }
 
   async handleSignup(event: SubmitEvent) {
     event.preventDefault();
-    this.signUpError = '';
-    this.isLoading = true;
-    try {
-      await this.authService.register();
-    } catch (e) {
-      console.log(e);
-      if ((e as Error).message.includes('password')) {
-        this.signUpError = this.errorHashMap['password'];
-        console.log(this.signUpError);
+
+    if (this.isFormValid) {
+      this.signUpError = '';
+      this.isLoading = true;
+      try {
+        await this.authService.register();
+      } catch (e) {
+        console.log(e);
+        if ((e as Error).message.includes('password')) {
+          this.signUpError = this.errorHashMap['password'];
+          console.log(this.signUpError);
+        }
+      } finally {
+        this.isLoading = false;
       }
-    } finally {
-      this.isLoading = false;
     }
   }
 }

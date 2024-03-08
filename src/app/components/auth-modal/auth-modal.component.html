@@ -4,13 +4,15 @@
       <form (submit)="handleLogin($event)">
         <div class="form-row">
           <app-input [leadingIcon]="inputInfo.username.leadingIcon" [placeholder]="inputInfo.username.placeholder"
-                     [errorMessage]="loginError" [type]="inputInfo.username.type"></app-input>
+                     [errorMessage]="loginError" [type]="inputInfo.username.type"
+                     (inputValueEvent)="handleInputValidation($event, inputInfo.username.type)"></app-input>
         </div>
 
         <div class="form-row">
           <app-input [leadingIcon]="inputInfo.password.leadingIcon" [placeholder]="inputInfo.password.placeholder"
                      [inlineIcon]="inputInfo.password.inlineIcon" [altInlineIcon]="inputInfo.password.altInlineIcon"
-                     [errorMessage]="loginError" [type]="inputInfo.password.type"></app-input>
+                     [errorMessage]="loginError" [type]="inputInfo.password.type"
+                     (inputValueEvent)="handleInputValidation($event, inputInfo.password.type)"></app-input>
         </div>
 
         <div class="form-row">
@@ -45,18 +47,20 @@
       <form (submit)="handleSignup($event)">
         <div class="form-row">
           <app-input [leadingIcon]="inputInfo.username.leadingIcon" [placeholder]="inputInfo.username.placeholder"
-                     [errorMessage]="signUpError" [type]="inputInfo.username.type"></app-input>
+                     [errorMessage]="signUpError" [type]="inputInfo.username.type" (inputValueEvent)="handleInputValidation($event, inputInfo.username.type)"></app-input>
         </div>
 
         <div class="form-row">
           <app-input [leadingIcon]="inputInfo.email.leadingIcon" [placeholder]="inputInfo.email.placeholder"
-                     [errorMessage]="signUpError" [type]="inputInfo.email.type"></app-input>
+                     [errorMessage]="signUpError" [type]="inputInfo.email.type"
+                     (inputValueEvent)="handleInputValidation($event, inputInfo.email.type)"></app-input>
         </div>
 
         <div class="form-row">
           <app-input [leadingIcon]="inputInfo.password.leadingIcon" [placeholder]="inputInfo.password.placeholder"
                      [inlineIcon]="inputInfo.password.inlineIcon" [altInlineIcon]="inputInfo.password.altInlineIcon"
-                     [errorMessage]="signUpError" [type]="inputInfo.password.type"></app-input>
+                     [errorMessage]="signUpError" [type]="inputInfo.password.type"
+                     (inputValueEvent)="handleInputValidation($event, inputInfo.password.type)"></app-input>
         </div>
         <ng-container *ngIf="!signUpError; else errorDiv">
           <button mat-button class="form-button" [class.form-error]="signUpError">

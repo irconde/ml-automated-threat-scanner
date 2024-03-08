@@ -1,4 +1,12 @@
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,6 +26,7 @@ export class CustomInputComponent implements OnInit {
   @Input() altInlineIcon: string | null = null;
   @Input() errorMessage: string | null = null;
   @Input() type: string = 'text';
+  @Output() inputValueEvent = new EventEmitter<string>();
   inputType: string = '';
   @ViewChild('inputElement') inputElement!: ElementRef;
 
@@ -29,9 +38,7 @@ export class CustomInputComponent implements OnInit {
     this.inputType = this.type;
   }
 
-  validateInput() {
-    const inputValue = this.inputElement.nativeElement.value;
-
+  validateInput(inputValue: string) {
     switch (this.inputType) {
       case 'text':
         if (!/^[a-zA-Z]+$/.test(inputValue)) {
@@ -49,13 +56,15 @@ export class CustomInputComponent implements OnInit {
         }
         break;
       case 'email':
-        if (!/@\./.test(inputValue)) {
+        if (!/@\w+\.\w+/.test(inputValue)) {
           this.errorMessage = 'Not valid. Include "@" and a domain name.';
         } else {
           this.errorMessage = '';
         }
         break;
     }
+
+    this.inputValueEvent.emit(inputValue);
   }
 
   shouldShowError() {
