@@ -8,6 +8,7 @@ export enum ApiRoutes {
   CheckAuth = '/auth',
   Login = '/auth/login',
   Register = '/auth/register',
+  Logout = '/auth/logout',
 }
 
 export async function customFetch<Request, Response>(

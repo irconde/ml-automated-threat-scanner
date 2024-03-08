@@ -45,4 +45,9 @@ export class AuthService {
       email: authResponse.email,
     });
   }
+
+  async logout(): Promise<void> {
+    await customFetch(ApiRoutes.Logout, 'POST');
+    this.user.next(null);
+  }
 }
