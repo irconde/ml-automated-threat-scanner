@@ -14,16 +14,26 @@
 
     <!--    ACCOUNT INFO    -->
     <div class="account-section-wrapper">
-    <div class="account-section">
-      <div class="account-info-wrapper">
-        <span class="account-img">IR</span>
-        <div class="account-info">
-          <span class="account-name">Irconde</span>
-          <span class="account-email">irconde@ualr.edu</span>
-        </div>
+      <div class="account-section {{user ? 'sign-out' : 'sign-in'}}">
+        <ng-container *ngIf="user; else signInButton">
+          <div class="account-info-wrapper">
+            <span class="account-img">{{ accountImg }}</span>
+            <div class="account-info">
+              <span class="account-name">{{ accountUsername }}</span>
+              <span class="account-email">{{ accountEmail }}</span>
+            </div>
+          </div>
+          <button type="button" class="auth-button">Sign Out</button>
+        </ng-container>
+        <ng-template #signInButton>
+          <div class="account-info-wrapper">
+            <!--            TODO: Find better bird logo-->
+            <img ngSrc="assets/MinIO-bird.svg" width="30.7" height="62" alt="MinIO Bird Logo"/>
+            <img ngSrc="assets/MinIO_logo.svg" height="24" width="159" alt="MinIo Logo"/>
+          </div>
+          <button type="button" class="auth-button">Connect to Server</button>
+        </ng-template>
       </div>
-      <button class="auth-button">Sign Out</button>
-    </div>
     </div>
 
     <!--    CONTENT    -->
@@ -33,7 +43,7 @@
         <div>
           <p class="settings-text">Work Connected to UALR Min.IO Data Store</p>
           <p class="settings-subtext">Choose this option if you want to interact with the UALR Min.IO Data Store
-            files.</p>
+                                      files.</p>
         </div>
         <mat-slide-toggle formControlName="workingMode"/>
       </div>
