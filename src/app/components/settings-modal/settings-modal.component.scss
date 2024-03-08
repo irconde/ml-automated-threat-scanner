@@ -61,6 +61,99 @@
   gap: 0.5rem;
 }
 
+// --------------------------------------------------------
+
+.account-section-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding-inline: 1.5rem;
+}
+
+.account-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 6rem;
+  margin: 1rem 0;
+  padding: 23px 29px 22px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sign-out {
+
+  button {
+    background-color: rgba(255, 118, 118, 0.1);
+    border: solid 1px #ff4b4b;
+    color: #ff4b4b;
+  }
+}
+
+.sign-in {
+
+  button {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: solid 1px #ffffff;
+    color: #ffffff;
+  }
+}
+
+.account-img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: $primary-600;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.account-info-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img:not(.account-img) {
+    margin-inline: 0.75rem;
+  }
+}
+
+.account-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 1rem;
+}
+
+.account-name {
+  font-size: 14px;
+  color: #ffffff;
+}
+
+.account-email {
+  font-size: 12px;
+  font-weight: 300;
+  color: #ffffff;
+}
+
+.auth-button {
+  width: 104px;
+  height: 34px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+// --------------------------------------------------------
+
 .outputs-wrapper .input-info-wrapper {
   width: calc(100% / 3);
 }

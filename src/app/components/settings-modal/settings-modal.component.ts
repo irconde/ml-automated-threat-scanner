@@ -14,7 +14,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSelectModule } from '@angular/material/select';
-import { NgForOf, NgIf } from '@angular/common';
+import { NgForOf, NgIf, NgOptimizedImage } from '@angular/common';
 import { FileFormat, Platforms, WorkingMode } from '../../../enums/platforms';
 import { DetectionType } from '../../../models/detection';
 import { getElectronAPI } from '../../get-electron-api';
@@ -56,9 +56,15 @@ interface AnnotationOptions {
     MatDialogModule,
     NgIf,
     IonicModule,
+    NgOptimizedImage,
   ],
 })
 export class SettingsModalComponent {
+  user = false; // TODO: base on actual user
+  accountImg = 'IR';
+  accountUsername = 'Irconde';
+  accountEmail = 'irconde@ualr.edu';
+
   submitting: boolean = false;
   settings: ApplicationSettings | null = null;
   form: FormGroup<Record<keyof ApplicationSettings, FormControl>>;
