@@ -43,10 +43,10 @@ export class TopBarComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    setTimeout(() => {
-      this.dialog.open(AuthModalComponent);
-      console.log('Opened auth modal');
-    }, 1000);
+    // setTimeout(() => {
+    //   this.dialog.open(AuthModalComponent);
+    //   console.log('Opened auth modal');
+    // }, 1000);
     this.fileService.getCurrentFile().subscribe((currentFile) => {
       this.currentFile = currentFile;
       this.updateFileQueue();
