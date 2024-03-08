@@ -18,8 +18,9 @@ import { SideMenuComponent } from '../side-menu/side-menu.component';
 import { LabelEditComponent } from '../label-edit/label-edit.component';
 import { ColorPickerComponent } from '../color-picker/color-picker.component';
 import { NoFileSignComponent } from '../no-file-sign/no-file-sign.component';
-import { AuthService, User } from '../../services/auth/auth.service';
+import { AuthService } from '../../services/auth/auth.service';
 import { AuthModalComponent } from '../auth-modal/auth-modal.component';
+import { User } from '../../utilities/api/user-api.types';
 
 @Component({
   selector: 'app-wrapper',
