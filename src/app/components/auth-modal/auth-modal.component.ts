@@ -34,6 +34,8 @@ export class AuthModalComponent {
   isLoading = false;
   signUpError = '';
   loginError = '';
+  private username: string = '';
+  private loginPassword: string = '';
 
   inputInfo = {
     vaildForms: {
@@ -90,7 +92,8 @@ export class AuthModalComponent {
       this.isLoading = true;
 
       try {
-        await this.authService.login();
+        // TODO: provide user input for credentials here
+        await this.authService.login('test', 's0//P4$$w0rD');
       } catch (e) {
         console.log(e);
         if ((e as Error).message.includes('user')) {
