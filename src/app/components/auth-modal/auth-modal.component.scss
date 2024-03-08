@@ -101,6 +101,30 @@ mat-tab-group {
 
   // ------------INACTIVE TAB / GENERAL TAB STYLING
   ::ng-deep .mdc-tab {
+
+    // HOVER & FOCUS
+    &:hover, &:focus {
+      --mat-tab-header-active-ripple-color: transparent;
+      --mat-tab-header-inactive-ripple-color: transparent;
+
+      // LABEL
+      .mdc-tab__content {
+        span {
+          color: #a7a7a7;
+          transition: color 0.1ms ease-in-out;
+        }
+      }
+
+      // INDICATOR
+      .mdc-tab-indicator {
+        span {
+          border-color: #a7a7a7;
+          transition: color 0.1ms ease-in-out;
+        }
+      }
+    }
+
+
     // LABEL
     .mdc-tab__content {
       span {

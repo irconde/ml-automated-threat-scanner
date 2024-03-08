@@ -1,4 +1,12 @@
-import { Component, Input, OnInit } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,7 +26,9 @@ export class CustomInputComponent implements OnInit {
   @Input() altInlineIcon: string | null = null;
   @Input() errorMessage: string | null = null;
   @Input() type: string = 'text';
+  @Output() inputValueEvent = new EventEmitter<string>();
   inputType: string = '';
+  @ViewChild('inputElement') inputElement!: ElementRef;
 
   hide = true;
 
@@ -28,13 +38,45 @@ export class CustomInputComponent implements OnInit {
     this.inputType = this.type;
   }
 
+  validateInput(inputValue: string) {
+    switch (this.inputType) {
+      case 'text':
+        if (!/^[a-zA-Z]+$/.test(inputValue.trim())) {
+          this.errorMessage = 'Not valid. A-Z and a-z only.';
+        } else {
+          this.errorMessage = '';
+        }
+        break;
+      case 'password':
+        if (!/^[A-Za-z0-9!@#$^&()_-]+$/.test(inputValue.trim())) {
+          this.errorMessage =
+            'Not valid. A-Z and a-z, 0-9, and ! @ # $ ^ & ( ) _ - only.';
+        } else {
+          this.errorMessage = '';
+        }
+        break;
+      case 'email':
+        if (!/@\w+\.\w+/.test(inputValue.trim())) {
+          this.errorMessage = 'Not valid. Include "@" and a domain name.';
+        } else {
+          this.errorMessage = '';
+        }
+        break;
+    }
+
+    this.inputValueEvent.emit(inputValue.trim());
+  }
+
   shouldShowError() {
     let tempType = this.inputType;
     if (tempType === 'text') {
       tempType = 'user';
     }
 
-    return !!(this.errorMessage && this.errorMessage.includes(tempType));
+    return !!(
+      (this.errorMessage && this.errorMessage.includes(tempType)) ||
+      (this.errorMessage && this.errorMessage.includes('valid'))
+    );
   }
 
   toggleType() {
