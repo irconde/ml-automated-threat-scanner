@@ -1,14 +1,19 @@
 <ion-content fullscreen="fullscreen">
-  <app-top-bar class="topBarElement"/>
   <ion-header collapse="condense">
     <ion-toolbar>
       <ion-title size="large"></ion-title>
     </ion-toolbar>
   </ion-header>
 
-  <app-cs-canvas></app-cs-canvas>
-  <app-side-menu/>
-  <app-label-edit/>
-  <app-detection-context-menu/>
-  <app-no-file-sign/>
+  <ng-container *ngIf="user; else authModal">
+    <app-top-bar class="topBarElement"/>
+    <app-cs-canvas></app-cs-canvas>
+    <app-side-menu/>
+    <app-label-edit/>
+    <app-detection-context-menu/>
+    <app-no-file-sign/>
+  </ng-container>
+  <ng-template #authModal>
+    <app-auth-modal/>
+  </ng-template>
 </ion-content>

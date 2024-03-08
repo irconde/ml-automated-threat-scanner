@@ -125,16 +125,4 @@ export class AuthModalComponent {
       }
     }
   }
-
-  handleProtected() {
-    this.authService
-      .fetchProtectedRoute()
-      .then(() => {
-        console.log('Success');
-      })
-      .catch((e) => {
-        console.log(e);
-        console.log('Failed');
-      });
-  }
 }
