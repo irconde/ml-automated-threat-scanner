@@ -6,11 +6,13 @@
   </ion-header>
 
 
-  <app-top-bar class="topBarElement"/>
-  <app-cs-canvas></app-cs-canvas>
-  <app-side-menu/>
-  <app-label-edit/>
-  <app-detection-context-menu/>
-  <app-no-file-sign/>
+  <ng-container *ngIf="!isAuthLoading">
+    <app-top-bar class="topBarElement"/>
+    <app-cs-canvas></app-cs-canvas>
+    <app-side-menu/>
+    <app-label-edit/>
+    <app-detection-context-menu/>
+    <app-no-file-sign/>
+  </ng-container>
 
 </ion-content>

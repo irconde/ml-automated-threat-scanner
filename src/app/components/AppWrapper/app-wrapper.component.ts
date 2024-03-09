@@ -20,7 +20,6 @@ import { ColorPickerComponent } from '../color-picker/color-picker.component';
 import { NoFileSignComponent } from '../no-file-sign/no-file-sign.component';
 import { AuthService } from '../../services/auth/auth.service';
 import { AuthModalComponent } from '../auth-modal/auth-modal.component';
-import { User } from '../../utilities/api/user-api.types';
 
 @Component({
   selector: 'app-wrapper',
@@ -49,20 +48,28 @@ export class AppWrapperComponent {
   currentFile: FilePayload | null = null;
   settings: ApplicationSettings | null = null;
   public readonly Platforms: typeof Platforms = Platforms;
-  user: User | null = null;
+  protected isAuthLoading = true;
 
   constructor(
     public fileService: FileService,
     public settingsService: SettingsService,
     public dialog: MatDialog,
-    public authService: AuthService,
+    private authService: AuthService,
   ) {
     fileService.getCurrentFile().subscribe((currentFile) => {
       this.currentFile = currentFile;
     });
 
-    authService.$user.subscribe((user) => {
-      this.user = user;
+    // Show the AuthModal if the user is not logged in on launch
+    authService.$isLoading.subscribe((isLoading) => {
+      this.isAuthLoading = isLoading;
+      this.authService.$user
+        .subscribe((user) => {
+          if (!isLoading && !user) {
+            this.dialog.open(AuthModalComponent);
+          }
+        })
+        .unsubscribe();
     });
 
     settingsService

@@ -12,10 +12,14 @@ import {
 })
 export class AuthService {
   private user = new BehaviorSubject<User | null>(null);
+  private isLoading = new BehaviorSubject(true);
   public $user = this.user.asObservable();
+  public $isLoading = this.isLoading.asObservable();
 
   constructor() {
-    this.checkIfLoggedIn().then();
+    this.checkIfLoggedIn().finally(() => {
+      this.isLoading.next(false);
+    });
   }
 
   async login(username: string, password: string): Promise<void> {
