@@ -30,6 +30,11 @@ export async function customFetch<Request, Response>(
 
   if (response.status === 200) {
     return await response.json();
-  } else
-    throw Error(`Failed to fetch ${route} | status code ${response.status}`);
+  } else {
+    const error = await response.json();
+    throw Error(
+      error.message ??
+        `Failed to fetch ${route} | status code ${response.status}`,
+    );
+  }
 }

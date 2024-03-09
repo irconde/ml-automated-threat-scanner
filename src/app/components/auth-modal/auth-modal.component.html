@@ -7,11 +7,15 @@
           <!--                     [errorMessage]="loginError" [type]="inputInfo.username.type"-->
           <!--                     (inputValueEvent)="handleInputValidation($event, inputInfo.username.type)"></app-input>-->
           <app-underline-input type="text" leadingIcon="person" placeholder="Username*"
+                               [errorMessage]="getInputError(loginUsername)"
                                [formControl]="loginUsername"></app-underline-input>
         </div>
 
         <div class="form-row">
           <app-underline-input type="password" leadingIcon="lock" placeholder="Password*"
+                               [inlineIcon]="inputInfo.password.inlineIcon"
+                               [altInlineIcon]="inputInfo.password.altInlineIcon"
+                               [errorMessage]="getInputError(loginPassword)"
                                [formControl]="loginPassword"></app-underline-input>
           <!--          <app-input [leadingIcon]="inputInfo.password.leadingIcon" [placeholder]="inputInfo.password.placeholder"-->
           <!--                     [inlineIcon]="inputInfo.password.inlineIcon" [altInlineIcon]="inputInfo.password.altInlineIcon"-->
@@ -23,8 +27,8 @@
           <mat-checkbox>Keep me signed in</mat-checkbox>
         </div>
 
-        <ng-container *ngIf="!loginError; else errorDiv">
-          <button mat-button class="form-button" [class.form-error]="loginError">
+        <ng-container *ngIf="!loginFormError; else errorDiv">
+          <button mat-button class="form-button" [class.form-error]="loginFormError">
             <ng-container class="submit-button-div" *ngIf="isLoading; else loginText">
               <div class="submit-button-div">
                 <span>SIGNING IN</span>
@@ -38,7 +42,7 @@
           </button>
         </ng-container>
         <ng-template #errorDiv>
-          <button mat-button class="form-button" [class.form-error]="loginError">
+          <button mat-button class="form-button" [class.form-error]="loginFormError">
             <div class="submit-button-div">
               <span>LOGIN FAILED</span>
               <mat-icon class="fail-icon" fontSet="material-icons-outlined">error_outline</mat-icon>

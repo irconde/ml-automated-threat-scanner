@@ -10,7 +10,12 @@ import { AuthService } from '../../services/auth/auth.service';
 import { CustomInputComponent } from '../custom-input/custom-input.component';
 import { NgIf, NgOptimizedImage } from '@angular/common';
 import { UnderlineInputComponent } from '../underline-input/underline-input.component';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormControl,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 
 @Component({
   selector: 'app-auth-modal',
@@ -37,9 +42,9 @@ export class AuthModalComponent {
   isFormValid = true;
   isLoading = false;
   signUpError = '';
-  loginError = '';
-  loginUsername = new FormControl('');
-  loginPassword = new FormControl('');
+  loginFormError = '';
+  loginUsername = new FormControl('', { validators: [Validators.required] });
+  loginPassword = new FormControl('', { validators: [Validators.required] });
 
   inputInfo = {
     vaildForms: {
@@ -65,14 +70,7 @@ export class AuthModalComponent {
     },
   };
 
-  errorHashMap: { [key: string]: string } = {};
-
-  constructor(public authService: AuthService) {
-    this.errorHashMap = {
-      username: 'The user does not exist',
-      password: 'The password is incorrect',
-    };
-  }
+  constructor(public authService: AuthService) {}
 
   handleInputValidation(inputValue: string, inputType: string) {
     switch (inputType) {
@@ -88,27 +86,53 @@ export class AuthModalComponent {
     }
   }
 
+  invalidFields(...fields: FormControl[]) {
+    return fields.some((field) => Boolean(field));
+  }
+
+  errorCodeToMsg(errors: ValidationErrors) {
+    const errorCode = Object.keys(errors)[0];
+    switch (errorCode) {
+      case 'required':
+        return 'Field is required';
+      case 'api':
+        return errors[errorCode];
+      default:
+        return 'Error';
+    }
+  }
+
+  getInputError(formControl: FormControl) {
+    return formControl.errors ? this.errorCodeToMsg(formControl.errors) : '';
+  }
+
   async handleLogin(event: SubmitEvent) {
     event.preventDefault();
-    if (this.isFormValid) {
-      this.loginError = '';
-      this.isLoading = true;
+    if (this.invalidFields(this.loginUsername, this.loginPassword)) {
+      return;
+    }
 
-      try {
-        // TODO: provide user input for credentials here
-        await this.authService.login('test', 's0//P4$$w0rD');
-      } catch (e) {
-        console.log(e);
-        if ((e as Error).message.includes('user')) {
-          this.loginError = this.errorHashMap['username'];
-          console.log(this.loginError);
-        } else if ((e as Error).message.includes('password')) {
-          this.loginError = this.errorHashMap['password'];
-          console.log(this.loginError);
-        }
-      } finally {
-        this.isLoading = false;
+    this.loginFormError = '';
+    this.isLoading = true;
+
+    try {
+      // TODO: provide user input for credentials here
+      await this.authService.login(
+        this.loginUsername.value!,
+        this.loginPassword.value!,
+      );
+    } catch (e) {
+      const errorMsg = (e as Error).message;
+      if (errorMsg.toLowerCase().includes('user')) {
+        this.loginUsername.setErrors({ api: errorMsg });
+      } else if (errorMsg.toLowerCase().includes('password')) {
+        this.loginPassword.setErrors({ api: errorMsg });
+      } else {
+        // TODO: display error in form
+        this.loginFormError = errorMsg;
       }
+    } finally {
+      this.isLoading = false;
     }
   }
 
@@ -121,11 +145,7 @@ export class AuthModalComponent {
       try {
         await this.authService.register();
       } catch (e) {
-        console.log(e);
-        if ((e as Error).message.includes('password')) {
-          this.signUpError = this.errorHashMap['password'];
-          console.log(this.signUpError);
-        }
+        // TOOD: handler errors
       } finally {
         this.isLoading = false;
       }
