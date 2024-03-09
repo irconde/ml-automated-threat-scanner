@@ -9,6 +9,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { AuthService } from '../../services/auth/auth.service';
 import { CustomInputComponent } from '../custom-input/custom-input.component';
 import { NgIf, NgOptimizedImage } from '@angular/common';
+import { UnderlineInputComponent } from '../underline-input/underline-input.component';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-auth-modal',
@@ -27,6 +29,8 @@ import { NgIf, NgOptimizedImage } from '@angular/common';
     CustomInputComponent,
     NgOptimizedImage,
     NgIf,
+    UnderlineInputComponent,
+    ReactiveFormsModule,
   ],
 })
 export class AuthModalComponent {
@@ -34,8 +38,8 @@ export class AuthModalComponent {
   isLoading = false;
   signUpError = '';
   loginError = '';
-  private username: string = '';
-  private loginPassword: string = '';
+  loginUsername = new FormControl('');
+  loginPassword = new FormControl('');
 
   inputInfo = {
     vaildForms: {
@@ -86,7 +90,6 @@ export class AuthModalComponent {
 
   async handleLogin(event: SubmitEvent) {
     event.preventDefault();
-
     if (this.isFormValid) {
       this.loginError = '';
       this.isLoading = true;

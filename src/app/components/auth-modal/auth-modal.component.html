@@ -3,16 +3,20 @@
     <mat-tab label="USER LOGIN">
       <form (submit)="handleLogin($event)">
         <div class="form-row">
-          <app-input [leadingIcon]="inputInfo.username.leadingIcon" [placeholder]="inputInfo.username.placeholder"
-                     [errorMessage]="loginError" [type]="inputInfo.username.type"
-                     (inputValueEvent)="handleInputValidation($event, inputInfo.username.type)"></app-input>
+          <!--          <app-input [leadingIcon]="inputInfo.username.leadingIcon" [placeholder]="inputInfo.username.placeholder"-->
+          <!--                     [errorMessage]="loginError" [type]="inputInfo.username.type"-->
+          <!--                     (inputValueEvent)="handleInputValidation($event, inputInfo.username.type)"></app-input>-->
+          <app-underline-input type="text" leadingIcon="person" placeholder="Username*"
+                               [formControl]="loginUsername"></app-underline-input>
         </div>
 
         <div class="form-row">
-          <app-input [leadingIcon]="inputInfo.password.leadingIcon" [placeholder]="inputInfo.password.placeholder"
-                     [inlineIcon]="inputInfo.password.inlineIcon" [altInlineIcon]="inputInfo.password.altInlineIcon"
-                     [errorMessage]="loginError" [type]="inputInfo.password.type"
-                     (inputValueEvent)="handleInputValidation($event, inputInfo.password.type)"></app-input>
+          <app-underline-input type="password" leadingIcon="lock" placeholder="Password*"
+                               [formControl]="loginPassword"></app-underline-input>
+          <!--          <app-input [leadingIcon]="inputInfo.password.leadingIcon" [placeholder]="inputInfo.password.placeholder"-->
+          <!--                     [inlineIcon]="inputInfo.password.inlineIcon" [altInlineIcon]="inputInfo.password.altInlineIcon"-->
+          <!--                     [errorMessage]="loginError" [type]="inputInfo.password.type"-->
+          <!--                     (inputValueEvent)="handleInputValidation($event, inputInfo.password.type)"></app-input>-->
         </div>
 
         <div class="form-row">
