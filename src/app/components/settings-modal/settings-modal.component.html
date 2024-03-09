@@ -31,7 +31,7 @@
             <img ngSrc="assets/MinIO-bird.svg" width="30.7" height="62" alt="MinIO Bird Logo"/>
             <img ngSrc="assets/MinIO_logo.svg" height="24" width="159" alt="MinIo Logo"/>
           </div>
-          <button type="button" class="auth-button">Connect to Server</button>
+          <button (click)="handleConnectToServerClick()" type="button" class="auth-button">Connect to Server</button>
         </ng-template>
       </div>
     </div>
@@ -43,7 +43,7 @@
         <div>
           <p class="settings-text">Work Connected to UALR Min.IO Data Store</p>
           <p class="settings-subtext">Choose this option if you want to interact with the UALR Min.IO Data Store
-                                      files.</p>
+            files.</p>
         </div>
         <mat-slide-toggle formControlName="workingMode"/>
       </div>

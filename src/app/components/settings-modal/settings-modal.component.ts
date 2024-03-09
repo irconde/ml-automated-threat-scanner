@@ -19,7 +19,11 @@ import { FileFormat, Platforms, WorkingMode } from '../../../enums/platforms';
 import { DetectionType } from '../../../models/detection';
 import { getElectronAPI } from '../../get-electron-api';
 import { Channels } from '../../../../shared/constants/channels';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import {
+  MatDialog,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import {
   ApplicationSettings,
   DEFAULT_SETTINGS,
@@ -27,6 +31,7 @@ import {
 import { IonicModule } from '@ionic/angular';
 import { User } from '../../utilities/api/user-api.types';
 import { AuthService } from '../../services/auth/auth.service';
+import { AuthModalComponent } from '../auth-modal/auth-modal.component';
 
 interface OutputOptions {
   value: string;
@@ -79,6 +84,7 @@ export class SettingsModalComponent {
 
   constructor(
     public dialogRef: MatDialogRef<SettingsModalComponent>,
+    private dialogService: MatDialog,
     private settingsService: SettingsService,
     protected authService: AuthService,
   ) {
@@ -183,5 +189,10 @@ export class SettingsModalComponent {
         {},
       ),
     );
+  }
+
+  protected handleConnectToServerClick() {
+    this.dialogRef.close();
+    this.dialogService.open(AuthModalComponent);
   }
 }
