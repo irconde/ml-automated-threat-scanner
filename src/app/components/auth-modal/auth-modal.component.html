@@ -19,12 +19,12 @@
         </div>
 
         <div class="form-row">
-          <mat-checkbox [disabled]="loginDisabled()">Keep me signed in</mat-checkbox>
+          <mat-checkbox [disabled]="formDisabled(loginForm)">Keep me signed in</mat-checkbox>
         </div>
 
         <ng-container *ngIf="!loginFormError; else errorDiv">
           <button mat-button class="form-button" [class.form-error]="loginFormError"
-                  [disabled]="loginDisabled()">
+                  [disabled]="formDisabled(loginForm)">
             <ng-container class="submit-button-div" *ngIf="isLoading; else loginText">
               <div class="submit-button-div">
                 <span>SIGNING IN</span>
@@ -68,6 +68,7 @@
         <div class="form-row">
           <app-underline-input leadingIcon="lock"
                                placeholder="Password*"
+                               formControlName="password"
                                inlineIcon="visibility"
                                altInlineIcon="visibility_off"
                                type="password"
@@ -75,7 +76,8 @@
           ></app-underline-input>
         </div>
         <ng-container *ngIf="!signUpError; else errorDiv">
-          <button mat-button class="form-button" [class.form-error]="signUpError">
+          <button mat-button class="form-button" [class.form-error]="signUpError"
+                  [disabled]="formDisabled(registerForm)">
             <ng-container class="submit-button-div" *ngIf="isLoading; else createText">
               <div class="submit-button-div">
                 <span>CREATING ACCOUNT</span>

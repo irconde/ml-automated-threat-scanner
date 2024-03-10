@@ -123,10 +123,9 @@ export class AuthModalComponent {
     }
   }
 
-  loginDisabled() {
-    return !(
-      this.loginForm.controls.username.value?.trim() &&
-      this.loginForm.controls.password.value?.trim()
-    );
+  formDisabled(form: FormGroup) {
+    return Object.keys(form.controls).some((controlName) => {
+      return !form.controls[controlName].value?.trim();
+    });
   }
 }
