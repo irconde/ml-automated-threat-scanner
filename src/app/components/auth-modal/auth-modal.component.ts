@@ -21,6 +21,7 @@ import {
   CustomValidators,
 } from '../underline-input/custom-validators';
 import { assertUnreachable } from '../../utilities/general.utilities';
+import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-auth-modal',
@@ -53,10 +54,7 @@ export class AuthModalComponent {
       validators: [Validators.required, CustomValidators.username()],
     }),
     password: new FormControl('', {
-      validators: [
-        Validators.required,
-        Validators.pattern(/^[A-Za-z0-9!@#$^&()_-]+$/),
-      ],
+      validators: [Validators.required, CustomValidators.password()],
     }),
   });
 
@@ -84,7 +82,10 @@ export class AuthModalComponent {
     },
   };
 
-  constructor(public authService: AuthService) {}
+  constructor(
+    private dialogRef: MatDialogRef<AuthModalComponent>,
+    public authService: AuthService,
+  ) {}
 
   handleInputValidation(inputValue: string, inputType: string) {
     switch (inputType) {
@@ -127,7 +128,9 @@ export class AuthModalComponent {
       case ControlErrorCode.Email:
         return 'Email is invalid';
       case ControlErrorCode.Username:
-        return 'Can only user letters';
+        return 'Can only use letters';
+      case ControlErrorCode.Password:
+        return 'Not valid. A-Z and a-z, 0-9, and ! @ # $ ^ & ( ) _ - only';
     }
 
     // ensures all error codes are handled
@@ -147,6 +150,7 @@ export class AuthModalComponent {
     try {
       const { username, password } = this.loginForm.value;
       await this.authService.login(username!, password!);
+      this.dialogRef.close();
     } catch (e) {
       const errorMsg = (e as Error).message;
       if (errorMsg.toLowerCase().includes('user')) {
