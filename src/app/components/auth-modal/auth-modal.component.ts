@@ -12,10 +12,15 @@ import { NgIf, NgOptimizedImage } from '@angular/common';
 import { UnderlineInputComponent } from '../underline-input/underline-input.component';
 import {
   FormControl,
+  FormGroup,
   ReactiveFormsModule,
-  ValidationErrors,
   Validators,
 } from '@angular/forms';
+import {
+  ControlErrorCode,
+  CustomValidators,
+} from '../underline-input/custom-validators';
+import { assertUnreachable } from '../../utilities/general.utilities';
 
 @Component({
   selector: 'app-auth-modal',
@@ -43,8 +48,17 @@ export class AuthModalComponent {
   isLoading = false;
   signUpError = '';
   loginFormError = '';
-  loginUsername = new FormControl('', { validators: [Validators.required] });
-  loginPassword = new FormControl('', { validators: [Validators.required] });
+  loginForm = new FormGroup({
+    username: new FormControl('', {
+      validators: [Validators.required, CustomValidators.username()],
+    }),
+    password: new FormControl('', {
+      validators: [
+        Validators.required,
+        Validators.pattern(/^[A-Za-z0-9!@#$^&()_-]+$/),
+      ],
+    }),
+  });
 
   inputInfo = {
     vaildForms: {
@@ -86,29 +100,44 @@ export class AuthModalComponent {
     }
   }
 
-  invalidFields(...fields: FormControl[]) {
-    return fields.some((field) => Boolean(field));
-  }
-
-  errorCodeToMsg(errors: ValidationErrors) {
-    const errorCode = Object.keys(errors)[0];
-    switch (errorCode) {
-      case 'required':
-        return 'Field is required';
-      case 'api':
-        return errors[errorCode];
-      default:
-        return 'Error';
+  determineErrors(form: FormGroup) {
+    let formInvalid = false;
+    for (const controlName in form.controls) {
+      const formControl = form.controls[controlName] as FormControl;
+      const errorMsg = this.getInputError(formControl);
+      form.controls[controlName].setErrors({ errorMsg });
+      if (errorMsg) {
+        formInvalid = true;
+      }
     }
+    return formInvalid;
   }
 
-  getInputError(formControl: FormControl) {
-    return formControl.errors ? this.errorCodeToMsg(formControl.errors) : '';
+  getInputError(formControl: FormControl): string {
+    const errorCode = formControl.errors
+      ? (Object.keys(formControl.errors)[0] as ControlErrorCode)
+      : null;
+    switch (errorCode) {
+      case null:
+        return '';
+      case ControlErrorCode.ErrorMsg:
+        return formControl.errors?.['errorMsg'];
+      case ControlErrorCode.Required:
+        return 'Field is required';
+      case ControlErrorCode.Email:
+        return 'Email is invalid';
+      case ControlErrorCode.Username:
+        return 'Can only user letters';
+    }
+
+    // ensures all error codes are handled
+    return assertUnreachable(errorCode);
   }
 
   async handleLogin(event: SubmitEvent) {
     event.preventDefault();
-    if (this.invalidFields(this.loginUsername, this.loginPassword)) {
+    console.log(this.loginForm.value);
+    if (this.determineErrors(this.loginForm)) {
       return;
     }
 
@@ -116,17 +145,14 @@ export class AuthModalComponent {
     this.isLoading = true;
 
     try {
-      // TODO: provide user input for credentials here
-      await this.authService.login(
-        this.loginUsername.value!,
-        this.loginPassword.value!,
-      );
+      const { username, password } = this.loginForm.value;
+      await this.authService.login(username!, password!);
     } catch (e) {
       const errorMsg = (e as Error).message;
       if (errorMsg.toLowerCase().includes('user')) {
-        this.loginUsername.setErrors({ api: errorMsg });
+        this.loginForm.controls.username.setErrors({ errorMsg });
       } else if (errorMsg.toLowerCase().includes('password')) {
-        this.loginPassword.setErrors({ api: errorMsg });
+        this.loginForm.controls.password.setErrors({ errorMsg });
       } else {
         // TODO: display error in form
         this.loginFormError = errorMsg;

@@ -2,7 +2,8 @@
   <div class="input-section">
     <mat-icon class="input-icon">{{ leadingIcon }}</mat-icon>
     <div class="input-wrapper">
-      <input [placeholder]="placeholder" [type]="hide ? type : 'text'" [formControl]="formControl"
+      <input [placeholder]="placeholder" [type]="hide ? type : 'text'"
+             [formControl]="formControl"
       />
       <button type="button" mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
               [attr.aria-pressed]="hide" *ngIf="inlineIcon">
@@ -10,5 +11,5 @@
       </button>
     </div>
   </div>
-  <span class="input-error" *ngIf="errorMessage">{{ errorMessage }}</span>
+  <span class="input-error">{{ errorMessage }}</span>
 </div>

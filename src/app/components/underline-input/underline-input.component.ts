@@ -43,6 +43,7 @@ export class UnderlineInputComponent implements ControlValueAccessor, OnInit {
   formControl: FormControl = new FormControl<string>('');
   disabled = false;
   onChange: (value: string) => void = () => {};
+  onTouched: (value: boolean) => void = () => {};
 
   constructor() {}
 
@@ -50,18 +51,20 @@ export class UnderlineInputComponent implements ControlValueAccessor, OnInit {
     this.onChange = fn;
   }
 
-  registerOnTouched(fn: any): void {}
+  registerOnTouched(fn: (value: boolean) => void): void {
+    this.onTouched = fn;
+  }
 
   setDisabledState(isDisabled: boolean): void {
     isDisabled ? this.formControl.disable() : this.formControl.enable();
   }
 
   writeValue(value: string): void {
-    this.formControl.setValue(value, { emitEvent: false });
+    this.formControl.setValue(value, { emitEvent: true });
   }
 
   ngOnInit(): void {
-    this.formControl.valueChanges.subscribe((value) => {
+    this.formControl.valueChanges.subscribe((value: string) => {
       this.onChange(value);
     });
   }

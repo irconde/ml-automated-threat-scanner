@@ -1,22 +1,24 @@
 <mat-card>
   <mat-tab-group dynamicHeight>
     <mat-tab label="USER LOGIN">
-      <form (submit)="handleLogin($event)">
+      <form (ngSubmit)="handleLogin($event)" [formGroup]="loginForm">
         <div class="form-row">
           <!--          <app-input [leadingIcon]="inputInfo.username.leadingIcon" [placeholder]="inputInfo.username.placeholder"-->
           <!--                     [errorMessage]="loginError" [type]="inputInfo.username.type"-->
           <!--                     (inputValueEvent)="handleInputValidation($event, inputInfo.username.type)"></app-input>-->
           <app-underline-input type="text" leadingIcon="person" placeholder="Username*"
-                               [errorMessage]="getInputError(loginUsername)"
-                               [formControl]="loginUsername"></app-underline-input>
+                               [errorMessage]="loginForm.controls.username.errors?.['errorMsg']"
+                               formControlName="username"></app-underline-input>
         </div>
 
         <div class="form-row">
           <app-underline-input type="password" leadingIcon="lock" placeholder="Password*"
+                               [errorMessage]="loginForm.controls.password.errors?.['errorMsg']"
                                [inlineIcon]="inputInfo.password.inlineIcon"
                                [altInlineIcon]="inputInfo.password.altInlineIcon"
-                               [errorMessage]="getInputError(loginPassword)"
-                               [formControl]="loginPassword"></app-underline-input>
+                               formControlName="password"
+          ></app-underline-input>
+          <!--                               [errorMessage]="getInputError(loginPassword)"-->
           <!--          <app-input [leadingIcon]="inputInfo.password.leadingIcon" [placeholder]="inputInfo.password.placeholder"-->
           <!--                     [inlineIcon]="inputInfo.password.inlineIcon" [altInlineIcon]="inputInfo.password.altInlineIcon"-->
           <!--                     [errorMessage]="loginError" [type]="inputInfo.password.type"-->
