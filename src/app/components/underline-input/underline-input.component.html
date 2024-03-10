@@ -3,7 +3,7 @@
     <mat-icon class="input-icon">{{ leadingIcon }}</mat-icon>
     <div class="input-wrapper">
       <input [placeholder]="placeholder" [type]="hide ? type : 'text'"
-             [formControl]="formControl"
+             [formControl]="formControl" (blur)="formControl.setValue(formControl.value.trim())"
       />
       <button type="button" mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
               [attr.aria-pressed]="hide" *ngIf="inlineIcon">
