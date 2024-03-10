@@ -1,6 +1,6 @@
 <div class="input-component-wrapper">
   <div class="input-section">
-    <mat-icon class="input-icon">{{ leadingIcon }}</mat-icon>
+    <mat-icon class="input-icon" [ngClass]="{'form-error': errorMessage}">{{ leadingIcon }}</mat-icon>
     <div class="input-wrapper">
       <input [placeholder]="placeholder" [type]="hide ? type : 'text'"
              [formControl]="formControl" (blur)="formControl.setValue(formControl.value.trim())"

@@ -15,7 +15,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { CustomValidators } from '../underline-input/custom-validators';
+import { CustomValidators } from '../../utilities/custom-validators';
 import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
@@ -67,6 +67,12 @@ export class AuthModalComponent {
     public authService: AuthService,
   ) {}
 
+  /**
+   * Determines if a form has any errors. If any field has an error, a message is set
+   * under the errorMsg key in the 'control.errors' object
+   * @param form
+   * @returns true if form is invalid
+   */
   determineErrors(form: FormGroup) {
     let formInvalid = false;
     for (const controlName in form.controls) {

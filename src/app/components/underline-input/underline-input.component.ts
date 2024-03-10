@@ -9,7 +9,7 @@ import {
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { NgIf } from '@angular/common';
+import { NgClass, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-underline-input',
@@ -30,6 +30,7 @@ import { NgIf } from '@angular/common';
     NgIf,
     FormsModule,
     ReactiveFormsModule,
+    NgClass,
   ],
 })
 export class UnderlineInputComponent implements ControlValueAccessor, OnInit {
