@@ -3,26 +3,19 @@
     <mat-tab label="USER LOGIN">
       <form (ngSubmit)="handleLogin($event)" [formGroup]="loginForm">
         <div class="form-row">
-          <!--          <app-input [leadingIcon]="inputInfo.username.leadingIcon" [placeholder]="inputInfo.username.placeholder"-->
-          <!--                     [errorMessage]="loginError" [type]="inputInfo.username.type"-->
-          <!--                     (inputValueEvent)="handleInputValidation($event, inputInfo.username.type)"></app-input>-->
           <app-underline-input type="text" leadingIcon="person" placeholder="Username*"
                                [errorMessage]="loginForm.controls.username.errors?.['errorMsg']"
                                formControlName="username"></app-underline-input>
         </div>
 
         <div class="form-row">
-          <app-underline-input type="password" leadingIcon="lock" placeholder="Password*"
+          <app-underline-input leadingIcon="lock" placeholder="Password*"
                                [errorMessage]="loginForm.controls.password.errors?.['errorMsg']"
-                               [inlineIcon]="inputInfo.password.inlineIcon"
-                               [altInlineIcon]="inputInfo.password.altInlineIcon"
+                               inlineIcon="visibility"
+                               altInlineIcon="visibility_off"
+                               type="password"
                                formControlName="password"
           ></app-underline-input>
-          <!--                               [errorMessage]="getInputError(loginPassword)"-->
-          <!--          <app-input [leadingIcon]="inputInfo.password.leadingIcon" [placeholder]="inputInfo.password.placeholder"-->
-          <!--                     [inlineIcon]="inputInfo.password.inlineIcon" [altInlineIcon]="inputInfo.password.altInlineIcon"-->
-          <!--                     [errorMessage]="loginError" [type]="inputInfo.password.type"-->
-          <!--                     (inputValueEvent)="handleInputValidation($event, inputInfo.password.type)"></app-input>-->
         </div>
 
         <div class="form-row">
@@ -55,24 +48,31 @@
       </form>
     </mat-tab>
     <mat-tab label="NEW ACCOUNT">
-      <form (submit)="handleSignup($event)">
+      <form (submit)="handleSignup($event)" [formGroup]="registerForm">
         <div class="form-row">
-          <app-input [leadingIcon]="inputInfo.username.leadingIcon" [placeholder]="inputInfo.username.placeholder"
-                     [errorMessage]="signUpError" [type]="inputInfo.username.type"
-                     (inputValueEvent)="handleInputValidation($event, inputInfo.username.type)"></app-input>
+          <app-underline-input leadingIcon="person"
+                               placeholder="Username*"
+                               formControlName="username"
+                               [errorMessage]="registerForm.controls.username.errors?.['errorMsg']"
+          ></app-underline-input>
         </div>
 
         <div class="form-row">
-          <app-input [leadingIcon]="inputInfo.email.leadingIcon" [placeholder]="inputInfo.email.placeholder"
-                     [errorMessage]="signUpError" [type]="inputInfo.email.type"
-                     (inputValueEvent)="handleInputValidation($event, inputInfo.email.type)"></app-input>
+          <app-underline-input leadingIcon="email"
+                               placeholder="Email address*"
+                               formControlName="email"
+                               [errorMessage]="registerForm.controls.email.errors?.['errorMsg']"
+          ></app-underline-input>
         </div>
 
         <div class="form-row">
-          <app-input [leadingIcon]="inputInfo.password.leadingIcon" [placeholder]="inputInfo.password.placeholder"
-                     [inlineIcon]="inputInfo.password.inlineIcon" [altInlineIcon]="inputInfo.password.altInlineIcon"
-                     [errorMessage]="signUpError" [type]="inputInfo.password.type"
-                     (inputValueEvent)="handleInputValidation($event, inputInfo.password.type)"></app-input>
+          <app-underline-input leadingIcon="lock"
+                               placeholder="Password*"
+                               inlineIcon="visibility"
+                               altInlineIcon="visibility_off"
+                               type="password"
+                               [errorMessage]="registerForm.controls.password.errors?.['errorMsg']"
+          ></app-underline-input>
         </div>
         <ng-container *ngIf="!signUpError; else errorDiv">
           <button mat-button class="form-button" [class.form-error]="signUpError">
