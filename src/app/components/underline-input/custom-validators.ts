@@ -33,8 +33,7 @@ export class CustomValidators {
 
       if (!value) return null;
 
-      // TODO: determine if we should allow '/' chars
-      return /^[A-Za-z0-9!@#$^&/()_-]+$/.test(value)
+      return /^[A-Za-z0-9!@#$^&()_-]+$/.test(value)
         ? null
         : { [ControlErrorCode.Password]: true };
     };
