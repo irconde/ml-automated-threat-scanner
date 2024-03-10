@@ -39,9 +39,7 @@ import { MatDialogRef } from '@angular/material/dialog';
   ],
 })
 export class AuthModalComponent {
-  isFormValid = true;
   isLoading = false;
-  signUpError = '';
   loginFormError = '';
   loginForm = new FormGroup({
     username: new FormControl('', {
@@ -51,6 +49,7 @@ export class AuthModalComponent {
       validators: [Validators.required, CustomValidators.password()],
     }),
   });
+  registerFormError = '';
   registerForm = new FormGroup({
     username: new FormControl('', {
       validators: [Validators.required, CustomValidators.username()],
@@ -107,19 +106,32 @@ export class AuthModalComponent {
     }
   }
 
-  async handleSignup(event: SubmitEvent) {
+  async handleRegister(event: SubmitEvent) {
     event.preventDefault();
 
-    if (this.isFormValid) {
-      this.signUpError = '';
-      this.isLoading = true;
-      try {
-        await this.authService.register();
-      } catch (e) {
-        // TOOD: handler errors
-      } finally {
-        this.isLoading = false;
+    if (this.determineErrors(this.registerForm)) {
+      return;
+    }
+
+    this.registerFormError = '';
+    this.isLoading = true;
+
+    try {
+      const { username, email, password } = this.registerForm.value;
+      await this.authService.register(username!, email!, password!);
+      this.dialogRef.close();
+    } catch (e) {
+      const errorMsg = (e as Error).message;
+      this.registerFormError = errorMsg;
+      if (errorMsg.toLowerCase().includes('user')) {
+        this.registerForm.controls.username.setErrors({ errorMsg });
+      } else if (errorMsg.toLowerCase().includes('password')) {
+        this.registerForm.controls.password.setErrors({ errorMsg });
+      } else if (errorMsg.toLowerCase().includes('email')) {
+        this.registerForm.controls.email.setErrors({ errorMsg });
       }
+    } finally {
+      this.isLoading = false;
     }
   }
 

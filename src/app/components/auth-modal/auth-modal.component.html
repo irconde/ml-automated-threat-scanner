@@ -48,7 +48,7 @@
       </form>
     </mat-tab>
     <mat-tab label="NEW ACCOUNT">
-      <form (submit)="handleSignup($event)" [formGroup]="registerForm">
+      <form (ngSubmit)="handleRegister($event)" [formGroup]="registerForm">
         <div class="form-row">
           <app-underline-input leadingIcon="person"
                                placeholder="Username*"
@@ -75,8 +75,8 @@
                                [errorMessage]="registerForm.controls.password.errors?.['errorMsg']"
           ></app-underline-input>
         </div>
-        <ng-container *ngIf="!signUpError; else errorDiv">
-          <button mat-button class="form-button" [class.form-error]="signUpError"
+        <ng-container *ngIf="!registerFormError; else errorDiv">
+          <button mat-button class="form-button" [class.form-error]="registerFormError"
                   [disabled]="formDisabled(registerForm)">
             <ng-container class="submit-button-div" *ngIf="isLoading; else createText">
               <div class="submit-button-div">
@@ -91,7 +91,7 @@
           </button>
         </ng-container>
         <ng-template #errorDiv>
-          <button mat-button class="form-button" [class.form-error]="signUpError">
+          <button mat-button class="form-button" [class.form-error]="registerFormError">
             <div class="submit-button-div">
               <span>CREATION FAILED</span>
               <mat-icon class="fail-icon" fontSet="material-icons-outlined">error_outline</mat-icon>

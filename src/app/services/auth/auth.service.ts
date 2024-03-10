@@ -34,7 +34,11 @@ export class AuthService {
     });
   }
 
-  async register(): Promise<void> {
+  async register(
+    username: string,
+    email: string,
+    password: string,
+  ): Promise<void> {
     //   TODO: Implement
     console.log('Registered');
   }
