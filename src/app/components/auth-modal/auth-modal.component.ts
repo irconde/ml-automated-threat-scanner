@@ -153,13 +153,11 @@ export class AuthModalComponent {
       this.dialogRef.close();
     } catch (e) {
       const errorMsg = (e as Error).message;
+      this.loginFormError = errorMsg;
       if (errorMsg.toLowerCase().includes('user')) {
         this.loginForm.controls.username.setErrors({ errorMsg });
       } else if (errorMsg.toLowerCase().includes('password')) {
         this.loginForm.controls.password.setErrors({ errorMsg });
-      } else {
-        // TODO: display error in form
-        this.loginFormError = errorMsg;
       }
     } finally {
       this.isLoading = false;
@@ -180,5 +178,14 @@ export class AuthModalComponent {
         this.isLoading = false;
       }
     }
+  }
+
+  protected readonly Boolean = Boolean;
+
+  loginDisabled() {
+    return !(
+      this.loginForm.controls.username.value?.trim() &&
+      this.loginForm.controls.password.value?.trim()
+    );
   }
 }

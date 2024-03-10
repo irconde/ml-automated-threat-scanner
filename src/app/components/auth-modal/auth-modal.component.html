@@ -26,11 +26,12 @@
         </div>
 
         <div class="form-row">
-          <mat-checkbox>Keep me signed in</mat-checkbox>
+          <mat-checkbox [disabled]="loginDisabled()">Keep me signed in</mat-checkbox>
         </div>
 
         <ng-container *ngIf="!loginFormError; else errorDiv">
-          <button mat-button class="form-button" [class.form-error]="loginFormError">
+          <button mat-button class="form-button" [class.form-error]="loginFormError"
+                  [disabled]="loginDisabled()">
             <ng-container class="submit-button-div" *ngIf="isLoading; else loginText">
               <div class="submit-button-div">
                 <span>SIGNING IN</span>

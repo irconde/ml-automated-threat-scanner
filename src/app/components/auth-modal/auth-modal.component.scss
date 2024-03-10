@@ -27,6 +27,11 @@ form {
   align-items: center;
   margin: 0.5rem 0;
   height: 40px;
+  $disabled-color: #4e4e4e;
+
+  ::ng-deep .mdc-checkbox--disabled label {
+    color: $disabled-color;
+  }
 
   mat-form-field {
     flex: 1;
@@ -38,6 +43,7 @@ form {
   mat-checkbox {
     position: absolute;
     left: -8px;
+    --mdc-checkbox-disabled-unselected-icon-color: #4e4e4e;
   }
 }
 
@@ -81,6 +87,12 @@ form {
 
   &.form-error {
     background-color: #ff4b4b;
+  }
+
+  &:disabled {
+    background: $primary-600;
+    color: white;
+    opacity: 0.4;
   }
 }
 
