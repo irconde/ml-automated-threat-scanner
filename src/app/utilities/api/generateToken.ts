@@ -32,8 +32,6 @@ export const generateToken = async (): Promise<string> => {
     });
     if (response.status === 200) {
       const jsonBody = await response.json();
-      console.log(jsonBody);
-      console.log(`Token: ${jsonBody.access_token}`);
       return jsonBody.access_token as string;
     }
   } catch (e) {

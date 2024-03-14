@@ -54,10 +54,6 @@ export class TopBarComponent implements OnInit {
         this.updateConnectionStatus();
         this.setConnectionText();
         this.handleFileButtonVisibility();
-        // settings are null when they are first loading
-        if (settings && SettingsService.isMissingRequiredInfo(settings)) {
-          this.openSettingsModal();
-        }
       });
   }
 

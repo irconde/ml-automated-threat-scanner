@@ -59,7 +59,6 @@ export class AppWrapperComponent {
     fileService.getCurrentFile().subscribe((currentFile) => {
       this.currentFile = currentFile;
     });
-
     // Show the AuthModal if the user is not logged in on launch
     authService.$isLoading.subscribe((isLoading) => {
       this.isAuthLoading = isLoading;
@@ -71,7 +70,6 @@ export class AppWrapperComponent {
         })
         .unsubscribe();
     });
-
     settingsService
       .getSettings()
       .subscribe((settings: ApplicationSettings | null) => {
