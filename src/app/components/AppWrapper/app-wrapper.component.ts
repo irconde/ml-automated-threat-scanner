@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { FilePayload } from '../../../../shared/models/file-models';
 import { FileService } from '../../services/file/file.service';
-import { SettingsService } from '../../services/settings/settings.service';
 import { Platforms } from '../../../enums/platforms';
 import { CommonModule } from '@angular/common';
 import { SettingsModalComponent } from '../settings-modal/settings-modal.component';
@@ -52,7 +51,6 @@ export class AppWrapperComponent {
 
   constructor(
     public fileService: FileService,
-    public settingsService: SettingsService,
     public dialog: MatDialog,
     private authService: AuthService,
   ) {
@@ -69,26 +67,6 @@ export class AppWrapperComponent {
           }
         })
         .unsubscribe();
-    });
-    settingsService
-      .getSettings()
-      .subscribe((settings: ApplicationSettings | null) => {
-        this.settings = settings;
-        // settings are null when they are first loading
-        if (settings && SettingsService.isMissingRequiredInfo(settings)) {
-          this.openSettingsModal();
-        } else if (
-          settings &&
-          !SettingsService.isMissingRequiredInfo(settings)
-        ) {
-          this.dialog.closeAll();
-        }
-      });
-  }
-
-  openSettingsModal() {
-    this.dialog.open(SettingsModalComponent, {
-      autoFocus: false,
     });
   }
 }
