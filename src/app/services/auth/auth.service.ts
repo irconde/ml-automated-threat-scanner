@@ -6,6 +6,7 @@ import {
   LoginRequest,
   User,
 } from '../../utilities/api/user-api.types';
+import { SettingsService } from '../settings/settings.service';
 
 @Injectable({
   providedIn: 'root',
@@ -16,10 +17,22 @@ export class AuthService {
   public $user = this.user.asObservable();
   public $isLoading = this.isLoading.asObservable();
 
-  constructor() {
-    this.checkIfLoggedIn().finally(() => {
-      this.isLoading.next(false);
-    });
+  constructor(
+    private settingsService: SettingsService, // private dialogService: MatDialog,
+  ) {
+    const subscription = this.settingsService
+      .getSettings()
+      .subscribe((settings) => {
+        if (!settings) return;
+        if (settings.wasLoggedInBefore) {
+          this.checkIfCookieValid().finally(() => {
+            this.isLoading.next(false);
+          });
+        } else {
+          this.isLoading.next(false);
+        }
+        subscription.unsubscribe();
+      });
   }
 
   async login(username: string, password: string): Promise<void> {
@@ -43,7 +56,7 @@ export class AuthService {
     console.log('Registered');
   }
 
-  private async checkIfLoggedIn() {
+  private async checkIfCookieValid() {
     const authResponse = await customFetch<undefined, AuthResponse>(
       ApiRoutes.CheckAuth,
       'GET',

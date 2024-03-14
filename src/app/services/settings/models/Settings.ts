@@ -9,6 +9,8 @@ export interface ApplicationSettings {
   remoteIp: string;
   remotePort: string;
   selectedImagesDirPath?: string;
+  wasLoggedInBefore?: true;
+  isFirstLaunch?: true;
 }
 
 export const DEFAULT_SETTINGS: ApplicationSettings = {
@@ -19,4 +21,5 @@ export const DEFAULT_SETTINGS: ApplicationSettings = {
   remotePort: '',
   selectedImagesDirPath: '',
   workingMode: WorkingMode.MinIO,
+  isFirstLaunch: true,
 };

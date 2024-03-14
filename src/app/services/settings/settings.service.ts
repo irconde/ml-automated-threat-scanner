@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
-import { Platforms, WorkingMode } from '../../../enums/platforms';
+import { Platforms } from '../../../enums/platforms';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ApplicationSettings, DEFAULT_SETTINGS } from './models/Settings';
 import { Preferences } from '@capacitor/preferences';
@@ -41,14 +41,13 @@ export class SettingsService {
    */
   public static isMissingRequiredInfo(settings: ApplicationSettings): boolean {
     // returns true if application doesn't have basic settings for where to get the files from
-    return (
-      settings.workingMode === WorkingMode.MinIO &&
-      (!settings.remoteIp || !settings.remotePort)
-      // TODO: decide if we need this below for electron
-      // ||
-      // (settings.workingMode === WorkingMode.LocalDirectory &&
-      //   !settings.selectedImagesDirPath)
-    );
+    return false;
+    // settings.workingMode === WorkingMode.MinIO &&
+    // !settings.remoteIp || !settings.remotePort
+    // TODO: decide if we need this below for electron
+    // ||
+    // (settings.workingMode === WorkingMode.LocalDirectory &&
+    //   !settings.selectedImagesDirPath)
   }
 
   public getSettings(): Observable<ApplicationSettings | null> {

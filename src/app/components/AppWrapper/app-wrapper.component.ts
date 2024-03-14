@@ -7,7 +7,6 @@ import { SettingsModalComponent } from '../settings-modal/settings-modal.compone
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { ApplicationSettings } from '../../services/settings/models/Settings';
 import { IonicModule } from '@ionic/angular';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
 import { CsCanvasComponent } from '../cs-canvas/cs-canvas.component';
@@ -19,6 +18,7 @@ import { ColorPickerComponent } from '../color-picker/color-picker.component';
 import { NoFileSignComponent } from '../no-file-sign/no-file-sign.component';
 import { AuthService } from '../../services/auth/auth.service';
 import { AuthModalComponent } from '../auth-modal/auth-modal.component';
+import { SettingsService } from '../../services/settings/settings.service';
 
 @Component({
   selector: 'app-wrapper',
@@ -45,7 +45,6 @@ import { AuthModalComponent } from '../auth-modal/auth-modal.component';
 })
 export class AppWrapperComponent {
   currentFile: FilePayload | null = null;
-  settings: ApplicationSettings | null = null;
   public readonly Platforms: typeof Platforms = Platforms;
   protected isAuthLoading = true;
 
@@ -53,20 +52,26 @@ export class AppWrapperComponent {
     public fileService: FileService,
     public dialog: MatDialog,
     private authService: AuthService,
+    private settingsService: SettingsService,
   ) {
     fileService.getCurrentFile().subscribe((currentFile) => {
       this.currentFile = currentFile;
     });
-    // Show the AuthModal if the user is not logged in on launch
-    authService.$isLoading.subscribe((isLoading) => {
+
+    const authSub = authService.$isLoading.subscribe((isLoading) => {
+      if (isLoading) return;
       this.isAuthLoading = isLoading;
-      this.authService.$user
-        .subscribe((user) => {
-          if (!isLoading && !user) {
-            this.dialog.open(AuthModalComponent);
-          }
-        })
-        .unsubscribe();
+      authSub.unsubscribe();
+    });
+
+    const settingsSub = settingsService.getSettings().subscribe((settings) => {
+      if (!settings) return;
+      const { isFirstLaunch, ...otherSettings } = settings;
+      if (isFirstLaunch) {
+        this.dialog.open(AuthModalComponent);
+        settingsService.update(otherSettings).then();
+      }
+      settingsSub.unsubscribe();
     });
   }
 }
