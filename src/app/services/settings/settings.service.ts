@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
-import { Platforms } from '../../../enums/platforms';
+import { Platforms, WorkingMode } from '../../../enums/platforms';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ApplicationSettings, DEFAULT_SETTINGS } from './models/Settings';
 import { Preferences } from '@capacitor/preferences';
@@ -41,17 +41,44 @@ export class SettingsService {
    */
   public static isMissingRequiredInfo(settings: ApplicationSettings): boolean {
     // returns true if application doesn't have basic settings for where to get the files from
+    // TODO: decide if we actually have any required fields anymore
     return false;
-    // settings.workingMode === WorkingMode.MinIO &&
-    // !settings.remoteIp || !settings.remotePort
-    // TODO: decide if we need this below for electron
-    // ||
-    // (settings.workingMode === WorkingMode.LocalDirectory &&
-    //   !settings.selectedImagesDirPath)
   }
 
   public getSettings(): Observable<ApplicationSettings | null> {
     return this.settings.asObservable();
+  }
+
+  /**
+   * Toggles 'wasLoggedInBefore' and 'workingMode' settings
+   */
+  public async toggleIsLoggedIn() {
+    if (!this.settings.value) {
+      throw new Error('Settings not initialized');
+    }
+    const { wasLoggedInBefore, ...otherSettings } = this.settings.value;
+    // If user was logged in before, switch to individual file mode and remove wasLoggedInBefore.
+    if (wasLoggedInBefore) {
+      await this.update({
+        ...otherSettings,
+        workingMode: WorkingMode.IndividualFile,
+      });
+    } else {
+      // If user wasn't logged in before, switch to MinIO mode and set wasLoggedInBefore.
+      await this.update({
+        ...otherSettings,
+        wasLoggedInBefore: true,
+        workingMode: WorkingMode.MinIO,
+      });
+    }
+  }
+
+  public async partialUpdate(partialSettings: Partial<ApplicationSettings>) {
+    const currentSettings = this.settings.value;
+    if (!currentSettings) {
+      throw new Error('Settings not initialized');
+    }
+    await this.update({ ...currentSettings, ...partialSettings });
   }
 
   public async update(

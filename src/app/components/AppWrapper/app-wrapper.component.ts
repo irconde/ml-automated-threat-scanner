@@ -58,12 +58,14 @@ export class AppWrapperComponent {
       this.currentFile = currentFile;
     });
 
+    // Show app when auth is finished loading
     const authSub = authService.$isLoading.subscribe((isLoading) => {
       if (isLoading) return;
       this.isAuthLoading = isLoading;
       authSub.unsubscribe();
     });
 
+    // Show auth modal on first launch
     const settingsSub = settingsService.getSettings().subscribe((settings) => {
       if (!settings) return;
       const { isFirstLaunch, ...otherSettings } = settings;

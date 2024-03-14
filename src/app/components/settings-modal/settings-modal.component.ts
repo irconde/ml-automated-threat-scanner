@@ -191,6 +191,10 @@ export class SettingsModalComponent {
     );
   }
 
+  signOut() {
+    this.authService.logout().then(() => this.dialogRef.close());
+  }
+
   protected handleConnectToServerClick() {
     this.dialogRef.close();
     this.dialogService.open(AuthModalComponent);

@@ -23,7 +23,7 @@
               <span class="account-email">{{ user.email }}</span>
             </div>
           </div>
-          <button (click)="authService.logout()" type="button" class="auth-button">Sign Out</button>
+          <button (click)="signOut()" type="button" class="auth-button">Sign Out</button>
         </ng-container>
         <ng-template #signInButton>
           <div class="account-info-wrapper">

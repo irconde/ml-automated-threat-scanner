@@ -24,6 +24,7 @@ export class AuthService {
       .getSettings()
       .subscribe((settings) => {
         if (!settings) return;
+        // If the user was logged in before, check if the cookie is still valid
         if (settings.wasLoggedInBefore) {
           this.checkIfCookieValid().finally(() => {
             this.isLoading.next(false);
@@ -45,6 +46,7 @@ export class AuthService {
       username: authResponse.username,
       email: authResponse.email,
     });
+    await this.settingsService.toggleIsLoggedIn();
   }
 
   async register(
@@ -53,6 +55,7 @@ export class AuthService {
     password: string,
   ): Promise<void> {
     //   TODO: Implement
+    // TODO: Make sure to call this.settingsService.toggleIsLoggedIn() after successful registration
     console.log('Registered');
   }
 
@@ -70,5 +73,6 @@ export class AuthService {
   async logout(): Promise<void> {
     await customFetch(ApiRoutes.Logout, 'POST');
     this.user.next(null);
+    await this.settingsService.toggleIsLoggedIn();
   }
 }
