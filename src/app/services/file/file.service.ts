@@ -14,6 +14,7 @@ import { DetectionsService } from '../detections/detections.service';
 import { PixelData } from '../../../models/file-parser';
 import { SettingsError } from '../../../errors/settings.error';
 import { FileType } from './model/enum';
+import { ApiRoutes, customFetch } from '../../utilities/api/api.routes';
 
 @Injectable({
   providedIn: 'root',
@@ -176,7 +177,9 @@ export class FileService {
     );
   }
 
-  private requestCurrentFileFromServer(newSettings: ApplicationSettings): void {
+  private async requestCurrentFileFromServer(
+    newSettings: ApplicationSettings,
+  ): Promise<void> {
     // // only send a request to the server if one of the attributes have changed
     // const skipUpdate = this.shouldSkipUpdate(
     //   newSettings,
@@ -201,6 +204,18 @@ export class FileService {
     //         console.log(`Error connection with server: ${error.message}`),
     //     });
     // }
+    const BUCKET_NAME = 'intelliscan-shared-storage';
+    const FOLDER_NAME = 'ora';
+    const fileName = '1_img.ora';
+    try {
+      const result = await customFetch(
+        `${ApiRoutes.MinIO}/${BUCKET_NAME}/${FOLDER_NAME}/${fileName}`,
+        'GET',
+      );
+      console.log(result);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   private saveCurrentFileToServer(file: string, settings: ApplicationSettings) {

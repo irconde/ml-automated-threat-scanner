@@ -9,6 +9,7 @@ export enum ApiRoutes {
   Login = '/auth/login',
   Register = '/auth/register',
   Logout = '/auth/logout',
+  MinIO = '/minio',
 }
 
 export enum ResponseType {
@@ -33,7 +34,7 @@ type ErrorResponse = {
 };
 
 export async function customFetch<Request, Response>(
-  route: ApiRoutes,
+  route: ApiRoutes | string,
   method: 'GET' | 'POST',
   options?: { data?: Request; type?: ResponseType },
 ): Promise<Response> {
