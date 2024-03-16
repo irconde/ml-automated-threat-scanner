@@ -27,7 +27,7 @@ export class NoFileSignComponent {
     this.settingsService.getSettings().subscribe((appSettings) => {
       if (appSettings !== null) {
         this.displayString =
-          appSettings.workingMode === WorkingMode.RemoteServer
+          appSettings.workingMode === WorkingMode.MinIO
             ? 'No file available'
             : 'Select a file';
       }

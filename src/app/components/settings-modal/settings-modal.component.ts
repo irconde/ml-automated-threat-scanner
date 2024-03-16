@@ -14,17 +14,24 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSelectModule } from '@angular/material/select';
-import { NgForOf, NgIf } from '@angular/common';
+import { NgForOf, NgIf, NgOptimizedImage } from '@angular/common';
 import { FileFormat, Platforms, WorkingMode } from '../../../enums/platforms';
 import { DetectionType } from '../../../models/detection';
 import { getElectronAPI } from '../../get-electron-api';
 import { Channels } from '../../../../shared/constants/channels';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import {
+  MatDialog,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import {
   ApplicationSettings,
   DEFAULT_SETTINGS,
 } from '../../services/settings/models/Settings';
 import { IonicModule } from '@ionic/angular';
+import { User } from '../../utilities/api/user-api.types';
+import { AuthService } from '../../services/auth/auth.service';
+import { AuthModalComponent } from '../auth-modal/auth-modal.component';
 
 interface OutputOptions {
   value: string;
@@ -56,9 +63,11 @@ interface AnnotationOptions {
     MatDialogModule,
     NgIf,
     IonicModule,
+    NgOptimizedImage,
   ],
 })
 export class SettingsModalComponent {
+  user: User | null = null;
   submitting: boolean = false;
   settings: ApplicationSettings | null = null;
   form: FormGroup<Record<keyof ApplicationSettings, FormControl>>;
@@ -75,7 +84,9 @@ export class SettingsModalComponent {
 
   constructor(
     public dialogRef: MatDialogRef<SettingsModalComponent>,
+    private dialogService: MatDialog,
     private settingsService: SettingsService,
+    protected authService: AuthService,
   ) {
     this.form = this.getFormGroup();
     this.shouldAllowImageDir =
@@ -88,6 +99,9 @@ export class SettingsModalComponent {
         this.disableClose = SettingsService.isMissingRequiredInfo(settings);
         this.dialogRef.disableClose = this.disableClose;
       }
+    });
+    this.authService.$user.subscribe((user) => {
+      this.user = user;
     });
   }
 
@@ -102,7 +116,7 @@ export class SettingsModalComponent {
   checkConnection() {}
 
   saveSettings() {
-    let workingMode: WorkingMode = WorkingMode.RemoteServer;
+    let workingMode: WorkingMode = WorkingMode.MinIO;
     const isRemote = this.form.get('workingMode')?.value;
     const isDirectory = this.form.get('selectedImagesDirPath')?.value;
     if (!isRemote) {
@@ -115,12 +129,11 @@ export class SettingsModalComponent {
 
     const formSettings: ApplicationSettings = {
       workingMode,
-      remoteIp: this.form.get('remoteIp')?.value,
-      remotePort: this.form.get('remotePort')?.value,
+      remoteIp: 'ualr', // TODO
+      remotePort: '9000',
       fileFormat: this.form.get('fileFormat')?.value as FileFormat,
       detectionFormat: this.form.get('detectionFormat')?.value as DetectionType,
       fileNameSuffix: this.form.get('fileNameSuffix')?.value,
-      autoConnect: this.form.get('autoConnect')?.value,
       selectedImagesDirPath: this.form.get('selectedImagesDirPath')?.value,
     };
 
@@ -151,9 +164,10 @@ export class SettingsModalComponent {
     key: keyof ApplicationSettings,
     settings: ApplicationSettings,
   ) {
-    let value = settings[key as keyof ApplicationSettings];
+    const value = settings[key as keyof ApplicationSettings];
     if (key === 'workingMode') {
-      value = value === WorkingMode.RemoteServer;
+      // TODO
+      //value = value === WorkingMode.MinIO;
     }
     return value;
   }
@@ -175,5 +189,14 @@ export class SettingsModalComponent {
         {},
       ),
     );
+  }
+
+  signOut() {
+    this.authService.logout().then(() => this.dialogRef.close());
+  }
+
+  protected handleConnectToServerClick() {
+    this.dialogRef.close();
+    this.dialogService.open(AuthModalComponent);
   }
 }

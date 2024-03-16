@@ -1,14 +1,12 @@
 import { Component } from '@angular/core';
 import { FilePayload } from '../../../../shared/models/file-models';
 import { FileService } from '../../services/file/file.service';
-import { SettingsService } from '../../services/settings/settings.service';
 import { Platforms } from '../../../enums/platforms';
 import { CommonModule } from '@angular/common';
 import { SettingsModalComponent } from '../settings-modal/settings-modal.component';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { ApplicationSettings } from '../../services/settings/models/Settings';
 import { IonicModule } from '@ionic/angular';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
 import { CsCanvasComponent } from '../cs-canvas/cs-canvas.component';
@@ -18,6 +16,9 @@ import { SideMenuComponent } from '../side-menu/side-menu.component';
 import { LabelEditComponent } from '../label-edit/label-edit.component';
 import { ColorPickerComponent } from '../color-picker/color-picker.component';
 import { NoFileSignComponent } from '../no-file-sign/no-file-sign.component';
+import { AuthService } from '../../services/auth/auth.service';
+import { AuthModalComponent } from '../auth-modal/auth-modal.component';
+import { SettingsService } from '../../services/settings/settings.service';
 
 @Component({
   selector: 'app-wrapper',
@@ -39,41 +40,40 @@ import { NoFileSignComponent } from '../no-file-sign/no-file-sign.component';
     LabelEditComponent,
     ColorPickerComponent,
     NoFileSignComponent,
+    AuthModalComponent,
   ],
 })
 export class AppWrapperComponent {
   currentFile: FilePayload | null = null;
-  settings: ApplicationSettings | null = null;
   public readonly Platforms: typeof Platforms = Platforms;
+  protected isAuthLoading = true;
 
   constructor(
     public fileService: FileService,
-    public settingsService: SettingsService,
     public dialog: MatDialog,
+    private authService: AuthService,
+    private settingsService: SettingsService,
   ) {
     fileService.getCurrentFile().subscribe((currentFile) => {
       this.currentFile = currentFile;
     });
 
-    settingsService
-      .getSettings()
-      .subscribe((settings: ApplicationSettings | null) => {
-        this.settings = settings;
-        // settings are null when they are first loading
-        if (settings && SettingsService.isMissingRequiredInfo(settings)) {
-          this.openSettingsModal();
-        } else if (
-          settings &&
-          !SettingsService.isMissingRequiredInfo(settings)
-        ) {
-          this.dialog.closeAll();
-        }
-      });
-  }
+    // Show app when auth is finished loading
+    const authSub = authService.$isLoading.subscribe((isLoading) => {
+      if (isLoading) return;
+      this.isAuthLoading = isLoading;
+      authSub.unsubscribe();
+    });
 
-  openSettingsModal() {
-    this.dialog.open(SettingsModalComponent, {
-      autoFocus: false,
+    // Show auth modal on first launch
+    const settingsSub = settingsService.getSettings().subscribe((settings) => {
+      if (!settings) return;
+      const { isFirstLaunch, ...otherSettings } = settings;
+      if (isFirstLaunch) {
+        this.dialog.open(AuthModalComponent);
+        settingsService.update(otherSettings).then();
+      }
+      settingsSub.unsubscribe();
     });
   }
 }

@@ -1,0 +1,199 @@
+@import 'src/theme/theme-variables';
+
+.modal-wrapper {
+  position: absolute;
+  background-color: #3a3a3a;
+  display: grid;
+  place-items: center;
+  height: 100vh;
+  width: 100%;
+}
+
+.mat-mdc-card {
+  background: #1c1c1c;
+  padding-block: 1rem 2rem;
+  padding-inline: 1.5rem;
+  width: 23.5rem;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  padding-top: 1.5rem;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  margin: 0.5rem 0;
+  height: 40px;
+  $disabled-color: #4e4e4e;
+
+  ::ng-deep .mdc-checkbox--disabled label {
+    color: $disabled-color;
+  }
+
+  mat-form-field {
+    flex: 1;
+    font-size: 13px;
+    --mdc-filled-text-field-input-text-placeholder-color: #787878;
+    --mdc-filled-text-field-container-color: transparent;
+  }
+
+  mat-checkbox {
+    position: absolute;
+    left: -8px;
+    --mdc-checkbox-disabled-unselected-icon-color: #4e4e4e;
+  }
+}
+
+// NEEDED TO OVERRIDE MATERIAL CUTTING OFF CHECKBOX RIPPLE
+::ng-deep .mat-mdc-tab-body-wrapper {
+  width: 100%;
+  padding-inline: 0.5rem;
+
+  .mat-mdc-tab-body {
+    overflow: visible !important;
+
+    .mat-mdc-tab-body-content {
+      overflow: visible !important;
+    }
+  }
+}
+
+// NEEDED TO CHANGE CHECKBOX COLOR
+::ng-deep .mat-mdc-checkbox .mdc-form-field label {
+  color: #afafaf;
+  font-size: 13px;
+}
+
+// NEEDED TO HIDE CHECKBOX RIPPLE AFTER THE CLICK AND ON HOVER
+::ng-deep .mat-mdc-checkbox .mdc-checkbox__ripple {
+  display: none !important;
+}
+
+.form-button {
+  width: 100%;
+  padding-block: 9px;
+  border-radius: 5px;
+  background-color: $primary-600;
+  height: 2.65rem;
+  margin-top: 1rem;
+  font-size: 16px;
+
+  &:hover {
+    background-color: #2658b2;
+  }
+
+  &.form-error {
+    background-color: #ff4b4b;
+  }
+
+  &:disabled {
+    background: $primary-600;
+    color: white;
+    opacity: 0.4;
+  }
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.fail-icon {
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.submit-button-div {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+// NEEDED TO OVERRIDE MATERIAL TABS
+mat-tab-group {
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+
+  // ------------INACTIVE TAB / GENERAL TAB STYLING
+  ::ng-deep .mdc-tab {
+
+    // HOVER & FOCUS
+    &:hover, &:focus {
+      --mat-tab-header-active-ripple-color: transparent;
+      --mat-tab-header-inactive-ripple-color: transparent;
+
+      // LABEL
+      .mdc-tab__content {
+        span {
+          color: #a7a7a7;
+          transition: color 0.1ms ease-in-out;
+        }
+      }
+
+      // INDICATOR
+      .mdc-tab-indicator {
+        span {
+          border-color: #a7a7a7;
+          transition: color 0.1ms ease-in-out;
+        }
+      }
+    }
+
+
+    // LABEL
+    .mdc-tab__content {
+      span {
+        font-size: 16px;
+        color: #4e4e4e;
+      }
+    }
+
+    // INDICATOR
+    .mdc-tab-indicator {
+      span {
+        opacity: 1;
+        border-color: #4e4e4e;
+        border-top-width: 1px;
+      }
+    }
+  }
+
+  // ------------ACTIVE TAB
+  ::ng-deep .mdc-tab--active {
+    // LABEL
+    .mdc-tab__content {
+      span {
+        color: #fafafa;
+      }
+    }
+
+    // INDICATOR
+    .mdc-tab-indicator {
+      span {
+        border-color: #fafafa;
+        border-top-width: 2px;
+      }
+    }
+
+    // HOVER & FOCUS
+    &:hover, &:focus {
+      .mdc-tab__content {
+        span {
+          color: #fafafa;
+        }
+      }
+
+      .mdc-tab-indicator {
+        span {
+          border-color: #fafafa;
+        }
+      }
+    }
+  }
+}

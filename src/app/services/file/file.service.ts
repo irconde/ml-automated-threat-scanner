@@ -94,7 +94,7 @@ export class FileService {
           },
         );
         break;
-      case WorkingMode.RemoteServer:
+      case WorkingMode.MinIO:
         switch (this.settingsService.platform) {
           case Platforms.Android:
           case Platforms.iOS:
@@ -124,7 +124,7 @@ export class FileService {
       case WorkingMode.LocalDirectory:
         this.requestNewImageDirFromElectron(newSettings);
         break;
-      case WorkingMode.RemoteServer:
+      case WorkingMode.MinIO:
         this.requestCurrentFileFromServer(newSettings);
         break;
       default:
@@ -273,7 +273,7 @@ export class FileService {
     switch (this.settings.workingMode) {
       case WorkingMode.IndividualFile:
         return this.saveIndividualFile(file);
-      case WorkingMode.RemoteServer:
+      case WorkingMode.MinIO:
         return this.saveCurrentFileToServer(file as string, this.settings);
       case WorkingMode.LocalDirectory:
         return this.electronService.saveCurrentFile(
