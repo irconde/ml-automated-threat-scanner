@@ -9,12 +9,13 @@ export enum ApiRoutes {
   Login = '/auth/login',
   Register = '/auth/register',
   Logout = '/auth/logout',
-  MinIO = '/minio',
+  MinIO = '/api/minio',
 }
 
 export enum ResponseType {
   JSON = 'json',
   XML = 'xml',
+  BASE64 = 'base64',
 }
 
 const parseResponse = <ParsedResponse>(
@@ -25,6 +26,7 @@ const parseResponse = <ParsedResponse>(
     case ResponseType.JSON:
       return response.json();
     case ResponseType.XML:
+    case ResponseType.BASE64:
       return response.text() as Promise<ParsedResponse>;
   }
 };
@@ -51,6 +53,7 @@ export async function customFetch<Request, Response>(
   });
 
   if (response.status === 200) {
+    console.log(response);
     return await parseResponse<Response>(response, options?.type);
   } else {
     const error = await parseResponse<ErrorResponse | string>(

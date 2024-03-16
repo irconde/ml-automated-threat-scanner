@@ -14,7 +14,11 @@ import { DetectionsService } from '../detections/detections.service';
 import { PixelData } from '../../../models/file-parser';
 import { SettingsError } from '../../../errors/settings.error';
 import { FileType } from './model/enum';
-import { ApiRoutes, customFetch } from '../../utilities/api/api.routes';
+import {
+  ApiRoutes,
+  customFetch,
+  ResponseType,
+} from '../../utilities/api/api.routes';
 
 @Injectable({
   providedIn: 'root',
@@ -177,42 +181,37 @@ export class FileService {
     );
   }
 
+  private blobToBase64(blob: Blob): Promise<string> {
+    return new Promise((resolve, _) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.readAsDataURL(blob);
+    });
+  }
+
   private async requestCurrentFileFromServer(
     newSettings: ApplicationSettings,
   ): Promise<void> {
-    // // only send a request to the server if one of the attributes have changed
-    // const skipUpdate = this.shouldSkipUpdate(
-    //   newSettings,
-    //   'remoteIp',
-    //   'remotePort',
-    //   'fileFormat',
-    //   'workingMode',
-    // );
-    // if (skipUpdate) return;
-    // else {
-    //   const { remoteIp, remotePort, fileFormat } = newSettings;
-    //   this.httpClient
-    //     .post<FilePayload>(
-    //       `${API.protocol}${remoteIp}:${remotePort}${API.getCurrentFile}`,
-    //       {
-    //         fileFormat,
-    //       },
-    //     )
-    //     .subscribe({
-    //       next: (filePayload) => this.setCurrentFile(filePayload),
-    //       error: (error) =>
-    //         console.log(`Error connection with server: ${error.message}`),
-    //     });
-    // }
+    // TODO: only send a request to the server if one of the attributes have changed
     const BUCKET_NAME = 'intelliscan-shared-storage';
     const FOLDER_NAME = 'ora';
     const fileName = '1_img.ora';
     try {
-      const result = await customFetch(
+      const file = await customFetch<void, string>(
         `${ApiRoutes.MinIO}/${BUCKET_NAME}/${FOLDER_NAME}/${fileName}`,
         'GET',
+        { type: ResponseType.BASE64 },
       );
-      console.log(result);
+
+      // TODO: get real info here
+      const filePayload: FilePayload = {
+        status: FileStatus.Ok,
+        fileName,
+        filesCount: 1,
+        file,
+      };
+
+      this.setCurrentFile(filePayload);
     } catch (e) {
       console.log(e);
     }
