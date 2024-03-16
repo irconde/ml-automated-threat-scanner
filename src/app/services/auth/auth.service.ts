@@ -40,7 +40,7 @@ export class AuthService {
     const authResponse = await customFetch<LoginRequest, AuthResponse>(
       ApiRoutes.Login,
       'POST',
-      { username, password },
+      { data: { username, password } },
     );
     this.user.next({
       username: authResponse.username,

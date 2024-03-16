@@ -177,30 +177,30 @@ export class FileService {
   }
 
   private requestCurrentFileFromServer(newSettings: ApplicationSettings): void {
-    // only send a request to the server if one of the attributes have changed
-    const skipUpdate = this.shouldSkipUpdate(
-      newSettings,
-      'remoteIp',
-      'remotePort',
-      'fileFormat',
-      'workingMode',
-    );
-    if (skipUpdate) return;
-    else {
-      const { remoteIp, remotePort, fileFormat } = newSettings;
-      this.httpClient
-        .post<FilePayload>(
-          `${API.protocol}${remoteIp}:${remotePort}${API.getCurrentFile}`,
-          {
-            fileFormat,
-          },
-        )
-        .subscribe({
-          next: (filePayload) => this.setCurrentFile(filePayload),
-          error: (error) =>
-            console.log(`Error connection with server: ${error.message}`),
-        });
-    }
+    // // only send a request to the server if one of the attributes have changed
+    // const skipUpdate = this.shouldSkipUpdate(
+    //   newSettings,
+    //   'remoteIp',
+    //   'remotePort',
+    //   'fileFormat',
+    //   'workingMode',
+    // );
+    // if (skipUpdate) return;
+    // else {
+    //   const { remoteIp, remotePort, fileFormat } = newSettings;
+    //   this.httpClient
+    //     .post<FilePayload>(
+    //       `${API.protocol}${remoteIp}:${remotePort}${API.getCurrentFile}`,
+    //       {
+    //         fileFormat,
+    //       },
+    //     )
+    //     .subscribe({
+    //       next: (filePayload) => this.setCurrentFile(filePayload),
+    //       error: (error) =>
+    //         console.log(`Error connection with server: ${error.message}`),
+    //     });
+    // }
   }
 
   private saveCurrentFileToServer(file: string, settings: ApplicationSettings) {
