@@ -8,6 +8,10 @@ export type LoginRequest = {
   password: string;
 };
 
+export interface RegisterRequest extends LoginRequest {
+  email: string;
+}
+
 export interface AuthResponse extends User {
   Success: boolean;
 }
