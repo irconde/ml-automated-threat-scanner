@@ -130,7 +130,7 @@ export class FileService {
         this.requestNewImageDirFromElectron(newSettings);
         break;
       case WorkingMode.MinIO:
-        this.requestCurrentFileFromServer(newSettings);
+        this.requestCurrentFileFromServer(newSettings).then();
         break;
       default:
         break;
@@ -181,18 +181,10 @@ export class FileService {
     );
   }
 
-  private blobToBase64(blob: Blob): Promise<string> {
-    return new Promise((resolve, _) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.readAsDataURL(blob);
-    });
-  }
-
   private async requestCurrentFileFromServer(
     newSettings: ApplicationSettings,
   ): Promise<void> {
-    // TODO: only send a request to the server if one of the attributes have changed
+    if (this.shouldSkipUpdate(newSettings, 'workingMode')) return;
     const BUCKET_NAME = 'intelliscan-shared-storage';
     const FOLDER_NAME = 'ora';
     const fileName = '1_img.ora';
@@ -264,7 +256,6 @@ export class FileService {
 
   /**
    *
-   * @param pixelDataList
    * @throws SettingsError - must be handled in case settings are not defined yet
    */
   public async saveCurrentFile() {

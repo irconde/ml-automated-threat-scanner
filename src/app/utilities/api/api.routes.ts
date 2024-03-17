@@ -53,7 +53,6 @@ export async function customFetch<Request, Response>(
   });
 
   if (response.status === 200) {
-    console.log(response);
     return await parseResponse<Response>(response, options?.type);
   } else {
     const error = await parseResponse<ErrorResponse | string>(
