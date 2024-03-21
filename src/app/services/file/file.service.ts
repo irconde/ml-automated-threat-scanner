@@ -19,6 +19,7 @@ import {
   customFetch,
   ResponseType,
 } from '../../utilities/api/api.routes';
+import { testXML } from '../../utilities/minio-xml-parser/testXML';
 
 @Injectable({
   providedIn: 'root',
@@ -41,6 +42,8 @@ export class FileService {
     this.settingsService
       .getSettings()
       .subscribe((newSettings) => this.handleSettingsChange(newSettings));
+    // TODO: remove this after testing xml parsing
+    testXML();
   }
 
   public getPixelData() {

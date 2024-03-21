@@ -21,7 +21,7 @@ export const getTextLabelSize = (
 };
 
 /**
- * Converts hex format to a rgb object. If fails to parse, it will return white
+ * Converts hex format to a rgb object. If fails to parseGetBucketName, it will return white
  * @param hex
  */
 export const hexToRgb = (hex: string) => {
