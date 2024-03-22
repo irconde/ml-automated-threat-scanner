@@ -4,6 +4,7 @@ import { ApiRoutes, customFetch } from '../../utilities/api/api.routes';
 import {
   AuthResponse,
   LoginRequest,
+  RegisterRequest,
   User,
 } from '../../utilities/api/user-api.types';
 import { SettingsService } from '../settings/settings.service';
@@ -40,13 +41,13 @@ export class AuthService {
     const authResponse = await customFetch<LoginRequest, AuthResponse>(
       ApiRoutes.Login,
       'POST',
-      { username, password },
+      { data: { username, password } },
     );
+    await this.settingsService.toggleIsLoggedIn();
     this.user.next({
       username: authResponse.username,
       email: authResponse.email,
     });
-    await this.settingsService.toggleIsLoggedIn();
   }
 
   async register(
@@ -54,9 +55,18 @@ export class AuthService {
     email: string,
     password: string,
   ): Promise<void> {
-    //   TODO: Implement
-    // TODO: Make sure to call this.settingsService.toggleIsLoggedIn() after successful registration
-    console.log('Registered');
+    const authResponse = await customFetch<RegisterRequest, AuthResponse>(
+      ApiRoutes.Register,
+      'POST',
+      {
+        data: { username, email, password },
+      },
+    );
+    await this.settingsService.toggleIsLoggedIn();
+    this.user.next({
+      username: authResponse.username,
+      email: authResponse.email,
+    });
   }
 
   private async checkIfCookieValid() {
@@ -71,8 +81,8 @@ export class AuthService {
   }
 
   async logout(): Promise<void> {
+    await this.settingsService.toggleIsLoggedIn();
     await customFetch(ApiRoutes.Logout, 'POST');
     this.user.next(null);
-    await this.settingsService.toggleIsLoggedIn();
   }
 }

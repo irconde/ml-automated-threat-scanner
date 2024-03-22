@@ -9,12 +9,36 @@ export enum ApiRoutes {
   Login = '/auth/login',
   Register = '/auth/register',
   Logout = '/auth/logout',
+  MinIO = '/api/minio',
 }
 
+export enum ResponseType {
+  JSON = 'json',
+  XML = 'xml',
+  BASE64 = 'base64',
+}
+
+const parseResponse = <ParsedResponse>(
+  response: Response,
+  type: ResponseType = ResponseType.JSON,
+): Promise<ParsedResponse> => {
+  switch (type) {
+    case ResponseType.JSON:
+      return response.json();
+    case ResponseType.XML:
+    case ResponseType.BASE64:
+      return response.text() as Promise<ParsedResponse>;
+  }
+};
+
+type ErrorResponse = {
+  message: string;
+};
+
 export async function customFetch<Request, Response>(
-  route: ApiRoutes,
+  route: ApiRoutes | string,
   method: 'GET' | 'POST',
-  data?: Request,
+  options?: { data?: Request; type?: ResponseType },
 ): Promise<Response> {
   const token = await generateToken();
 
@@ -25,15 +49,18 @@ export async function customFetch<Request, Response>(
       'Content-Type': 'application/json',
       Authorization: 'Bearer ' + token,
     },
-    ...(data ? { body: JSON.stringify(data) } : {}),
+    ...(options?.data ? { body: JSON.stringify(options.data) } : {}),
   });
 
   if (response.status === 200) {
-    return await response.json();
+    return await parseResponse<Response>(response, options?.type);
   } else {
-    const error = await response.json();
+    const error = await parseResponse<ErrorResponse | string>(
+      response,
+      options?.type,
+    );
     throw Error(
-      error.message ??
+      (typeof error === 'string' ? error : error.message) ??
         `Failed to fetch ${route} | status code ${response.status}`,
     );
   }

@@ -14,6 +14,11 @@ import { DetectionsService } from '../detections/detections.service';
 import { PixelData } from '../../../models/file-parser';
 import { SettingsError } from '../../../errors/settings.error';
 import { FileType } from './model/enum';
+import {
+  ApiRoutes,
+  customFetch,
+  ResponseType,
+} from '../../utilities/api/api.routes';
 
 @Injectable({
   providedIn: 'root',
@@ -125,7 +130,7 @@ export class FileService {
         this.requestNewImageDirFromElectron(newSettings);
         break;
       case WorkingMode.MinIO:
-        this.requestCurrentFileFromServer(newSettings);
+        this.requestCurrentFileFromServer(newSettings).then();
         break;
       default:
         break;
@@ -176,30 +181,31 @@ export class FileService {
     );
   }
 
-  private requestCurrentFileFromServer(newSettings: ApplicationSettings): void {
-    // only send a request to the server if one of the attributes have changed
-    const skipUpdate = this.shouldSkipUpdate(
-      newSettings,
-      'remoteIp',
-      'remotePort',
-      'fileFormat',
-      'workingMode',
-    );
-    if (skipUpdate) return;
-    else {
-      const { remoteIp, remotePort, fileFormat } = newSettings;
-      this.httpClient
-        .post<FilePayload>(
-          `${API.protocol}${remoteIp}:${remotePort}${API.getCurrentFile}`,
-          {
-            fileFormat,
-          },
-        )
-        .subscribe({
-          next: (filePayload) => this.setCurrentFile(filePayload),
-          error: (error) =>
-            console.log(`Error connection with server: ${error.message}`),
-        });
+  private async requestCurrentFileFromServer(
+    newSettings: ApplicationSettings,
+  ): Promise<void> {
+    if (this.shouldSkipUpdate(newSettings, 'workingMode')) return;
+    const BUCKET_NAME = 'intelliscan-shared-storage';
+    const FOLDER_NAME = 'ora';
+    const fileName = '1_img.ora';
+    try {
+      const file = await customFetch<void, string>(
+        `${ApiRoutes.MinIO}/${BUCKET_NAME}/${FOLDER_NAME}/${fileName}`,
+        'GET',
+        { type: ResponseType.BASE64 },
+      );
+
+      // TODO: get real info here
+      const filePayload: FilePayload = {
+        status: FileStatus.Ok,
+        fileName,
+        filesCount: 1,
+        file,
+      };
+
+      this.setCurrentFile(filePayload);
+    } catch (e) {
+      console.log(e);
     }
   }
 
@@ -250,7 +256,6 @@ export class FileService {
 
   /**
    *
-   * @param pixelDataList
    * @throws SettingsError - must be handled in case settings are not defined yet
    */
   public async saveCurrentFile() {
